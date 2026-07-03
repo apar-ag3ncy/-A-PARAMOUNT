@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { SITE, CONTACT, FAMILIES } from "@/lib/constants";
 
 export default function Footer() {
@@ -6,8 +7,15 @@ export default function Footer() {
     <footer className="mt-24 bg-olive px-6 py-16 text-cream">
       <div className="mx-auto grid max-w-6xl gap-10 sm:grid-cols-3">
         <div>
-          <p className="font-display text-lg tracking-[0.15em]">{SITE.shortName}</p>
-          <p className="mt-3 max-w-xs font-serif text-cream/80 italic">{SITE.tagline}</p>
+          {/* original logo artwork — white variant on olive */}
+          <Image
+            src="/brand/a-paramount-white.png"
+            alt="A Paramount — Engineering Works"
+            width={1306}
+            height={515}
+            className="h-auto w-44"
+          />
+          <p className="mt-5 max-w-xs font-serif text-cream/80 italic">{SITE.tagline}</p>
           <p className="mt-2 text-sm text-cream/60">
             Since {SITE.since} · Mumbai
           </p>

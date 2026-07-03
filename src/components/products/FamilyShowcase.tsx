@@ -71,7 +71,11 @@ export default function FamilyShowcase({ family, products }: Props) {
               ratio="3/4"
               caption={p.title}
               depth={i % 2 ? 1.04 : 0.96}
-              frameClassName="transition-colors duration-[400ms] group-hover:border-olive"
+              frameClassName={
+                i % 2
+                  ? "rounded-t-full transition-colors duration-[400ms] group-hover:border-olive"
+                  : "transition-colors duration-[400ms] group-hover:border-olive"
+              }
             />
           </Link>
         ))}

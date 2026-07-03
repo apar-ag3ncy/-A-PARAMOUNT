@@ -51,6 +51,7 @@ export default function GalleryPage() {
               caption={s.caption}
               ratio={s.ratio}
               depth={i % 2 ? 1.04 : 0.96}
+              arch={i % 3 === 0 && ["3/4", "4/5", "2/3"].includes(s.ratio)}
             />
           ))}
         </MasonryGrid>

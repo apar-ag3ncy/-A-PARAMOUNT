@@ -1,5 +1,6 @@
 import CinematicHero from "@/components/sections/CinematicHero";
 import FeaturedFamilies from "@/components/sections/FeaturedFamilies";
+import DevotionStatement from "@/components/sections/DevotionStatement";
 import CraftStory from "@/components/sections/CraftStory";
 import HeritageStrip from "@/components/sections/HeritageStrip";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
@@ -11,6 +12,7 @@ export default function Home() {
     <>
       <CinematicHero />
       <FeaturedFamilies />
+      <DevotionStatement />
       <CraftStory />
       <HeritageStrip />
 

@@ -149,6 +149,7 @@ export default function CategoryBrowser({
             href={`/products/${familySlug}/${p.slug}`}
             depth={i % 2 ? 1.04 : 0.96}
             hidden={!isShown(p)}
+            arch={i % 3 === 0 && ["3/4", "4/5", "2/3"].includes(p.ratio)}
           />
         ))}
       </div>

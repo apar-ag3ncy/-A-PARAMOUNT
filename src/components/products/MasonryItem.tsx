@@ -14,6 +14,8 @@ interface MasonryItemProps {
   priority?: boolean;
   /** Toggled by the category material filter (FLIP animates the change). */
   hidden?: boolean;
+  /** Temple-arch frame (rounded top) — use on tall ratios for rhythm. */
+  arch?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export default function MasonryItem({
   depth,
   priority,
   hidden,
+  arch,
 }: MasonryItemProps) {
   const inner = (
     <div className="group block">
@@ -39,7 +42,10 @@ export default function MasonryItem({
           ratio={ratio}
           depth={depth}
           priority={priority}
-          frameClassName="transition-colors duration-[400ms] group-hover:border-olive"
+          frameClassName={cn(
+            "transition-colors duration-[400ms] group-hover:border-olive",
+            arch && "rounded-t-full",
+          )}
         />
         {material && (
           <span className="absolute top-3 left-3 rounded-button bg-cream/85 px-2.5 py-1 font-display text-[10px] tracking-[0.14em] text-olive-deep uppercase backdrop-blur-sm">

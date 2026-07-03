@@ -1,24 +1,34 @@
 "use client";
 
+import Image from "next/image";
 import { useRef } from "react";
 import { gsap } from "@/lib/gsap";
 import { SITE } from "@/lib/constants";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
+const MASK_STYLE: React.CSSProperties = {
+  WebkitMaskImage: "url(/brand/a-mark-white.png)",
+  maskImage: "url(/brand/a-mark-white.png)",
+  WebkitMaskSize: "contain",
+  maskSize: "contain",
+  WebkitMaskRepeat: "no-repeat",
+  maskRepeat: "no-repeat",
+  WebkitMaskPosition: "center",
+  maskPosition: "center",
+};
+
 /**
- * Cinematic "heavenly" landing hero.
+ * Cinematic "heavenly" landing hero — built around the ORIGINAL logo artwork
+ * (public/brand/a-mark / a-wordmark, untouched crops of a-paramount.png).
  *
- * Two movements, cleanly separated so they never fight:
- *  1. INTRO (time-driven, auto-plays on load ~5s, slow-mo): the divine bloom
- *     breathes in, the arch-monogram and a line-art mandir skyline draw
- *     themselves stroke by stroke, wordmark + tagline rise. First paint is
- *     never empty.
- *  2. SCROLL (pinned, scrub: 2 for heavy slow-mo smoothing): a slow push-in,
- *     the light swells gold, then the mark ascends and the wash reveals the
- *     site. Scrub animates WRAPPERS (hv-zoom, hv-lift-a/b, hv-bloom-wrap, etc.)
- *     while the intro animates inner elements — zero shared tween targets.
+ * Movement 1 — INTRO (auto-plays, slow-mo): divine bloom breathes in, the mark
+ * resolves out of blurred light, a golden sweep passes THROUGH the logo (masked
+ * by its own alpha), the wordmark rises, and a line-art mandir skyline draws
+ * itself beneath.
  *
- * Mobile / reduced-motion: fully formed, gentle fade, no pin.
+ * Movement 2 — SCROLL (pinned, scrub: 2): slow push-in -> golden swell ->
+ * layered ascension -> light-wash into the site. Scrub animates wrappers only,
+ * so it never fights the intro.
  */
 export default function CinematicHero() {
   const root = useRef<HTMLDivElement>(null);
@@ -95,7 +105,6 @@ export default function CinematicHero() {
     const el = root.current;
     if (!el) return;
     const q = gsap.utils.selector(el);
-    const markStrokes = gsap.utils.toArray<SVGGeometryElement>(q(".mono-stroke"));
     const templeStrokes = gsap.utils.toArray<SVGGeometryElement>(q(".temple-stroke"));
 
     const ctx = gsap.context(() => {
@@ -112,42 +121,53 @@ export default function CinematicHero() {
           yoyo: true,
           repeat: -1,
         });
+        // recurring golden sweep through the logo glyphs
+        gsap.fromTo(
+          ".hv-shine",
+          { xPercent: -170 },
+          {
+            xPercent: 320,
+            duration: 1.8,
+            ease: "power2.inOut",
+            repeat: -1,
+            repeatDelay: 4.6,
+            delay: 3.4,
+          },
+        );
       });
 
       // Desktop: auto intro + slow scrubbed cinematic.
       mm.add("(min-width: 1024px) and (prefers-reduced-motion: no-preference)", () => {
-        // prime self-drawing strokes
-        [...markStrokes, ...templeStrokes].forEach((p) => {
+        templeStrokes.forEach((p) => {
           const len = p.getTotalLength();
-          gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+          gsap.set(p, { strokeDasharray: len, strokeDashoffset: len, opacity: 0 });
         });
-        // hide until each draw begins — round line-caps otherwise peek as dots
-        gsap.set([...markStrokes, ...templeStrokes], { opacity: 0 });
-        gsap.set(".hv-fill", { opacity: 0 });
+        gsap.set(".hv-markimg", { opacity: 0, scale: 1.16, filter: "blur(18px)" });
         gsap.set([".hv-eyebrow", ".hv-word", ".hv-div", ".hv-tag"], { opacity: 0, y: 26 });
         gsap.set(".hv-bloom", { scale: 0.55, opacity: 0, transformOrigin: "50% 50%" });
         gsap.set(".hv-rays", { opacity: 0 });
         gsap.set([".hv-frame", ".hv-cue"], { opacity: 0 });
 
-        // ---- 1. the intro inscription (slow-mo, plays once on load) ----
+        // ---- 1. the intro apparition (slow-mo, plays once on load) ----
         const intro = gsap
           .timeline({ defaults: { ease: "power2.out" } })
           .to(".hv-bloom", { scale: 1, opacity: 0.9, duration: 2.4, ease: "power2.inOut" }, 0)
           .to(".hv-rays", { opacity: 0.36, duration: 2.4, ease: "power2.inOut" }, 0.4)
           .to(".hv-eyebrow", { opacity: 1, y: 0, duration: 1.1 }, 0.5)
-          .set(markStrokes, { opacity: 1 }, 0.68)
-          .to(markStrokes, { strokeDashoffset: 0, duration: 2.6, stagger: 0.22, ease: "power2.inOut" }, 0.7)
-          .set(templeStrokes, { opacity: 1 }, 0.98)
+          .to(
+            ".hv-markimg",
+            { opacity: 1, scale: 1, filter: "blur(0px)", duration: 2.4, ease: "power2.inOut" },
+            0.8,
+          )
+          .set(templeStrokes, { opacity: 1 }, 1.0)
           .to(templeStrokes, { strokeDashoffset: 0, duration: 2.4, stagger: 0.1, ease: "power2.inOut" }, 1.0)
-          .to(".hv-fill", { opacity: 1, duration: 1.4 }, 2.9)
-          .to(".hv-word", { opacity: 1, y: 0, duration: 1.2 }, 3.15)
-          .to(".hv-div", { opacity: 1, y: 0, duration: 1 }, 3.45)
-          .to(".hv-tag", { opacity: 1, y: 0, duration: 1.2 }, 3.6)
-          .to(".hv-frame", { opacity: 1, duration: 1.6 }, 3.4)
-          .to(".hv-cue", { opacity: 1, duration: 1 }, 4.1);
+          .to(".hv-word", { opacity: 1, y: 0, duration: 1.2 }, 2.9)
+          .to(".hv-div", { opacity: 1, y: 0, duration: 1 }, 3.3)
+          .to(".hv-tag", { opacity: 1, y: 0, duration: 1.2 }, 3.5)
+          .to(".hv-frame", { opacity: 1, duration: 1.6 }, 3.3)
+          .to(".hv-cue", { opacity: 1, duration: 1 }, 4.0);
 
-        // Opened in a background tab? Hold at the first frame and play the full
-        // inscription the moment the tab becomes visible.
+        // Opened in a background tab? Hold and play in full once visible.
         let onVis: (() => void) | undefined;
         if (document.hidden) {
           intro.pause(0);
@@ -160,26 +180,22 @@ export default function CinematicHero() {
           document.addEventListener("visibilitychange", onVis);
         }
 
-        // ---- 2. the scroll cinematic (wrappers only — never intro targets) ----
+        // ---- 2. the scroll cinematic (wrappers only) ----
         gsap
           .timeline({
             scrollTrigger: { trigger: el, start: "top top", end: "+=320%", pin: true, scrub: 2 },
             defaults: { ease: "none" },
           })
-          // slow push-in
           .to(".hv-zoom", { scale: 1.06, duration: 2.2 }, 0)
           .to(".hv-bloom-wrap", { scale: 1.3, duration: 2.2 }, 0)
           .to(".hv-temple-wrap", { y: -16, duration: 2.2 }, 0)
           .to(".hv-cue", { opacity: 0, duration: 0.3, overwrite: "auto" }, 0.2)
-          // golden swell
           .to(".hv-bloom-wrap", { scale: 2.9, opacity: 0.96, duration: 2.6 }, 2.4)
-          // ascension
           .to(".hv-lift-a", { y: -96, duration: 2.4, ease: "power1.in" }, 2.7)
           .to(".hv-lift-b", { y: -52, duration: 2.4, ease: "power1.in" }, 2.7)
           .to(".hv-temple-wrap", { y: -44, opacity: 0, duration: 1.9 }, 2.7)
           .to(".hv-rays-wrap", { opacity: 0.15, duration: 1.7 }, 3.1)
           .to(".hv-frame", { opacity: 0, duration: 1.3, overwrite: "auto" }, 3.1)
-          // wash into the site
           .to(".hv-stage", { opacity: 0, duration: 1.5 }, 4.3);
 
         return () => {
@@ -189,7 +205,8 @@ export default function CinematicHero() {
 
       // Mobile / reduced-motion: fully formed, gentle entrance, no pin.
       mm.add("(max-width: 1023px), (prefers-reduced-motion: reduce)", () => {
-        gsap.set([...markStrokes, ...templeStrokes], { strokeDashoffset: 0 });
+        gsap.set(templeStrokes, { strokeDashoffset: 0, opacity: 1 });
+        gsap.set(".hv-markimg", { opacity: 1, scale: 1, filter: "blur(0px)" });
         gsap.set(".hv-bloom", { opacity: 0.85 });
         gsap.set(".hv-rays", { opacity: 0.3 });
         gsap.from(".hv-stage", { opacity: 0, duration: 1.2, ease: "power2.out" });
@@ -237,23 +254,18 @@ export default function CinematicHero() {
           aria-hidden
         >
           <g stroke="#8A7F4A" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            {/* central shikhar */}
             <path className="temple-stroke" d="M535,200 C542,118 562,64 600,38 C638,64 658,118 665,200" />
             <path className="temple-stroke" d="M556,200 C560,132 575,88 600,66 C625,88 640,132 644,200" />
-            {/* finial diamond + dhwaja pennant */}
             <path className="temple-stroke" d="M600,24 l5,7 -5,7 -5,-7 z" />
             <path className="temple-stroke" d="M600,24 L600,8 L626,14 L600,20" />
-            {/* flanking mandap domes */}
             <path className="temple-stroke" d="M415,200 C415,152 442,132 470,132 C498,132 525,152 525,200" />
             <path className="temple-stroke" d="M470,132 L470,120 M470,112 l4,5 -4,5 -4,-5 z" />
             <path className="temple-stroke" d="M675,200 C675,152 702,132 730,132 C758,132 785,152 785,200" />
             <path className="temple-stroke" d="M730,132 L730,120 M730,112 l4,5 -4,5 -4,-5 z" />
-            {/* outer small shikhars */}
             <path className="temple-stroke" d="M270,200 C276,148 288,116 308,100 C328,116 340,148 346,200" />
             <path className="temple-stroke" d="M308,100 L308,88 M308,80 l4,5 -4,5 -4,-5 z" />
             <path className="temple-stroke" d="M854,200 C860,148 872,116 892,100 C912,116 924,148 930,200" />
             <path className="temple-stroke" d="M892,100 L892,88 M892,80 l4,5 -4,5 -4,-5 z" />
-            {/* plinth */}
             <path className="temple-stroke" d="M96,200 L1104,200" />
             <path className="temple-stroke" d="M300,214 L900,214" strokeWidth={1.4} />
           </g>
@@ -267,35 +279,43 @@ export default function CinematicHero() {
       <div className="hv-zoom relative z-10 will-change-transform">
         <div className="hv-stage flex flex-col items-center px-6 text-center">
           <div className="hv-lift-a flex flex-col items-center">
-            <p className="hv-eyebrow mb-8 font-display text-[11px] tracking-[0.34em] text-olive uppercase">
+            <p className="hv-eyebrow mb-9 font-display text-[11px] tracking-[0.34em] text-olive uppercase">
               {SITE.name} · Since {SITE.since}
             </p>
 
-            <svg className="hv-mark h-36 w-auto sm:h-48" viewBox="0 0 100 124" fill="none" aria-label="A Paramount">
-              <g className="hv-fill">
-                <path
-                  d="M22,112 L22,58 C22,34 35,18 50,12 C65,18 78,34 78,58 L78,112 L67,112 L67,60 C67,41 59,28 50,23 C41,28 33,41 33,60 L33,112 Z"
-                  fill="#8A7F4A"
-                  opacity="0.16"
+            {/* THE mark — original artwork, untouched */}
+            <div className="hv-mark relative aspect-[269/234] h-32 sm:h-44">
+              <Image
+                src="/brand/a-mark-olive.png"
+                alt="A Paramount"
+                fill
+                priority
+                sizes="200px"
+                className="hv-markimg object-contain"
+              />
+              {/* golden sweep clipped INSIDE the logo alpha */}
+              <div className="pointer-events-none absolute inset-0" style={MASK_STYLE}>
+                <div
+                  className="hv-shine absolute inset-y-0 left-0 w-1/2"
+                  style={{
+                    background:
+                      "linear-gradient(100deg, transparent 0%, rgba(255,252,235,0.95) 50%, transparent 100%)",
+                    transform: "translateX(-170%)",
+                  }}
                 />
-              </g>
-              <g stroke="#6F6639" strokeWidth={3.4} strokeLinecap="round" strokeLinejoin="round">
-                <path className="mono-stroke" d="M50,4 l5,6 -5,6 -5,-6 z" />
-                <path className="mono-stroke" d="M22,112 L22,58 C22,34 35,18 50,12 C65,18 78,34 78,58 L78,112" />
-                <path className="mono-stroke" d="M33,112 L33,60 C33,41 41,28 50,23 C59,28 67,41 67,60 L67,112" />
-                <path className="mono-stroke" d="M50,46 L39,98" />
-                <path className="mono-stroke" d="M50,46 L61,98" />
-                <path className="mono-stroke" d="M43.5,80 L56.5,80" />
-              </g>
-            </svg>
+              </div>
+            </div>
 
-            <div className="hv-word mt-8">
-              <h1 className="font-display text-3xl font-light tracking-[0.36em] text-olive-deep sm:text-5xl sm:tracking-[0.42em]">
-                PARAMOUNT
-              </h1>
-              <p className="mt-3 font-display text-[10px] tracking-[0.5em] text-olive/70 uppercase">
-                Engineering Works
-              </p>
+            {/* THE wordmark — original artwork, untouched */}
+            <div className="hv-word mt-9">
+              <Image
+                src="/brand/a-wordmark-olive.png"
+                alt="A Paramount — Engineering Works"
+                width={1306}
+                height={219}
+                priority
+                className="h-auto w-[min(420px,74vw)]"
+              />
             </div>
           </div>
 

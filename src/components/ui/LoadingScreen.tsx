@@ -47,9 +47,15 @@ export default function LoadingScreen() {
   return (
     <div
       ref={ref}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-olive"
+      className="fixed inset-0 z-[200] flex flex-col items-center justify-center gap-8 bg-olive"
     >
-      <span className="ls-mantra text-4xl text-cream sm:text-6xl [font-family:var(--font-devanagari),serif]">
+      {/* eslint-disable-next-line @next/next/no-img-element -- pre-hydration overlay */}
+      <img
+        src="/brand/a-mark-white.png"
+        alt=""
+        className="ls-mantra h-20 w-auto opacity-90"
+      />
+      <span className="ls-mantra text-3xl text-cream sm:text-5xl [font-family:var(--font-devanagari),serif]">
         णमो अरिहंताणं
       </span>
     </div>

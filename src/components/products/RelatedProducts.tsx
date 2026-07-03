@@ -22,7 +22,7 @@ export default function RelatedProducts({ items, familySlug }: Props) {
               image={p.heroImage}
               ratio="3/4"
               caption={p.title}
-              frameClassName="transition-colors duration-[400ms] group-hover:border-olive"
+              frameClassName="rounded-t-full transition-colors duration-[400ms] group-hover:border-olive"
             />
           </Link>
         ))}
