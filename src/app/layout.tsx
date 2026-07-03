@@ -1,11 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { fontVariables } from "@/styles/fonts";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
-import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
-import CustomCursor from "@/components/ui/CustomCursor";
-import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export const metadata: Metadata = {
   title: {
@@ -16,20 +11,15 @@ export const metadata: Metadata = {
     "Since 1968, Mumbai. Makers of Jain Derasar and Hindu temple accessories — exquisite craftsmanship that blends devotion, tradition and timeless beauty.",
 };
 
+// Minimal root layout — site chrome lives in app/(site)/layout.tsx so the
+// embedded Studio at /studio renders without Header/Footer/ScrollSmoother.
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${fontVariables} h-full`}>
       <body className="min-h-full bg-background font-body text-foreground antialiased">
-        {/* Overlays + Header sit OUTSIDE #smooth-wrapper (fixed / pinned to viewport). */}
-        <LoadingScreen />
-        <CustomCursor />
-        <Header />
-        <SmoothScrollProvider>
-          <main>{children}</main>
-          <Footer />
-        </SmoothScrollProvider>
+        {children}
       </body>
     </html>
   );

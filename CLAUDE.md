@@ -11,11 +11,17 @@ Premium catalog site for **A Paramount Engineering Works** (Jain/Hindu temple ar
 - **ScrollSmoother gotcha**: CSS `position: sticky` does NOT work for elements *inside* `#smooth-content` — use a `ScrollTrigger` pin instead (see `CategoryBrowser` filter rail, `ProductGalleryTabs`). Sticky is fine for the Header (it's outside the smooth-wrapper).
 - Local catalog data: `src/lib/catalog.ts` (50 products, families, variants) — the fallback/seed until Sanity.
 
-## Build state (done)
-Scroll-UI §0–§9: ScrollSmoother foundation, AssetFrame, masonry (batch reveal + FLIP material filter), full product IA (`/products` pinned horizontal → family page → detail with material tabs), home (pinned/scrub hero, mask reveals, velocity marquee, magnetic CTA), content pages (about/craftsmanship/gallery/contact), polish (custom cursor, loading screen, page transitions). `next build` is green (66 pages).
+## Build state (code-complete)
+The whole build plan is implemented and `next build` is green (66 pages):
+- Scroll-UI §0–§9: ScrollSmoother, AssetFrame, masonry (batch reveal + FLIP filter), full product IA (`/products` pinned horizontal → family page → detail w/ material tabs), home (pinned/scrub hero, mask reveals, velocity marquee, magnetic CTA), content pages, polish (cursor, loading, page transitions).
+- **Sanity (Prompt B)**: schemas + `lib/sanity/*` + `lib/data.ts` (async, Sanity→catalog fallback); embedded Studio at `/studio`. NOTE the layout split — `app/(site)/layout.tsx` carries the chrome so `/studio` renders clean on the minimal root layout. The Studio page is a **client** component (sanity's `import useSWR from "swr"` breaks under Turbopack's react-server condition otherwise).
+- **3D (Prompt G)**: `ProductViewer3D` — R3F, lazy in-view, procedural brass kalash or GLB from `product.model3d`.
+- **Resend (Prompt H)**: `/api/contact` (zod-validated, env-gated) + RHF/zod `ContactForm`.
 
-## Not yet wired (next)
-- **Sanity** (Prompt B): schemas in `../PARAMOUNT_BUILD_PLAN.md §8`; replace `resolveSanityUrl` + `src/lib/sanity/*` stubs; Studio at `/studio`.
-- **Resend** (Prompt H): `/api/contact` returns 501 — the contact form falls back to a mailto prompt until wired.
-- **Product photography + logo SVG**: extract from the deck / client.
-- **3D viewer** (Prompt G): `ProductViewer3D` still a stub (needs `.glb` models + R3F).
+Everything is env-gated with a catalog/mailto fallback, so it runs today with zero credentials.
+
+## To go live (credentials + content only — no code)
+- Set env (see `.env.example`): `NEXT_PUBLIC_SANITY_PROJECT_ID` (+ dataset) turns on live content + `/studio`; `RESEND_API_KEY` turns on contact-form email.
+- Enter products + upload `heroImage`/galleries in Sanity — frames fill in automatically (`resolveSanityUrl` → `urlFor`).
+- Upload `.glb` to `product.model3d` for real 3D (procedural kalash until then).
+- Logo SVG from client (deck monogram can be traced as a fallback).
