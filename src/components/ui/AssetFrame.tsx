@@ -22,6 +22,10 @@ interface AssetFrameProps {
   className?: string;
   /** Extra classes on the inner frame (e.g. group-hover border states). */
   frameClassName?: string;
+  /** Fill the parent (h-full) instead of using aspect-ratio — for heroes. */
+  fill?: boolean;
+  /** Show the "Image coming soon" plate in the empty state. */
+  showLabel?: boolean;
 }
 
 const DEFAULT_SIZES =
@@ -33,11 +37,10 @@ function resolveSanityUrl(_image?: SanityImage | null): string | null {
 }
 
 /**
- * AssetFrame (PARAMOUNT_SCROLL_UI_PROMPT.md §1).
- * One component, two states. Branches on whether a real image resolves — so the
- * whole site fills in automatically when photos are added in Sanity. The empty
- * state is a gallery frame awaiting art (motif + breath-slow shimmer), never a
- * loading skeleton.
+ * AssetFrame (PARAMOUNT_SCROLL_UI_PROMPT.md §1). One component, two states,
+ * branching on whether a real image resolves — so the site fills in automatically
+ * when photos are added in Sanity. The empty state is a gallery frame awaiting
+ * art (motif + breath-slow shimmer), never a loading skeleton.
  */
 export default function AssetFrame({
   image,
@@ -50,6 +53,8 @@ export default function AssetFrame({
   sizes = DEFAULT_SIZES,
   className,
   frameClassName,
+  fill = false,
+  showLabel = true,
 }: AssetFrameProps) {
   const [loaded, setLoaded] = useState(false);
   const url = src ?? resolveSanityUrl(image);
@@ -59,13 +64,14 @@ export default function AssetFrame({
     : "center";
 
   return (
-    <figure className={cn("group", className)}>
+    <figure className={cn("group", fill && "h-full", className)}>
       <div
         className={cn(
           "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0]",
+          fill && "h-full w-full",
           frameClassName,
         )}
-        style={{ aspectRatio: ratio }}
+        style={fill ? undefined : { aspectRatio: ratio }}
         data-speed={depth}
       >
         {/* -- empty state: a frame awaiting art -- */}
@@ -77,7 +83,7 @@ export default function AssetFrame({
             {/* centered brand motif — arch monogram at 6% */}
             <svg
               viewBox="0 0 100 120"
-              className="w-[38%] text-olive opacity-[0.06]"
+              className="w-[38%] max-w-[220px] text-olive opacity-[0.06]"
               fill="none"
               stroke="currentColor"
               strokeWidth={4.2}
@@ -90,12 +96,13 @@ export default function AssetFrame({
               <path d="M50,44 L40,96 M50,44 L60,96 M44,78 L56,78" strokeWidth={3.6} />
             </svg>
 
-            {/* status plate */}
-            <span className="absolute right-0 bottom-4 left-0 text-center font-display text-[10px] tracking-[0.24em] text-olive/45 uppercase">
-              Image coming soon
-            </span>
+            {showLabel && (
+              <span className="absolute right-0 bottom-4 left-0 text-center font-display text-[10px] tracking-[0.24em] text-olive/45 uppercase">
+                Image coming soon
+              </span>
+            )}
 
-            {/* slow diagonal shimmer — a breath, not a pulse (disabled under reduced-motion) */}
+            {/* slow diagonal shimmer — a breath, not a pulse (off under reduced-motion) */}
             {!url && (
               <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div

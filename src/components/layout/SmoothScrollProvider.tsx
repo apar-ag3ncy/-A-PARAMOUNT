@@ -34,6 +34,10 @@ export default function SmoothScrollProvider({
         normalizeScroll: true, // consistent cross-browser mobile behaviour
       });
     });
+    // Recompute once webfonts have swapped in (line splits + trigger positions).
+    if (typeof document !== "undefined" && "fonts" in document) {
+      document.fonts.ready.then(() => ScrollTrigger.refresh());
+    }
     return () => ctx.revert();
   }, []);
 
