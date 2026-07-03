@@ -37,8 +37,24 @@ export default async function ProductPage({
     .filter((p) => p.slug !== slug)
     .slice(0, 4);
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.title,
+    description: product.blurb,
+    brand: { "@type": "Brand", name: "A Paramount Engineering Works" },
+    category: family?.title,
+    ...(product.variants.length
+      ? { material: product.variants.join(", ") }
+      : {}),
+  };
+
   return (
     <article className="mx-auto max-w-7xl px-6 pt-24 pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <nav className="mb-10 font-display text-[11px] tracking-[0.16em] text-olive/70 uppercase">
         <Link href="/products" className="hover:text-olive">
           Collections
