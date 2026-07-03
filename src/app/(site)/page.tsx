@@ -3,7 +3,7 @@ import FeaturedFamilies from "@/components/sections/FeaturedFamilies";
 import CraftStory from "@/components/sections/CraftStory";
 import HeritageStrip from "@/components/sections/HeritageStrip";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
-import ProductViewer3D from "@/components/products/ProductViewer3D";
+import Showcase3D from "@/components/products/Showcase3D";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 
 export default function Home() {
@@ -23,7 +23,7 @@ export default function Home() {
             Turn it in your hands
           </h2>
         </ScrollReveal>
-        <ProductViewer3D label="Brass Kalash" />
+        <Showcase3D label="Brass Kalash" />
       </section>
 
       <EnquiryCTA />

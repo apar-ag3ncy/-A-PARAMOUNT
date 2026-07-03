@@ -20,10 +20,14 @@ export default function LoadingScreen() {
     const el = ref.current;
     if (!el) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let failsafe: ReturnType<typeof setTimeout>;
     const finish = () => {
+      clearTimeout(failsafe);
       sessionStorage.setItem("pm-loaded", "1");
       setDone(true);
     };
+    // Guarantee the overlay is never a dead end, whatever GSAP does.
+    failsafe = setTimeout(finish, 4200);
     const tl = gsap.timeline({ onComplete: finish });
     if (reduce) {
       tl.to(el, { opacity: 0, duration: 0.3, delay: 0.6 });
@@ -33,6 +37,7 @@ export default function LoadingScreen() {
         .to(el, { yPercent: -100, duration: 0.8, ease: "power4.inOut" }, "-=0.15");
     }
     return () => {
+      clearTimeout(failsafe);
       tl.kill();
     };
   }, []);
