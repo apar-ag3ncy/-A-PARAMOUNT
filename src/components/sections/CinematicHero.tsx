@@ -309,12 +309,12 @@ export default function CinematicHero() {
             {/* THE wordmark — original artwork, untouched */}
             <div className="hv-word mt-9">
               <Image
-                src="/brand/a-wordmark-olive.png"
+                src="/brand/paramount-word-olive.png"
                 alt="A Paramount — Engineering Works"
-                width={1306}
+                width={1117}
                 height={219}
                 priority
-                className="h-auto w-[min(420px,74vw)]"
+                className="h-auto w-[min(380px,70vw)]"
               />
             </div>
           </div>

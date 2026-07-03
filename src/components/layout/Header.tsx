@@ -24,12 +24,12 @@ export default function Header() {
             className="h-9 w-auto"
           />
           <Image
-            src="/brand/a-wordmark-olive.png"
+            src="/brand/paramount-word-olive.png"
             alt="A Paramount — Engineering Works"
-            width={1306}
+            width={1117}
             height={219}
             priority
-            className="h-[22px] w-auto translate-y-[1px]"
+            className="h-[20px] w-auto translate-y-[1px]"
           />
         </Link>
         <MegaMenu />
