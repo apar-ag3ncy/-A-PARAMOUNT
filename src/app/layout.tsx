@@ -4,6 +4,8 @@ import { fontVariables } from "@/styles/fonts";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
+import CustomCursor from "@/components/ui/CustomCursor";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export const metadata: Metadata = {
   title: {
@@ -20,7 +22,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${fontVariables} h-full`}>
       <body className="min-h-full bg-background font-body text-foreground antialiased">
-        {/* Header sits OUTSIDE #smooth-wrapper so it stays pinned to the viewport. */}
+        {/* Overlays + Header sit OUTSIDE #smooth-wrapper (fixed / pinned to viewport). */}
+        <LoadingScreen />
+        <CustomCursor />
         <Header />
         <SmoothScrollProvider>
           <main>{children}</main>
