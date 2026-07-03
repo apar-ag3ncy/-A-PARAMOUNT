@@ -1,4 +1,4 @@
-import HomeHero from "@/components/sections/HomeHero";
+import CinematicHero from "@/components/sections/CinematicHero";
 import FeaturedFamilies from "@/components/sections/FeaturedFamilies";
 import CraftStory from "@/components/sections/CraftStory";
 import HeritageStrip from "@/components/sections/HeritageStrip";
@@ -9,7 +9,7 @@ import ScrollReveal from "@/components/animations/ScrollReveal";
 export default function Home() {
   return (
     <>
-      <HomeHero />
+      <CinematicHero />
       <FeaturedFamilies />
       <CraftStory />
       <HeritageStrip />
