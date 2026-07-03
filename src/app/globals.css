@@ -1,26 +1,73 @@
 @import "tailwindcss";
+@config "../../tailwind.config.ts";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================================
+   PARAMOUNT — LOCKED DESIGN TOKENS
+   Source of truth: ../../PARAMOUNT_CONTENT.md §2–§3 (sampled from the brand deck).
+   Tailwind v4 is CSS-first: this @theme block generates BOTH
+     - CSS custom properties on :root  ->  var(--color-olive), var(--font-serif)
+     - Tailwind utilities              ->  bg-cream, text-olive-deep, font-display, rounded-card
+   Palette = antique olive-brass on warm cream. Do NOT reintroduce the old
+   placeholder tokens (--color-gold / --color-parchment / --color-brass-deep).
+   ============================================================================ */
+@theme {
+  /* -- Palette -- */
+  --color-cream:        #FEF4DA; /* page background (dominant) */
+  --color-cream-deep:   #F3E4C8; /* cards / secondary surface */
+  --color-olive:        #8A7F4A; /* PRIMARY brand — accent, borders, large fills */
+  --color-olive-deep:   #6F6639; /* headings, hover, shadow of olive */
+  --color-olive-muted:  #A69A6E; /* borders, dividers, muted UI */
+  --color-tan:          #BCAF87; /* damask pattern lines, light accents */
+  --color-oxblood:      #4F1A16; /* deep-maroon accent — icon strokes, badges */
+  --color-espresso:     #2E2313; /* body text (a11y-safe on cream) */
+  --color-taupe:        #A89E8C; /* neutral grey-brown — icon chips */
+
+  /* -- Semantic aliases -- */
+  --color-background:   #FEF4DA;
+  --color-surface:      #F3E4C8;
+  --color-foreground:   #2E2313;
+  --color-accent:       #8A7F4A;
+
+  /* -- Typography — wired to next/font in src/styles/fonts.ts -- */
+  --font-display:    var(--font-poppins);         /* headings, display */
+  --font-serif:      var(--font-playfair);        /* elegant italic accent */
+  --font-body:       var(--font-inter);           /* body, UI */
+  --font-sans:       var(--font-inter);           /* default sans */
+  --font-devanagari: var(--font-noto-devanagari); /* product names in script */
+
+  /* -- Radii (never fully rounded) -- */
+  --radius-image:  4px;
+  --radius-button: 8px;
+  --radius-card:   12px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-body), system-ui, sans-serif;
+  }
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), system-ui, sans-serif;
+    font-weight: 300;
+    text-wrap: balance;
+    color: var(--color-olive-deep);
+  }
+  ::selection {
+    background: var(--color-olive);
+    color: var(--color-cream);
+  }
+  /* Motion principle #4 — reduced-motion falls back to instant */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
