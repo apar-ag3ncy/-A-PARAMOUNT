@@ -71,7 +71,7 @@ export default function AssetFrame({
     <figure className={cn("group", fill && "h-full", className)}>
       <div
         className={cn(
-          "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0]",
+          "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0] [contain:content]",
           fill && "h-full w-full",
           frameClassName,
         )}

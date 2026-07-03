@@ -37,6 +37,7 @@ export default function FamilyShowcase({ family, products }: Props) {
             end: () => `+=${track.scrollWidth}`,
             pin: true,
             scrub: 1,
+            anticipatePin: 1,
             invalidateOnRefresh: true,
           },
         });

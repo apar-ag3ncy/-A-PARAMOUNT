@@ -10,7 +10,7 @@ import MobileNav from "@/components/layout/MobileNav";
  */
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-olive/15 bg-cream/90 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-olive/15 bg-cream/95">
       {/* fine gold top rule */}
       <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-olive/60 to-transparent" />
       <div className="flex items-center justify-between px-5 py-3 sm:px-8">

@@ -42,60 +42,91 @@ export default function CinematicHero() {
     const ctx = cv.getContext("2d");
     if (!ctx) return;
 
-    let raf = 0;
+    // Pre-rendered soft glow sprite — drawImage is far cheaper than the previous
+    // per-particle shadowBlur (which repaints the whole canvas each mote).
+    const SP = 34;
+    const sprite = document.createElement("canvas");
+    sprite.width = sprite.height = SP;
+    const sc = sprite.getContext("2d");
+    if (sc) {
+      const g = sc.createRadialGradient(SP / 2, SP / 2, 0, SP / 2, SP / 2, SP / 2);
+      g.addColorStop(0, "rgba(232,204,132,1)");
+      g.addColorStop(0.35, "rgba(232,204,132,0.45)");
+      g.addColorStop(1, "rgba(232,204,132,0)");
+      sc.fillStyle = g;
+      sc.fillRect(0, 0, SP, SP);
+    }
+
     let w = 0;
     let h = 0;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const N = window.innerWidth < 640 ? 34 : 64;
-    type Mote = { x: number; y: number; r: number; vy: number; a: number; tw: number; p: number };
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const N = window.innerWidth < 640 ? 30 : 52;
+    type Mote = { x: number; y: number; s: number; vy: number; a: number; tw: number; p: number };
     let motes: Mote[] = [];
 
     const seed = () => {
       motes = Array.from({ length: N }, (_, i) => ({
         x: Math.random() * w,
         y: Math.random() * h,
-        r: 0.6 + Math.random() * 2.2,
-        vy: 0.12 + Math.random() * 0.42,
-        a: 0.15 + Math.random() * 0.5,
-        tw: 0.6 + Math.random() * 1.6,
+        s: 4 + Math.random() * 13,
+        vy: 0.12 + Math.random() * 0.4,
+        a: 0.14 + Math.random() * 0.42,
+        tw: 0.6 + Math.random() * 1.5,
         p: i,
       }));
     };
     const resize = () => {
       w = cv.clientWidth;
       h = cv.clientHeight;
-      cv.width = w * dpr;
-      cv.height = h * dpr;
+      cv.width = Math.round(w * dpr);
+      cv.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       seed();
     };
     resize();
     window.addEventListener("resize", resize);
 
+    let raf = 0;
+    let running = false;
     let t = 0;
     const tick = () => {
       t += 0.016;
       ctx.clearRect(0, 0, w, h);
-      ctx.shadowColor = "rgba(226,202,130,0.9)";
-      ctx.shadowBlur = 8;
       for (const m of motes) {
         m.y -= m.vy;
-        m.x += Math.sin((t + m.p) * 0.4) * 0.22;
-        if (m.y < -8) {
-          m.y = h + 8;
+        m.x += Math.sin((t + m.p) * 0.4) * 0.2;
+        if (m.y < -m.s) {
+          m.y = h + m.s;
           m.x = Math.random() * w;
         }
-        const tw = 0.5 + 0.5 * Math.sin(t * m.tw + m.p);
-        ctx.beginPath();
-        ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(226, 202, 130, ${(m.a * tw).toFixed(3)})`;
-        ctx.fill();
+        ctx.globalAlpha = m.a * (0.5 + 0.5 * Math.sin(t * m.tw + m.p));
+        ctx.drawImage(sprite, m.x - m.s / 2, m.y - m.s / 2, m.s, m.s);
       }
+      ctx.globalAlpha = 1;
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => {
+    const start = () => {
+      if (running || document.hidden) return;
+      running = true;
+      raf = requestAnimationFrame(tick);
+    };
+    const stop = () => {
+      running = false;
       cancelAnimationFrame(raf);
+    };
+    // Only burn frames while the hero is actually on screen.
+    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), {
+      threshold: 0,
+    });
+    io.observe(cv);
+    const onVis = () => (document.hidden ? stop() : start());
+    document.addEventListener("visibilitychange", onVis);
+    start();
+
+    return () => {
+      stop();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("resize", resize);
     };
   }, []);
@@ -110,9 +141,9 @@ export default function CinematicHero() {
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
 
-      // Ambient life on any non-reduced viewport.
+      // Ambient life on any non-reduced viewport. (Godrays are static now — a
+      // rotating masked conic gradient repaints a huge area every frame.)
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.to(".hv-rays", { rotate: 360, duration: 100, ease: "none", repeat: -1 });
         gsap.to(".hv-mark", {
           scale: 1.02,
           transformOrigin: "50% 50%",
@@ -183,14 +214,21 @@ export default function CinematicHero() {
         // ---- 2. the scroll cinematic (wrappers only) ----
         gsap
           .timeline({
-            scrollTrigger: { trigger: el, start: "top top", end: "+=320%", pin: true, scrub: 2 },
+            scrollTrigger: {
+              trigger: el,
+              start: "top top",
+              end: "+=320%",
+              pin: true,
+              scrub: 1,
+              anticipatePin: 1,
+            },
             defaults: { ease: "none" },
           })
           .to(".hv-zoom", { scale: 1.06, duration: 2.2 }, 0)
-          .to(".hv-bloom-wrap", { scale: 1.3, duration: 2.2 }, 0)
+          .to(".hv-bloom-wrap", { scale: 1.25, duration: 2.2 }, 0)
           .to(".hv-temple-wrap", { y: -16, duration: 2.2 }, 0)
           .to(".hv-cue", { opacity: 0, duration: 0.3, overwrite: "auto" }, 0.2)
-          .to(".hv-bloom-wrap", { scale: 2.9, opacity: 0.96, duration: 2.6 }, 2.4)
+          .to(".hv-bloom-wrap", { scale: 2.2, opacity: 0.96, duration: 2.6 }, 2.4)
           .to(".hv-lift-a", { y: -96, duration: 2.4, ease: "power1.in" }, 2.7)
           .to(".hv-lift-b", { y: -52, duration: 2.4, ease: "power1.in" }, 2.7)
           .to(".hv-temple-wrap", { y: -44, opacity: 0, duration: 1.9 }, 2.7)
@@ -223,7 +261,7 @@ export default function CinematicHero() {
       {/* divine light bloom */}
       <div className="hv-bloom-wrap pointer-events-none absolute inset-0 -z-10 grid place-items-center overflow-hidden">
         <div
-          className="hv-bloom h-[130vmax] w-[130vmax] rounded-full"
+          className="hv-bloom h-[110vmax] w-[110vmax] rounded-full"
           style={{
             background:
               "radial-gradient(circle, #FFFBEF 0%, #FBF1D2 26%, rgba(226,202,130,0.35) 46%, rgba(138,127,74,0.12) 66%, rgba(138,127,74,0) 78%)",
@@ -233,7 +271,7 @@ export default function CinematicHero() {
       {/* rotating godrays */}
       <div className="hv-rays-wrap pointer-events-none absolute inset-0 -z-10 grid place-items-center overflow-hidden">
         <div
-          className="hv-rays h-[160vmax] w-[160vmax]"
+          className="hv-rays h-[120vmax] w-[120vmax] will-change-transform"
           style={{
             background:
               "repeating-conic-gradient(from 0deg at 50% 50%, rgba(226,202,130,0) 0deg, rgba(226,202,130,0.10) 3deg, rgba(226,202,130,0) 8deg, rgba(226,202,130,0) 14deg)",
