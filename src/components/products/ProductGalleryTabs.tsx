@@ -5,11 +5,13 @@ import MaterialTabs from "@/components/products/MaterialTabs";
 import ProductGallery from "@/components/products/ProductGallery";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
+import type { SanityImage } from "@/types/sanity";
 
 interface Props {
   title: string;
   materials: string[];
   ratio?: string;
+  image?: SanityImage | null;
 }
 
 /**
@@ -18,7 +20,12 @@ interface Props {
  * CSS position:sticky can't be used because ScrollSmoother drives synthetic
  * scroll (same reason CategoryBrowser pins its filter rail).
  */
-export default function ProductGalleryTabs({ title, materials, ratio }: Props) {
+export default function ProductGalleryTabs({
+  title,
+  materials,
+  ratio,
+  image,
+}: Props) {
   const [active, setActive] = useState(materials[0] ?? "Standard");
   const cellRef = useRef<HTMLDivElement>(null);
   const pinRef = useRef<HTMLDivElement>(null);
@@ -53,7 +60,12 @@ export default function ProductGalleryTabs({ title, materials, ratio }: Props) {
             <MaterialTabs materials={materials} active={active} onSelect={setActive} />
           </div>
         )}
-        <ProductGallery title={title} material={active} ratio={ratio} />
+        <ProductGallery
+          title={title}
+          material={active}
+          ratio={ratio}
+          image={image}
+        />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import type { Family } from "@/types/sanity";
+import type { Family, SanityImage } from "@/types/sanity";
 
 /**
  * Local placeholder catalog — derived verbatim from PARAMOUNT_CONTENT.md §6
@@ -17,6 +17,8 @@ export interface CatalogCategory {
   blurb?: string;
   /** Seeded aspect ratio for composed masonry height variation. */
   ratio: string;
+  /** Populated from Sanity; null on the local catalog (shows the empty frame). */
+  heroImage?: SanityImage | null;
 }
 
 const RATIOS = ["3/4", "4/5", "1/1", "4/3", "2/3"] as const;

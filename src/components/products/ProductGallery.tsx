@@ -4,11 +4,13 @@ import { useRef } from "react";
 import AssetFrame from "@/components/ui/AssetFrame";
 import { gsap } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
+import type { SanityImage } from "@/types/sanity";
 
 interface Props {
   title: string;
   material: string;
   ratio?: string;
+  image?: SanityImage | null;
 }
 
 /**
@@ -16,7 +18,12 @@ interface Props {
  * the active material changes (400ms) — structurally correct today with empty
  * frames, cinematic once photography lands.
  */
-export default function ProductGallery({ title, material, ratio = "4/5" }: Props) {
+export default function ProductGallery({
+  title,
+  material,
+  ratio = "4/5",
+  image,
+}: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useIsomorphicLayoutEffect(() => {
@@ -31,7 +38,7 @@ export default function ProductGallery({ title, material, ratio = "4/5" }: Props
   return (
     <div ref={ref}>
       <AssetFrame
-        image={null}
+        image={image ?? null}
         ratio={ratio}
         caption={material === "Standard" ? title : `${title} · ${material}`}
         priority

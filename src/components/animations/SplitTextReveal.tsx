@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useRef, type ElementType, type ReactNode } from "react";
+import {
+  createElement,
+  useCallback,
+  useRef,
+  type ElementType,
+  type ReactNode,
+} from "react";
 import { gsap, SplitText } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
@@ -61,10 +67,6 @@ export default function SplitTextReveal({
     return () => ctx.revert();
   }, []);
 
-  const Comp = as;
-  return (
-    <Comp ref={setRef} className={className}>
-      {children}
-    </Comp>
-  );
+  // createElement avoids React 19's polymorphic-ref JSX typing (ref -> never).
+  return createElement(as, { ref: setRef, className }, children);
 }

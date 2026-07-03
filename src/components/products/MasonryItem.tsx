@@ -1,11 +1,13 @@
 import Link from "next/link";
 import AssetFrame from "@/components/ui/AssetFrame";
 import { cn } from "@/lib/utils";
+import type { SanityImage } from "@/types/sanity";
 
 interface MasonryItemProps {
   caption: string;
   ratio: string;
   href?: string;
+  image?: SanityImage | null;
   /** Small material tag pinned to the frame. */
   material?: string;
   depth?: number;
@@ -23,6 +25,7 @@ export default function MasonryItem({
   caption,
   ratio,
   href,
+  image,
   material,
   depth,
   priority,
@@ -32,7 +35,7 @@ export default function MasonryItem({
     <div className="group block">
       <div className="relative transition-transform duration-[400ms] ease-out group-hover:-translate-y-1.5">
         <AssetFrame
-          image={null}
+          image={image ?? null}
           ratio={ratio}
           depth={depth}
           priority={priority}

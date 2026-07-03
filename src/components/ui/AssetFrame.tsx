@@ -3,7 +3,9 @@
 import Image from "next/image";
 import { useState } from "react";
 import type { SanityImage } from "@/types/sanity";
+import type { SanityImageSource } from "@sanity/image-url";
 import { cn } from "@/lib/utils";
+import { urlFor } from "@/lib/sanity/image";
 
 interface AssetFrameProps {
   /** Sanity image; null/undefined -> elegant placeholder frame. */
@@ -31,9 +33,11 @@ interface AssetFrameProps {
 const DEFAULT_SIZES =
   "(min-width:1280px) 25vw, (min-width:1024px) 33vw, (min-width:640px) 50vw, 100vw";
 
-// TODO(Prompt B): swap for urlFor(image).width(1200).url() once the Sanity client lands.
-function resolveSanityUrl(_image?: SanityImage | null): string | null {
-  return null;
+// Resolves to a Sanity CDN URL once a project + image exist; null -> empty state.
+function resolveSanityUrl(image?: SanityImage | null): string | null {
+  if (!image?.asset?._ref) return null;
+  const b = urlFor(image as SanityImageSource);
+  return b ? b.width(1400).auto("format").url() : null;
 }
 
 /**

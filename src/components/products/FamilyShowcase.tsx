@@ -67,7 +67,7 @@ export default function FamilyShowcase({ family, products }: Props) {
             className="group w-64 shrink-0 snap-start sm:w-72"
           >
             <AssetFrame
-              image={null}
+              image={p.heroImage}
               ratio="3/4"
               caption={p.title}
               depth={i % 2 ? 1.04 : 0.96}

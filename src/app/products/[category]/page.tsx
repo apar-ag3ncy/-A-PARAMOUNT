@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FAMILIES } from "@/lib/constants";
-import { categoriesByFamily } from "@/lib/catalog";
+import { getProductsByFamily } from "@/lib/data";
 import CategoryHero from "@/components/products/CategoryHero";
 import CategoryBrowser from "@/components/products/CategoryBrowser";
 
@@ -28,7 +28,7 @@ export default async function CategoryPage({
   const family = FAMILIES.find((f) => f.slug === category);
   if (!family) notFound();
 
-  const products = categoriesByFamily(family.slug);
+  const products = await getProductsByFamily(family.slug);
 
   return (
     <>

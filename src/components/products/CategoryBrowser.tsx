@@ -145,6 +145,7 @@ export default function CategoryBrowser({
             key={p.slug}
             caption={p.title}
             ratio={p.ratio}
+            image={p.heroImage}
             href={`/products/${familySlug}/${p.slug}`}
             depth={i % 2 ? 1.04 : 0.96}
             hidden={!isShown(p)}

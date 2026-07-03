@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CATEGORIES, getCategory, categoriesByFamily } from "@/lib/catalog";
+import { getProductBySlug, getProductsByFamily, productParams } from "@/lib/data";
 import { FAMILIES } from "@/lib/constants";
 import ProductGalleryTabs from "@/components/products/ProductGalleryTabs";
 import RelatedProducts from "@/components/products/RelatedProducts";
@@ -9,7 +9,7 @@ import SplitTextReveal from "@/components/animations/SplitTextReveal";
 import MagneticButton from "@/components/animations/MagneticButton";
 
 export function generateStaticParams() {
-  return CATEGORIES.map((c) => ({ category: c.family, slug: c.slug }));
+  return productParams();
 }
 
 export async function generateMetadata({
@@ -18,7 +18,7 @@ export async function generateMetadata({
   params: Promise<{ category: string; slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getCategory(slug);
+  const product = await getProductBySlug(slug);
   return { title: product?.title ?? "Product", description: product?.blurb };
 }
 
@@ -28,12 +28,12 @@ export default async function ProductPage({
   params: Promise<{ category: string; slug: string }>;
 }) {
   const { category, slug } = await params;
-  const product = getCategory(slug);
+  const product = await getProductBySlug(slug);
   if (!product || product.family !== category) notFound();
 
   const family = FAMILIES.find((f) => f.slug === product.family);
   const materials = product.variants.length ? product.variants : ["Standard"];
-  const related = categoriesByFamily(product.family)
+  const related = (await getProductsByFamily(product.family))
     .filter((p) => p.slug !== slug)
     .slice(0, 4);
 
@@ -54,6 +54,7 @@ export default async function ProductPage({
           title={product.title}
           materials={materials}
           ratio={product.ratio}
+          image={product.heroImage}
         />
 
         <div className="lg:pt-6">

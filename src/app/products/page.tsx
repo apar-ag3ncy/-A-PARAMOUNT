@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { FAMILIES } from "@/lib/constants";
-import { categoriesByFamily } from "@/lib/catalog";
+import { getProductsByFamily } from "@/lib/data";
 import FamilyShowcase from "@/components/products/FamilyShowcase";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
 
@@ -10,7 +10,15 @@ export const metadata: Metadata = {
     "Four families of Jain and Hindu temple artifacts — architecture, sacred symbols, ceremonial pieces and puja devotional ware.",
 };
 
-export default function ProductsPage() {
+export default async function ProductsPage() {
+  const families = await Promise.all(
+    FAMILIES.map(async (f) => ({
+      slug: f.slug,
+      title: f.title,
+      blurb: f.blurb,
+      products: await getProductsByFamily(f.slug),
+    })),
+  );
   return (
     <div className="pt-24">
       <header className="mx-auto max-w-4xl px-6 pb-10 text-center">
@@ -30,11 +38,11 @@ export default function ProductsPage() {
         </p>
       </header>
 
-      {FAMILIES.map((f) => (
+      {families.map((f) => (
         <FamilyShowcase
           key={f.slug}
           family={{ slug: f.slug, title: f.title, blurb: f.blurb }}
-          products={categoriesByFamily(f.slug)}
+          products={f.products}
         />
       ))}
     </div>

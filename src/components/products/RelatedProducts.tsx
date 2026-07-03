@@ -19,7 +19,7 @@ export default function RelatedProducts({ items, familySlug }: Props) {
         {items.map((p) => (
           <Link key={p.slug} href={`/products/${familySlug}/${p.slug}`} className="group">
             <AssetFrame
-              image={null}
+              image={p.heroImage}
               ratio="3/4"
               caption={p.title}
               frameClassName="transition-colors duration-[400ms] group-hover:border-olive"
