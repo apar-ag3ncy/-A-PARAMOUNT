@@ -48,7 +48,7 @@ export default function MasonryItem({
           )}
         />
         {material && (
-          <span className="absolute top-3 left-3 rounded-button bg-cream/85 px-2.5 py-1 font-display text-[10px] tracking-[0.14em] text-olive-deep uppercase backdrop-blur-sm">
+          <span className="absolute top-3 left-3 rounded-button bg-cream/90 px-2.5 py-1 font-display text-[10px] tracking-[0.14em] text-olive-deep uppercase">
             {material}
           </span>
         )}

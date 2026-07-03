@@ -115,7 +115,7 @@ export default function CategoryBrowser({
     <>
       <div
         ref={railRef}
-        className="z-30 -mx-6 mb-10 border-y border-olive/15 bg-cream/85 px-6 py-3 backdrop-blur-sm"
+        className="z-30 -mx-6 mb-10 border-y border-olive/15 bg-cream/95 px-6 py-3"
       >
         <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {materials.map((m) => (

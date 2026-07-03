@@ -71,7 +71,6 @@ export default function FamilyShowcase({ family, products }: Props) {
               image={p.heroImage}
               ratio="3/4"
               caption={p.title}
-              depth={i % 2 ? 1.04 : 0.96}
               frameClassName={
                 i % 2
                   ? "rounded-t-full transition-colors duration-[400ms] group-hover:border-olive"
