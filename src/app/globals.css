@@ -81,3 +81,16 @@
   85%  { opacity: 0; }
   100% { transform: translateX(320%) skewX(-14deg); opacity: 0; }
 }
+
+/* Masonry reveal — initial (hidden) state; MasonryGrid's ScrollTrigger.batch
+   animates opacity/transform in. will-change is applied by GSAP only while
+   animating, then cleared. */
+.masonry-item {
+  opacity: 0;
+  transform: translateY(60px) scale(0.96);
+}
+
+/* SplitText line mask — words rise from behind a hidden edge. */
+.split-line {
+  overflow: hidden;
+}

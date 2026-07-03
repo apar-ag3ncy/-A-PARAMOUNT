@@ -20,6 +20,8 @@ interface AssetFrameProps {
   depth?: number;
   sizes?: string;
   className?: string;
+  /** Extra classes on the inner frame (e.g. group-hover border states). */
+  frameClassName?: string;
 }
 
 const DEFAULT_SIZES =
@@ -47,6 +49,7 @@ export default function AssetFrame({
   depth,
   sizes = DEFAULT_SIZES,
   className,
+  frameClassName,
 }: AssetFrameProps) {
   const [loaded, setLoaded] = useState(false);
   const url = src ?? resolveSanityUrl(image);
@@ -58,7 +61,10 @@ export default function AssetFrame({
   return (
     <figure className={cn("group", className)}>
       <div
-        className="relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0]"
+        className={cn(
+          "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0]",
+          frameClassName,
+        )}
         style={{ aspectRatio: ratio }}
         data-speed={depth}
       >
