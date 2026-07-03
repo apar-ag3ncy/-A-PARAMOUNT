@@ -71,3 +71,13 @@
     }
   }
 }
+
+/* AssetFrame empty-state shimmer — one soft diagonal band, ~5s sweep.
+   Auto-disabled by the reduced-motion rule above. */
+@keyframes pm-shimmer {
+  0%   { transform: translateX(-160%) skewX(-14deg); opacity: 0; }
+  18%  { opacity: 1; }
+  55%  { opacity: 1; }
+  85%  { opacity: 0; }
+  100% { transform: translateX(320%) skewX(-14deg); opacity: 0; }
+}

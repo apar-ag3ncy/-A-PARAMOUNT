@@ -3,6 +3,7 @@ import "./globals.css";
 import { fontVariables } from "@/styles/fonts";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
 
 export const metadata: Metadata = {
   title: {
@@ -18,12 +19,13 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${fontVariables} h-full`}>
-      <body className="flex min-h-full flex-col bg-background font-body text-foreground antialiased">
-        {/* TODO(PARAMOUNT_SCROLL_UI_PROMPT.md §0): wrap in SmoothScrollProvider
-            + #smooth-wrapper / #smooth-content when the animation layer lands. */}
+      <body className="min-h-full bg-background font-body text-foreground antialiased">
+        {/* Header sits OUTSIDE #smooth-wrapper so it stays pinned to the viewport. */}
         <Header />
-        <main className="flex-1">{children}</main>
-        <Footer />
+        <SmoothScrollProvider>
+          <main>{children}</main>
+          <Footer />
+        </SmoothScrollProvider>
       </body>
     </html>
   );
