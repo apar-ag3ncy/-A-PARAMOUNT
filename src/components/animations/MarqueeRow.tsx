@@ -38,8 +38,28 @@ export default function MarqueeRow({ items, pxPerSecond = 24, className }: Props
           loop.timeScale(1 + gsap.utils.clamp(0, 5, Math.abs(v) * 0.004));
           gsap.set(track, { skewX: gsap.utils.clamp(-8, 8, v * -0.004) });
         };
-        gsap.ticker.add(update);
-        return () => gsap.ticker.remove(update);
+        // Only run the per-frame velocity ticker while the marquee is on-screen.
+        let active = false;
+        const on = () => {
+          if (active) return;
+          active = true;
+          gsap.ticker.add(update);
+          loop.play();
+        };
+        const off = () => {
+          if (!active) return;
+          active = false;
+          gsap.ticker.remove(update);
+          loop.pause();
+        };
+        const io = new IntersectionObserver(([e]) => (e.isIntersecting ? on() : off()), {
+          threshold: 0,
+        });
+        io.observe(track);
+        return () => {
+          off();
+          io.disconnect();
+        };
       });
     }, track);
     return () => ctx.revert();
