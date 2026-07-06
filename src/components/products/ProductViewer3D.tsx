@@ -39,7 +39,8 @@ function hasWebGL(): boolean {
 /* whose data is inlined below so no runtime fetch is needed).         */
 /* ------------------------------------------------------------------ */
 
-const KALASH_TEXTURE_URL = "/kalash/kalash-texture.png";
+// Query param busts stale browser caches whenever the texture is regenerated.
+const KALASH_TEXTURE_URL = "/kalash/kalash-texture.png?v=3";
 /** height / maxRadius of the vessel (from kalash-profile.json). */
 const KALASH_ASPECT = 2.3323;
 /** Silhouette [y, r] pairs, y: 1=top → 0=bottom, r: 0..1 of max radius.
@@ -81,11 +82,13 @@ function PhotoKalash() {
     // nothing can be seen through the shell from any angle. The base verts
     // sample the texture's bottom rows, which fade to shadow.
     const baseR = KALASH_PROFILE[KALASH_PROFILE.length - 1][1] * KALASH_R;
+    // Concave base (like a real spun vessel) that stays ABOVE y=0 — dipping
+    // below let the ground-shadow plane slice visibly through the shell.
     const pts = KALASH_PROFILE.map(
       ([y, r]) => new THREE.Vector2(Math.max(r * KALASH_R, 0.001), y * height),
     ).concat([
-      new THREE.Vector2(baseR * 0.55, -0.008 * height),
-      new THREE.Vector2(0.001, -0.012 * height),
+      new THREE.Vector2(baseR * 0.55, 0.004 * height),
+      new THREE.Vector2(0.001, 0.006 * height),
     ]);
     const geo = new THREE.LatheGeometry(pts, 64);
 
