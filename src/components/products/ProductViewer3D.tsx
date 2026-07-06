@@ -41,7 +41,7 @@ function hasWebGL(): boolean {
 
 // The cylindrically-unwrapped photo (see geometry comment). Query param busts
 // stale browser caches whenever the texture is regenerated.
-const KALASH_TEXTURE_URL = "/kalash/kalash-unwrap.png?v=2";
+const KALASH_TEXTURE_URL = "/kalash/kalash-unwrap.png?v=3";
 /** height / maxRadius of the vessel (from kalash-profile.json). */
 const KALASH_ASPECT = 2.3323;
 /** Silhouette [y, r] pairs, y: 1=top → 0=bottom, r: 0..1 of max radius.
