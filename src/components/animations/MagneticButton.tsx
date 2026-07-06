@@ -35,24 +35,36 @@ export default function MagneticButton({
 
     const xTo = gsap.quickTo(el, "x", { duration: 0.6, ease: "elastic.out(1, 0.5)" });
     const yTo = gsap.quickTo(el, "y", { duration: 0.6, ease: "elastic.out(1, 0.5)" });
-    const RADIUS = 100;
 
-    const move = (e: MouseEvent) => {
-      const r = el.getBoundingClientRect();
+    // Rect is measured ONCE on pointerenter and reused for every pointermove —
+    // no per-event getBoundingClientRect (layout thrash during smooth-scroll).
+    // Any drift from ScrollSmoother movement while hovering is negligible.
+    let rect: DOMRect | null = null;
+
+    const enter = () => {
+      rect = el.getBoundingClientRect();
+    };
+    const move = (e: PointerEvent) => {
+      const r = rect ?? (rect = el.getBoundingClientRect());
       const cx = r.left + r.width / 2;
       const cy = r.top + r.height / 2;
-      const dx = e.clientX - cx;
-      const dy = e.clientY - cy;
-      if (Math.hypot(dx, dy) < RADIUS + Math.max(r.width, r.height) / 2) {
-        xTo(dx * strength);
-        yTo(dy * strength);
-      } else {
-        xTo(0);
-        yTo(0);
-      }
+      xTo((e.clientX - cx) * strength);
+      yTo((e.clientY - cy) * strength);
     };
-    window.addEventListener("mousemove", move);
-    return () => window.removeEventListener("mousemove", move);
+    const leave = () => {
+      rect = null;
+      xTo(0);
+      yTo(0);
+    };
+
+    el.addEventListener("pointerenter", enter);
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerleave", leave);
+    return () => {
+      el.removeEventListener("pointerenter", enter);
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerleave", leave);
+    };
   }, [strength]);
 
   const inner = cn(

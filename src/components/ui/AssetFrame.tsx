@@ -1,11 +1,40 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { SanityImage } from "@/types/sanity";
 import type { SanityImageSource } from "@sanity/image-url";
 import { cn } from "@/lib/utils";
 import { urlFor } from "@/lib/sanity/image";
+
+/**
+ * ONE shared IntersectionObserver for every empty-state shimmer on the page
+ * (50+ frames on /products — a per-frame observer each would be wasteful).
+ * Created lazily on the client; toggles `data-shimmer-off` on observed frames
+ * so the globals.css rule pauses the shimmer animation while offscreen.
+ */
+let shimmerObserver: IntersectionObserver | null = null;
+
+function getShimmerObserver(): IntersectionObserver | null {
+  if (typeof window === "undefined" || typeof IntersectionObserver === "undefined") {
+    return null;
+  }
+  if (!shimmerObserver) {
+    shimmerObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            entry.target.removeAttribute("data-shimmer-off");
+          } else {
+            entry.target.setAttribute("data-shimmer-off", "");
+          }
+        }
+      },
+      { rootMargin: "100px" },
+    );
+  }
+  return shimmerObserver;
+}
 
 interface AssetFrameProps {
   /** Sanity image; null/undefined -> elegant placeholder frame. */
@@ -61,15 +90,33 @@ export default function AssetFrame({
   showLabel = true,
 }: AssetFrameProps) {
   const [loaded, setLoaded] = useState(false);
+  const frameRef = useRef<HTMLDivElement>(null);
   const url = src ?? resolveSanityUrl(image);
   const hotspot = image?.hotspot;
   const objectPosition = hotspot
     ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
     : "center";
+  const hasShimmer = !url;
+
+  // Pause the shimmer while the frame is offscreen: register with the shared
+  // observer only while the shimmer actually renders.
+  useEffect(() => {
+    if (!hasShimmer) return;
+    const el = frameRef.current;
+    if (!el) return;
+    const io = getShimmerObserver();
+    if (!io) return;
+    io.observe(el);
+    return () => {
+      io.unobserve(el);
+      el.removeAttribute("data-shimmer-off");
+    };
+  }, [hasShimmer]);
 
   return (
     <figure className={cn("group", fill && "h-full", className)}>
       <div
+        ref={frameRef}
         className={cn(
           "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0] [contain:content]",
           fill && "h-full w-full",
@@ -77,6 +124,8 @@ export default function AssetFrame({
         )}
         style={fill ? undefined : { aspectRatio: ratio }}
         data-speed={depth}
+        // Start PAUSED; the shared observer lifts this on first intersection.
+        data-shimmer-off={hasShimmer ? "" : undefined}
       >
         {/* -- empty state: a frame awaiting art -- */}
         {(!url || !loaded) && (
@@ -110,11 +159,10 @@ export default function AssetFrame({
             {!url && (
               <div className="pointer-events-none absolute inset-0 overflow-hidden">
                 <div
-                  className="absolute inset-y-0 left-0 w-1/2"
+                  className="pm-shimmer-anim absolute inset-y-0 left-0 w-1/2"
                   style={{
                     background:
                       "linear-gradient(100deg, transparent 0%, rgba(255,252,240,0.55) 50%, transparent 100%)",
-                    animation: "pm-shimmer 5s ease-in-out infinite",
                   }}
                 />
               </div>

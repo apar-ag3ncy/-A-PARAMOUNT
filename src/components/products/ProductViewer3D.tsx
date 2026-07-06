@@ -101,6 +101,9 @@ function Scene({ modelUrl, autoRotate, onInteract }: {
  */
 export default function ProductViewer3D({ modelUrl, label }: Props) {
   const [inView, setInView] = useState(false);
+  // Once true, stays true — the canvas mounts once and is never torn down on
+  // scroll-out (recreating a WebGL context is far more expensive than keeping it).
+  const [hasEntered, setHasEntered] = useState(false);
   const [webgl, setWebgl] = useState(true);
   const [autoRotate, setAutoRotate] = useState(true);
   const ref = useRef<HTMLDivElement>(null);
@@ -109,12 +112,12 @@ export default function ProductViewer3D({ modelUrl, label }: Props) {
     setWebgl(hasWebGL());
     const el = ref.current;
     if (!el) return;
+    // Observer lives for the component's lifetime: it keeps `inView` current so
+    // the frameloop can be suspended whenever the viewer scrolls offscreen.
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          io.disconnect();
-        }
+        setInView(entry.isIntersecting);
+        if (entry.isIntersecting) setHasEntered(true);
       },
       { rootMargin: "200px" },
     );
@@ -127,11 +130,12 @@ export default function ProductViewer3D({ modelUrl, label }: Props) {
       ref={ref}
       className="relative mx-auto aspect-square w-full max-w-lg overflow-hidden rounded-card border border-olive/25 bg-gradient-to-b from-cream-deep to-[#E9DBC0]"
     >
-      {webgl && inView ? (
+      {webgl && hasEntered ? (
         <Canvas
           camera={{ position: [0, 0.4, 4.2], fov: 40 }}
           dpr={[1, 2]}
           gl={{ antialias: true }}
+          frameloop={inView ? "always" : "never"}
         >
           <Scene
             modelUrl={modelUrl}

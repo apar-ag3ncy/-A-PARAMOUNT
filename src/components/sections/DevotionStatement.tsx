@@ -57,12 +57,18 @@ export default function DevotionStatement() {
             nums.forEach((n) => {
               const to = Number(n.dataset.to ?? 0);
               const obj = { v: to > 100 ? to - 90 : 0 };
+              let last = -1; // only touch the DOM when the rounded value changes
               gsap.to(obj, {
                 v: to,
                 duration: 2.2,
                 ease: "power2.out",
+                snap: { v: 1 },
                 onUpdate: () => {
-                  n.textContent = String(Math.round(obj.v));
+                  const rounded = Math.round(obj.v);
+                  if (rounded !== last) {
+                    last = rounded;
+                    n.textContent = String(rounded);
+                  }
                 },
               });
             }),

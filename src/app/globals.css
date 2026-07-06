@@ -81,6 +81,14 @@
   85%  { opacity: 0; }
   100% { transform: translateX(320%) skewX(-14deg); opacity: 0; }
 }
+.pm-shimmer-anim {
+  animation: pm-shimmer 5s ease-in-out infinite;
+}
+/* Offscreen frames pause their shimmer — AssetFrame's shared IntersectionObserver
+   toggles data-shimmer-off, so 50+ frames don't composite while out of view. */
+[data-shimmer-off] .pm-shimmer-anim {
+  animation-play-state: paused;
+}
 
 /* Masonry reveal — initial (hidden) state; MasonryGrid's ScrollTrigger.batch
    animates opacity/transform in. will-change is applied by GSAP only while

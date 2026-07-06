@@ -144,7 +144,7 @@ export default function CinematicHero() {
       // Ambient life on any non-reduced viewport. (Godrays are static now — a
       // rotating masked conic gradient repaints a huge area every frame.)
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.to(".hv-mark", {
+        const breathe = gsap.to(".hv-mark", {
           scale: 1.02,
           transformOrigin: "50% 50%",
           duration: 5.5,
@@ -153,7 +153,7 @@ export default function CinematicHero() {
           repeat: -1,
         });
         // recurring golden sweep through the logo glyphs
-        gsap.fromTo(
+        const shine = gsap.fromTo(
           ".hv-shine",
           { xPercent: -170 },
           {
@@ -165,6 +165,22 @@ export default function CinematicHero() {
             delay: 3.4,
           },
         );
+        // Same deal as the motes canvas: only burn frames while the hero is
+        // actually on screen — both repeat:-1 tweens sleep offscreen.
+        const io = new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) {
+              breathe.play();
+              shine.play();
+            } else {
+              breathe.pause();
+              shine.pause();
+            }
+          },
+          { threshold: 0 },
+        );
+        io.observe(el);
+        return () => io.disconnect();
       });
 
       // Desktop: auto intro + slow scrubbed cinematic.
@@ -198,9 +214,19 @@ export default function CinematicHero() {
           .to(".hv-frame", { opacity: 1, duration: 1.6 }, 3.3)
           .to(".hv-cue", { opacity: 1, duration: 1 }, 4.0);
 
-        // Opened in a background tab? Hold and play in full once visible.
+        // DoorIntro plays this session? Hold the intro and launch it on the
+        // once-only doors-open handoff instead (already mid-flight at handoff).
+        const doorWillPlay =
+          window.location.pathname === "/" &&
+          !sessionStorage.getItem("pm-door-intro");
         let onVis: (() => void) | undefined;
-        if (document.hidden) {
+        let onDoors: (() => void) | undefined;
+        if (doorWillPlay) {
+          intro.pause(0);
+          onDoors = () => intro.play(0);
+          window.addEventListener("pm:doors-open", onDoors, { once: true });
+        } else if (document.hidden) {
+          // Opened in a background tab? Hold and play in full once visible.
           intro.pause(0);
           onVis = () => {
             if (!document.hidden) {
@@ -238,6 +264,7 @@ export default function CinematicHero() {
 
         return () => {
           if (onVis) document.removeEventListener("visibilitychange", onVis);
+          if (onDoors) window.removeEventListener("pm:doors-open", onDoors);
         };
       });
 
@@ -247,7 +274,28 @@ export default function CinematicHero() {
         gsap.set(".hv-markimg", { opacity: 1, scale: 1, filter: "blur(0px)" });
         gsap.set(".hv-bloom", { opacity: 0.85 });
         gsap.set(".hv-rays", { opacity: 0.3 });
-        gsap.from(".hv-stage", { opacity: 0, duration: 1.2, ease: "power2.out" });
+
+        // DoorIntro plays this session? Don't waste the entrance under its
+        // overlay — hold and launch it on the once-only doors-open handoff.
+        // Reduced motion keeps its immediate fade regardless (no event dep).
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const doorWillPlay =
+          !reduce &&
+          window.location.pathname === "/" &&
+          !sessionStorage.getItem("pm-door-intro");
+        let onDoors: (() => void) | undefined;
+        if (doorWillPlay) {
+          gsap.set(".hv-stage", { opacity: 0 });
+          onDoors = () => {
+            gsap.to(".hv-stage", { opacity: 1, duration: 1.2, ease: "power2.out" });
+          };
+          window.addEventListener("pm:doors-open", onDoors, { once: true });
+        } else {
+          gsap.from(".hv-stage", { opacity: 0, duration: 1.2, ease: "power2.out" });
+        }
+        return () => {
+          if (onDoors) window.removeEventListener("pm:doors-open", onDoors);
+        };
       });
     }, el);
     return () => ctx.revert();

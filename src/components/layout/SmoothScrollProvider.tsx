@@ -24,14 +24,15 @@ export default function SmoothScrollProvider({
 
   useIsomorphicLayoutEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const finePointer = window.matchMedia("(pointer: fine)").matches;
     const ctx = gsap.context(() => {
       smoother.current = ScrollSmoother.create({
         wrapper: "#smooth-wrapper",
         content: "#smooth-content",
         smooth: reduce ? 0 : 1.05, // seconds of catch-up — buttery but responsive
-        smoothTouch: reduce ? 0 : 0.1, // light touch smoothing, keeps momentum native
+        smoothTouch: 0, // keep native compositor touch scrolling on phones
         effects: !reduce, // enables data-speed / data-lag parallax
-        normalizeScroll: true, // consistent cross-browser mobile behaviour
+        normalizeScroll: finePointer, // JS scroll normalization only for mouse/trackpad devices
         ignoreMobileResize: true, // no re-layout jank on mobile address-bar show/hide
       });
     });

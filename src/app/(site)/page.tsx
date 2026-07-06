@@ -1,4 +1,5 @@
 import CinematicHero from "@/components/sections/CinematicHero";
+import DoorIntro from "@/components/sections/DoorIntro";
 import FeaturedFamilies from "@/components/sections/FeaturedFamilies";
 import DevotionStatement from "@/components/sections/DevotionStatement";
 import CraftStory from "@/components/sections/CraftStory";
@@ -10,6 +11,9 @@ import ScrollReveal from "@/components/animations/ScrollReveal";
 export default function Home() {
   return (
     <>
+      {/* Once-per-session temple-door opening. Portals itself onto <body> so
+          position:fixed escapes the transformed #smooth-content wrapper. */}
+      <DoorIntro />
       <CinematicHero />
       <FeaturedFamilies />
       <DevotionStatement />

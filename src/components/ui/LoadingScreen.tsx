@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { gsap } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
@@ -11,8 +12,17 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 export default function LoadingScreen() {
   const [done, setDone] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
 
   useIsomorphicLayoutEffect(() => {
+    // The home page hands the first impression to DoorIntro (which sets
+    // "pm-loaded" when it finishes). The render gate below already hides the
+    // overlay on "/"; latch `done` so a later client-side navigation away from
+    // "/" can't surface a stale, never-animated overlay.
+    if (pathname === "/") {
+      setDone(true);
+      return;
+    }
     if (sessionStorage.getItem("pm-loaded")) {
       setDone(true);
       return;
@@ -20,14 +30,13 @@ export default function LoadingScreen() {
     const el = ref.current;
     if (!el) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let failsafe: ReturnType<typeof setTimeout>;
     const finish = () => {
       clearTimeout(failsafe);
       sessionStorage.setItem("pm-loaded", "1");
       setDone(true);
     };
     // Guarantee the overlay is never a dead end, whatever GSAP does.
-    failsafe = setTimeout(finish, 4200);
+    const failsafe = setTimeout(finish, 4200);
     const tl = gsap.timeline({ onComplete: finish });
     if (reduce) {
       tl.to(el, { opacity: 0, duration: 0.3, delay: 0.6 });
@@ -42,7 +51,10 @@ export default function LoadingScreen() {
     };
   }, []);
 
-  if (done) return null;
+  // Route-only gate, evaluated identically on server and client (no storage
+  // reads): "/" never paints the mantra overlay — not even in the SSR HTML —
+  // because DoorIntro owns the home page's first impression.
+  if (done || pathname === "/") return null;
 
   return (
     <div

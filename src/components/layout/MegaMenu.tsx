@@ -80,7 +80,7 @@ export default function MegaMenu() {
           onMouseEnter={enter}
           onMouseLeave={leave}
           className={cn(
-            "fixed inset-x-0 top-[64px] z-40 transition-all duration-300 ease-out",
+            "fixed inset-x-0 top-[64px] z-40 transition-[opacity,transform] duration-300 ease-out",
             open
               ? "visible translate-y-0 opacity-100"
               : "pointer-events-none invisible -translate-y-2 opacity-0",
@@ -105,7 +105,7 @@ export default function MegaMenu() {
                   href="/products"
                   onClick={() => setOpen(false)}
                   className={cn(
-                    "group hidden transition-all duration-500 lg:block",
+                    "group hidden transition-[opacity,transform] duration-500 lg:block",
                     open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
                   )}
                 >
@@ -127,7 +127,7 @@ export default function MegaMenu() {
                   <div
                     key={f.slug}
                     className={cn(
-                      "transition-all duration-500",
+                      "transition-[opacity,transform] duration-500",
                       open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
                     )}
                     style={{ transitionDelay: open ? `${70 + col * 60}ms` : "0ms" }}

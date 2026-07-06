@@ -35,12 +35,17 @@ export default function FeaturedFamilies() {
             data-speed={i % 2 ? 1.03 : 0.97}
             data-lag={i % 2 ? 0.08 : 0}
           >
-            <div className="transition-transform duration-500 ease-out group-hover:-translate-y-2">
+            <div className="relative transition-transform duration-500 ease-out group-hover:-translate-y-2">
               <AssetFrame
                 image={null}
                 ratio="3/4"
                 showLabel={false}
-                frameClassName="rounded-t-full transition-all duration-500 group-hover:border-olive group-hover:shadow-[0_24px_50px_-28px_rgba(79,26,22,0.45)]"
+                frameClassName="rounded-t-full transition-[border-color] duration-500 group-hover:border-olive"
+              />
+              {/* Shadow lives on a separate layer so hover only animates opacity (compositor-friendly, no box-shadow repaints). */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-image rounded-t-full opacity-0 shadow-[0_24px_50px_-28px_rgba(79,26,22,0.45)] transition-opacity duration-500 group-hover:opacity-100"
               />
             </div>
             <div className="mt-5 text-center">
