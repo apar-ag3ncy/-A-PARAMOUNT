@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useMemo, useRef, useState } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, useThree } from "@react-three/fiber";
 import {
   Bounds,
   Center,
@@ -41,25 +41,28 @@ function hasWebGL(): boolean {
 
 const KALASH_TEXTURE_URL = "/kalash/kalash-texture.png";
 /** height / maxRadius of the vessel (from kalash-profile.json). */
-const KALASH_ASPECT = 2.4727;
-/** Silhouette [y, r] pairs, y: 1=top → 0=bottom, r: 0..1 of max radius. */
+const KALASH_ASPECT = 2.3323;
+/** Silhouette [y, r] pairs, y: 1=top → 0=bottom, r: 0..1 of max radius.
+    Edge-refined per row against the actual product photo (gradient-snapped,
+    conservative min-side radius so the texture never samples background). */
 const KALASH_PROFILE: [number, number][] = [
-  [1, 0.1364], [0.9972, 0.3409], [0.9926, 0.5], [0.9871, 0.5636],
-  [0.9743, 0.6182], [0.9559, 0.6477], [0.9191, 0.625], [0.8961, 0.6182],
-  [0.8824, 0.6295], [0.8686, 0.6182], [0.8575, 0.55], [0.8474, 0.5045],
-  [0.841, 0.4886], [0.7904, 0.4818], [0.7445, 0.4659], [0.7215, 0.5341],
-  [0.6939, 0.7045], [0.6618, 0.8295], [0.6158, 0.9091], [0.5607, 0.9591],
-  [0.4963, 0.9818], [0.4412, 1], [0.4044, 0.9955], [0.3493, 0.9727],
-  [0.3125, 0.9545], [0.239, 0.9205], [0.1654, 0.8636], [0.1287, 0.8136],
-  [0.0919, 0.7386], [0.0551, 0.6364], [0.0276, 0.5114], [0.0092, 0.4318],
-  [0, 0.3636],
+  [1, 0.6264], [0.9744, 0.6174], [0.9487, 0.6515], [0.9231, 0.6519],
+  [0.8974, 0.6362], [0.8718, 0.6218], [0.8462, 0.5099], [0.8205, 0.4603],
+  [0.7949, 0.3996], [0.7692, 0.3845], [0.7436, 0.3847], [0.7179, 0.3974],
+  [0.6923, 0.389], [0.6667, 0.4349], [0.641, 0.5839], [0.6154, 0.6791],
+  [0.5897, 0.7876], [0.5641, 0.7824], [0.5385, 0.8325], [0.5128, 0.8931],
+  [0.4872, 0.9069], [0.4615, 0.9326], [0.4359, 0.9601], [0.4103, 0.9563],
+  [0.3846, 0.988], [0.359, 0.9826], [0.3333, 0.9952], [0.3077, 0.9809],
+  [0.2821, 0.9809], [0.2564, 0.9725], [0.2308, 0.9457], [0.2051, 0.9186],
+  [0.1795, 0.8861], [0.1538, 0.8797], [0.1282, 0.8797], [0.1026, 0.7979],
+  [0.0769, 0.7979], [0.0513, 0.7567], [0.0256, 0.645], [0, 0.5311],
 ];
-/** World max radius — height becomes R * KALASH_ASPECT ≈ 2.2 (matches the old procedural size). */
+/** World max radius — height becomes R * KALASH_ASPECT ≈ 2.1 (matches the old procedural size). */
 const KALASH_R = 0.9;
 /** Horizontal half-extent sampled from the texture. Deliberately inside the
-    alpha bbox (u 0.011–0.989): the outer few % is the feathered cutout edge,
-    and sampling it smears a white fringe along the 3D silhouette. */
-const TEX_U_HALF = 0.45;
+    subject's alpha bbox: the outer few % is the feathered cutout edge, and
+    sampling it smears a white fringe along the 3D silhouette. */
+const TEX_U_HALF = 0.46;
 
 function PhotoKalash() {
   const gl = useThree((s) => s.gl);
@@ -73,8 +76,13 @@ function PhotoKalash() {
 
   const geometry = useMemo(() => {
     const height = KALASH_R * KALASH_ASPECT;
-    // Close the top rim with a near-axis point so no hole shows from above.
-    const pts = [new THREE.Vector2(0.001, height)].concat(
+    // Close the rim with a SHORT inward lip (not a long taper to the axis —
+    // that smeared the texture's top rows across a huge disk). The camera's
+    // polar clamp keeps the top barely visible anyway.
+    const pts = [
+      new THREE.Vector2(0.001, height),
+      new THREE.Vector2(KALASH_PROFILE[0][1] * KALASH_R * 0.55, height),
+    ].concat(
       KALASH_PROFILE.map(
         ([y, r]) => new THREE.Vector2(Math.max(r * KALASH_R, 0.001), y * height),
       ),
@@ -93,7 +101,9 @@ function PhotoKalash() {
       const localR = Math.hypot(x, z);
       const theta = Math.atan2(x, z);
       const u = 0.5 + TEX_U_HALF * Math.sin(theta) * (localR / KALASH_R);
-      const v = y / height;
+      // Clamp v inside the texture so the feathered first/last rows (alpha
+      // edge + base shadow fade) never smear across whole rings.
+      const v = 0.012 + 0.976 * (y / height);
       uv.setXY(i, u, v);
     }
     uv.needsUpdate = true;
@@ -151,28 +161,7 @@ function GLTFModel({ url }: { url: string }) {
   return <primitive object={scene} />;
 }
 
-/**
- * Continuous slow turntable. Pauses while the user drags (OrbitControls takes
- * over), resumes the moment the drag ends — no easing hiccups, just delta time.
- */
-function Turntable({
-  paused,
-  children,
-}: {
-  paused: React.RefObject<boolean>;
-  children: React.ReactNode;
-}) {
-  const group = useRef<THREE.Group>(null);
-  useFrame((_, delta) => {
-    if (!paused.current && group.current) {
-      group.current.rotation.y += delta * 0.45;
-    }
-  });
-  return <group ref={group}>{children}</group>;
-}
-
 function Scene({ modelUrl }: { modelUrl?: string }) {
-  const dragging = useRef(false);
   return (
     <>
       <ambientLight intensity={0.35} />
@@ -183,16 +172,14 @@ function Scene({ modelUrl }: { modelUrl?: string }) {
       <Suspense fallback={null}>
         <Bounds fit clip observe margin={1.15}>
           <Center>
-            <Turntable paused={dragging}>
-              {modelUrl ? (
-                <GLTFModel url={modelUrl} />
-              ) : (
-                <>
-                  <PhotoKalash />
-                  <GroundShadow />
-                </>
-              )}
-            </Turntable>
+            {modelUrl ? (
+              <GLTFModel url={modelUrl} />
+            ) : (
+              <>
+                <PhotoKalash />
+                <GroundShadow />
+              </>
+            )}
           </Center>
         </Bounds>
         {/* Procedural studio environment — no external HDR fetch (lights the GLB path). */}
@@ -203,15 +190,18 @@ function Scene({ modelUrl }: { modelUrl?: string }) {
         </Environment>
       </Suspense>
 
+      {/* Rotation ONLY on drag — the vessel rests photo-still otherwise. The
+          polar clamp keeps the camera near eye level, where the photo
+          projection is truest (the rim/top is never exposed). */}
       <OrbitControls
         makeDefault
         enablePan={false}
         enableZoom={false}
         enableDamping
-        minPolarAngle={Math.PI / 3}
-        maxPolarAngle={Math.PI / 1.9}
-        onStart={() => (dragging.current = true)}
-        onEnd={() => (dragging.current = false)}
+        dampingFactor={0.08}
+        rotateSpeed={0.9}
+        minPolarAngle={1.35}
+        maxPolarAngle={1.66}
       />
     </>
   );
@@ -220,8 +210,8 @@ function Scene({ modelUrl }: { modelUrl?: string }) {
 /**
  * ProductViewer3D (build-plan Prompt G). Lazy-mounts the R3F canvas when in
  * view; a photo-lathe of the real silver kalash (real product photo projected
- * onto its lathe-turned silhouette) auto-rotates as a turntable — user drag
- * pauses it, releasing resumes. Falls back to the brand motif when WebGL is
+ * onto its edge-refined lathe silhouette) rests photo-still and rotates 360°
+ * ONLY while the user drags. Falls back to the brand motif when WebGL is
  * unavailable. GLBs from `product.model3d` still take precedence.
  */
 export default function ProductViewer3D({ modelUrl, label }: Props) {
