@@ -76,22 +76,30 @@ function PhotoKalash() {
 
   const geometry = useMemo(() => {
     const height = KALASH_R * KALASH_ASPECT;
-    // Close the rim with a SHORT inward lip (not a long taper to the axis —
-    // that smeared the texture's top rows across a huge disk). The camera's
-    // polar clamp keeps the top barely visible anyway.
-    const pts = [
-      new THREE.Vector2(0.001, height),
-      new THREE.Vector2(KALASH_PROFILE[0][1] * KALASH_R * 0.55, height),
-    ].concat(
-      KALASH_PROFILE.map(
-        ([y, r]) => new THREE.Vector2(Math.max(r * KALASH_R, 0.001), y * height),
-      ),
-    );
+    // Open at the rim (a dark mouth disk mesh sits just below it — a real
+    // vessel reads dark inside); the BASE closes by curving to the axis so
+    // nothing can be seen through the shell from any angle. The base verts
+    // sample the texture's bottom rows, which fade to shadow.
+    const baseR = KALASH_PROFILE[KALASH_PROFILE.length - 1][1] * KALASH_R;
+    const pts = KALASH_PROFILE.map(
+      ([y, r]) => new THREE.Vector2(Math.max(r * KALASH_R, 0.001), y * height),
+    ).concat([
+      new THREE.Vector2(baseR * 0.55, -0.008 * height),
+      new THREE.Vector2(0.001, -0.012 * height),
+    ]);
     const geo = new THREE.LatheGeometry(pts, 64);
 
-    // Planar photo projection: the front photo maps onto the front half and
-    // mirrors onto the back (theta = atan2(x, z), 0 = facing the camera).
-    // The ornate repeat pattern makes the mirror seam invisible in motion.
+    // UNIFORM angular projection (triangle wave, not sin): |du/dθ| is constant
+    // around the revolve, so texture density is identical at every rotation —
+    // a sin projection starves the bands photographed edge-on and they melt
+    // into smears the moment they rotate to face the camera. tri() is
+    // continuous across the ±π wrap, so the lathe seam is invisible, and the
+    // photo mirrors once per hemisphere (plausible for a symmetric vessel).
+    const tri = (theta: number) => {
+      const t = ((theta + Math.PI * 3) % (Math.PI * 2)) - Math.PI; // wrap [-π,π)
+      const h = Math.PI / 2;
+      return Math.abs(t) <= h ? t / h : Math.sign(t) * (2 - Math.abs(t) / h);
+    };
     const pos = geo.getAttribute("position") as THREE.BufferAttribute;
     const uv = geo.getAttribute("uv") as THREE.BufferAttribute;
     for (let i = 0; i < pos.count; i++) {
@@ -100,7 +108,7 @@ function PhotoKalash() {
       const z = pos.getZ(i);
       const localR = Math.hypot(x, z);
       const theta = Math.atan2(x, z);
-      const u = 0.5 + TEX_U_HALF * Math.sin(theta) * (localR / KALASH_R);
+      const u = 0.5 + TEX_U_HALF * tri(theta) * (localR / KALASH_R);
       // Clamp v inside the texture so the feathered first/last rows (alpha
       // edge + base shadow fade) never smear across whole rings.
       const v = 0.012 + 0.976 * (y / height);
@@ -113,10 +121,20 @@ function PhotoKalash() {
 
   // The photo carries baked studio lighting — an unlit, un-tone-mapped basic
   // material preserves it 1:1 (standard material muddied the silver's sheen).
+  const height = KALASH_R * KALASH_ASPECT;
+  const mouthR = KALASH_PROFILE[0][1] * KALASH_R;
   return (
-    <mesh geometry={geometry}>
-      <meshBasicMaterial map={texture} toneMapped={false} />
-    </mesh>
+    <group>
+      <mesh geometry={geometry}>
+        <meshBasicMaterial map={texture} toneMapped={false} />
+      </mesh>
+      {/* Recessed dark mouth — a vessel's opening reads near-black inside.
+          Sits just below the rim so only a thin dark ellipse shows. */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, height * 0.965, 0]}>
+        <circleGeometry args={[mouthR * 0.96, 48]} />
+        <meshBasicMaterial color="#221a10" toneMapped={false} />
+      </mesh>
+    </group>
   );
 }
 
@@ -190,9 +208,10 @@ function Scene({ modelUrl }: { modelUrl?: string }) {
         </Environment>
       </Suspense>
 
-      {/* Rotation ONLY on drag — the vessel rests photo-still otherwise. The
-          polar clamp keeps the camera near eye level, where the photo
-          projection is truest (the rim/top is never exposed). */}
+      {/* Rotation ONLY on drag — the vessel rests photo-still otherwise.
+          Elevation is LOCKED at the photo's own near-eye-level viewpoint, so
+          dragging is a pure horizontal 360 and the top/underside (where a
+          photo projection can't be true) are never exposed. */}
       <OrbitControls
         makeDefault
         enablePan={false}
@@ -200,8 +219,8 @@ function Scene({ modelUrl }: { modelUrl?: string }) {
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.9}
-        minPolarAngle={1.35}
-        maxPolarAngle={1.66}
+        minPolarAngle={1.5}
+        maxPolarAngle={1.5}
       />
     </>
   );
