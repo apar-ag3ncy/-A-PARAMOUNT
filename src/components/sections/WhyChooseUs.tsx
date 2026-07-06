@@ -1,0 +1,101 @@
+import ArchMark from "@/components/ui/ArchMark";
+import LotusFlourish from "@/components/ui/LotusFlourish";
+import ScrollReveal from "@/components/animations/ScrollReveal";
+
+interface Item {
+  Icon: typeof ArchMark;
+  title: string;
+  body: string;
+}
+
+const ITEMS: Item[] = [
+  {
+    Icon: ArchMark,
+    title: "Authentic Craftsmanship",
+    body: "Skilled artisans with deep knowledge of tradition and shastra.",
+  },
+  {
+    Icon: LotusFlourish,
+    title: "Premium Quality Materials",
+    body: "Only the finest wood and metals for lasting beauty and durability.",
+  },
+  {
+    Icon: ArchMark,
+    title: "Customization as per Requirement",
+    body: "Tailored designs and finishes to match your vision and temple aesthetics.",
+  },
+  {
+    Icon: LotusFlourish,
+    title: "Timely Delivery & Reliability",
+    body: "Committed to on-time delivery with complete transparency.",
+  },
+];
+
+/**
+ * WhyChooseUs — the deck's p11–p12 spread: an olive band carrying a giant faint
+ * arch-A watermark, with a rounded cream pill card floating on it. Inside the
+ * pill: a filled-olive circular badge + "WHY CHOOSE US", then the four promise
+ * items — each a small brand mark in an olive circle beside a title and one
+ * line of copy, separated by hairline dividers.
+ *
+ * Server component; the only motion is the existing ScrollReveal fade-up.
+ */
+export default function WhyChooseUs() {
+  return (
+    <section
+      aria-label="Why choose us"
+      className="relative overflow-hidden bg-olive py-20 sm:py-28"
+    >
+      {/* Giant faint arch-A watermark behind the card, as on the deck band */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[38%] text-olive-deep"
+        style={{ opacity: 0.28 }}
+      >
+        <ArchMark className="h-[36rem] w-[26.5rem]" />
+      </span>
+
+      <div className="relative mx-auto max-w-7xl px-6">
+        <ScrollReveal>
+          <div className="rounded-[2.5rem] bg-cream px-8 py-10 sm:px-12 xl:rounded-full xl:px-16 xl:py-12">
+            <div className="flex flex-col gap-10 xl:flex-row xl:items-center">
+              {/* "WHY CHOOSE US" badge */}
+              <div className="flex items-center gap-4 xl:shrink-0 xl:border-r xl:border-olive/20 xl:pr-10">
+                <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-olive text-cream">
+                  <LotusFlourish className="h-8 w-8" />
+                </span>
+                <span className="font-display text-sm font-medium tracking-[0.22em] text-olive uppercase">
+                  Why
+                  <br />
+                  Choose
+                  <br />
+                  Us
+                </span>
+              </div>
+
+              {/* The four promises, hairline-divided on wide screens */}
+              <div className="grid gap-10 sm:grid-cols-2 xl:flex-1 xl:grid-cols-4 xl:gap-0 xl:divide-x xl:divide-olive/20">
+                {ITEMS.map(({ Icon, title, body }) => (
+                  <div key={title} className="flex items-start gap-4 xl:px-7">
+                    {/* Deck p11 fills these chips taupe — the token exists for exactly this. */}
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-taupe/85 text-cream ring-1 ring-taupe">
+                      <Icon className="h-6 w-6" />
+                    </span>
+                    <div>
+                      <h3 className="font-display text-base leading-snug font-medium text-heading-brown">
+                        {title}
+                      </h3>
+                      <p className="mt-1.5 font-body text-sm leading-relaxed text-espresso/75">
+                        {body}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </ScrollReveal>
+      </div>
+    </section>
+  );
+}

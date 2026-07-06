@@ -3,6 +3,7 @@ import AssetFrame from "@/components/ui/AssetFrame";
 import ImageMaskReveal from "@/components/animations/ImageMaskReveal";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -59,6 +60,11 @@ export default function CraftsmanshipPage() {
         </p>
         <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
       </header>
+
+      {/* Deck p11–12 — the "WHY CHOOSE US" pill card on an olive band */}
+      <div className="mt-16">
+        <WhyChooseUs />
+      </div>
 
       <div className="mx-auto max-w-7xl px-6 py-16">
         {STEPS.map((s, i) => (

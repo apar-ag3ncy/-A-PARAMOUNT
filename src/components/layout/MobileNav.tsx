@@ -26,7 +26,7 @@ export default function MobileNav() {
       </button>
 
       {open && (
-        <div className="fixed inset-x-0 top-[57px] z-40 border-b border-olive/15 bg-cream px-6 py-6">
+        <div className="fixed inset-x-0 top-[75px] z-40 border-b border-olive/15 bg-cream px-6 py-6">
           <nav className="flex flex-col gap-4">
             {NAV.filter((n) => n.href !== "/").map((n) => (
               <Link

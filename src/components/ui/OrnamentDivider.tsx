@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface Props {
   className?: string;
   width?: "sm" | "md" | "lg";
@@ -41,7 +43,7 @@ export default function OrnamentDivider({ className, width = "md" }: Props) {
   return (
     <svg
       viewBox="0 0 172 24"
-      className={`h-6 ${widthClass} ${className ?? ""}`}
+      className={cn("h-6", widthClass, className)}
       fill="none"
       stroke="currentColor"
       strokeWidth={1}

@@ -1,7 +1,7 @@
 "use client";
 
-/* eslint-disable @next/next/no-img-element -- raw <img> by design: these four
-   sprites are manually preloaded + decoded before the timeline starts, and the
+/* eslint-disable @next/next/no-img-element -- raw <img> by design: the brand
+   art is manually preloaded + decoded before the show starts, and the whole
    component unmounts forever afterwards — next/image adds nothing here. */
 
 import { useRef, useState } from "react";
@@ -13,26 +13,27 @@ const SESSION_KEY = "pm-door-intro";
 /** LoadingScreen's session flag — set it too, so the mantra overlay never
  *  replays mid-session after the door was the first impression. */
 const LOADED_KEY = "pm-loaded";
-const DOOR_ASSETS = [
-  "/door/facade.webp",
-  "/door/door-left.webp",
-  "/door/door-right.webp",
-  "/door/interior.webp",
-];
-// Brand art is part of the text reveal — decode it up front so it never pops in late.
-const PRELOAD_ASSETS = [
-  ...DOOR_ASSETS,
-  "/brand/a-mark-white.png",
-  "/brand/paramount-word-white.png",
-];
 
-/** Doorway rectangle, as percentages of the 2752×1536 scene box. */
-const DOORWAY: React.CSSProperties = {
-  left: "35.79%",
-  top: "27.21%",
-  width: "28.71%",
-  height: "62.30%",
+/** The door opening is a PRE-RENDERED FILM (offline composite of the client's
+ *  temple-gate render — same layers, same beats, baked at 30fps). Playback is
+ *  hardware-decoded video: one composited layer, physically cannot jank,
+ *  guaranteed slow-mo-smooth on any machine. The brand text stays DOM so it is
+ *  razor-sharp at every DPI. */
+const FILM = "/door/door-open.mp4";
+const FILM_SM = "/door/door-open-540.mp4"; // lighter variant for small screens
+const FILM_POSTER = "/door/door-open-poster.jpg";
+/** Film beat map (seconds on the film's own 9.0s clock). */
+const BEATS = {
+  textIn: 1.0,
+  hintIn: 1.6,
+  textOut: 4.6,
+  hintOut: 5.2,
+  doorsOpen: 7.6, // dispatch pm:doors-open — hero mid-flight when flash clears
+  end: 9.0,
 };
+
+// Brand art is part of the text reveal — decode it up front so it never pops in late.
+const PRELOAD_ASSETS = ["/brand/a-mark-white.png", "/brand/paramount-word-white.png"];
 
 const GOLD = "#E2CA82";
 
@@ -43,17 +44,16 @@ const GOLD = "#E2CA82";
  * push inward, golden light floods out, the camera dollies through the doorway
  * and hands off to CinematicHero via the `pm:doors-open` event. Plays once per
  * browser session; any pointerdown / wheel / keydown fast-forwards elegantly
- * (timeScale, no jump cut).
+ * (video playbackRate + timeline timeScale, no jump cut).
  *
  * Rendered through a portal onto <body>: #smooth-content carries a transform
  * (ScrollSmoother), which would hijack position:fixed's containing block.
- * Performance: transforms + opacity only — no filters, no canvas, no per-frame
- * JS outside GSAP's ticker.
  */
 export default function DoorIntro() {
   const [play, setPlay] = useState(false);
   const [done, setDone] = useState(false);
   const root = useRef<HTMLDivElement>(null);
+  const video = useRef<HTMLVideoElement>(null);
   const fired = useRef(false);
 
   // Session gate — runs before paint. On a repeat visit the hero must never
@@ -77,7 +77,8 @@ export default function DoorIntro() {
   useIsomorphicLayoutEffect(() => {
     if (!play || done) return;
     const el = root.current;
-    if (!el) return;
+    const vid = video.current;
+    if (!el || !vid) return;
 
     let finished = false;
     let skipped = false;
@@ -87,8 +88,8 @@ export default function DoorIntro() {
 
     const fireDoorsOpen = () => {
       // The page beneath is hidden for the whole show (its compositing cost
-      // caused visible lag, and half-rendered frames could bleed through).
-      // Restore it exactly at handoff so the hero is live for the reveal.
+      // caused visible lag). Restore it exactly at handoff so the hero is
+      // live for the reveal.
       const wrapper = document.getElementById("smooth-wrapper");
       if (wrapper) wrapper.style.visibility = "";
       if (fired.current) return;
@@ -96,14 +97,18 @@ export default function DoorIntro() {
       window.dispatchEvent(new CustomEvent("pm:doors-open"));
     };
 
-    // First interaction = elegant fast-forward, never a jump cut. Listeners are
-    // live from the moment the failsafe is armed, so even the preload window is
-    // skippable — a pre-begin skip is honored when the timeline is created.
+    // First interaction = elegant fast-forward, never a jump cut: the film
+    // races at 4x (still hardware-smooth) and the text timeline keeps pace.
     const skip = () => {
       if (skipped) return;
       skipped = true;
       removeSkipListeners();
-      tlRef.current?.timeScale(3.2);
+      try {
+        vid.playbackRate = 4;
+      } catch {
+        /* some engines clamp playbackRate — timeline still races */
+      }
+      tlRef.current?.timeScale(4);
     };
     const addSkipListeners = () => {
       window.addEventListener("pointerdown", skip, { passive: true });
@@ -126,8 +131,8 @@ export default function DoorIntro() {
       sessionStorage.setItem(LOADED_KEY, "1");
       fireDoorsOpen();
       ScrollSmoother.get()?.paused(false);
-      // Kill (not revert) — the whole subtree unmounts on the next render, so
-      // restoring inline styles would only flash the scene back for a frame.
+      vid.pause();
+      // Kill (not revert) — the whole subtree unmounts on the next render.
       ctx?.kill();
       setDone(true);
     };
@@ -140,10 +145,8 @@ export default function DoorIntro() {
       const smoother = ScrollSmoother.get();
       smoother?.scrollTo(0, false);
       smoother?.paused(true);
-      // Our stage now covers everything — retire the server-rendered cream
-      // precover and hide the page beneath (it would otherwise be composited
-      // on every frame under the full-screen dolly, the main source of lag,
-      // and could flash through between frames). fireDoorsOpen restores it.
+      // Our stage covers everything — retire the server-rendered cream
+      // precover and hide the page beneath. fireDoorsOpen restores it.
       document.getElementById("pm-precover")?.remove();
       const wrapper = document.getElementById("smooth-wrapper");
       if (wrapper) wrapper.style.visibility = "hidden";
@@ -153,137 +156,69 @@ export default function DoorIntro() {
         mm.add(
           {
             reduce: "(prefers-reduced-motion: reduce)",
-            mobile: "(prefers-reduced-motion: no-preference) and (max-width: 1023px)",
-            desktop: "(prefers-reduced-motion: no-preference) and (min-width: 1024px)",
+            motion: "(prefers-reduced-motion: no-preference)",
           },
           (mctx) => {
-            const cond = (mctx.conditions ?? {}) as {
-              reduce?: boolean;
-              mobile?: boolean;
-            };
+            const cond = (mctx.conditions ?? {}) as { reduce?: boolean };
 
-            // ---- Reduced motion: static closed-door tableau. Fade in, hold,
-            // fade away. Same events, same flags, no 3D, no dolly. ----
+            // ---- Reduced motion: static closed-door tableau (the film's
+            // poster frame, unplayed). Fade in, hold, fade away. ----
             if (cond.reduce) {
               gsap.set(el, { opacity: 0 });
-              gsap.set(".di-flash", { opacity: 0 });
               gsap.set(".di-text > *", { opacity: 1, y: 0 });
-              gsap.set(".di-lamp", { opacity: 0.55 });
               gsap.set(".di-hint", { opacity: 0.6 });
               const tl = gsap
                 .timeline({ onComplete: finish })
                 .to(el, { opacity: 1, duration: 1, ease: "power2.out" }, 0)
                 .call(fireDoorsOpen, undefined, 2.2)
                 .to(el, { opacity: 0, duration: 0.8, ease: "power2.in" }, 2.2);
-              if (skipped) tl.timeScale(3.2); // skip arrived during preload
+              if (skipped) tl.timeScale(3.2);
               tlRef.current = tl;
               return;
             }
 
-            const doorsDur = cond.mobile ? 2.2 : 2.7;
-            const dollyDur = cond.mobile ? 1.7 : 2.0;
-
-            // ---- Initial states (flash covers the stage until 0.0) ----
-            gsap.set(".di-doors", {
-              perspective: cond.mobile ? 1100 : 1500,
-            });
-            gsap.set(".di-scene", { scale: 1.05, transformOrigin: "50% 58.36%" });
-            gsap.set(".di-leaf-l", { rotationY: 0, transformOrigin: "left center" });
-            gsap.set(".di-leaf-r", { rotationY: 0, transformOrigin: "right center" });
-            gsap.set(".di-shade", { opacity: 0 });
-            gsap.set(".di-bloom", { opacity: 0.55, scale: 1, transformOrigin: "50% 50%" });
-            gsap.set(".di-ray", { opacity: 0 });
-            gsap.set(".di-lamp", { opacity: 0.45, transformOrigin: "50% 50%" });
+            // ---- Full show: the film plays; GSAP drives only the DOM text
+            // overlay + events on the film's 9s clock. ----
             gsap.set(".di-text > *", { opacity: 0, y: 26 });
             gsap.set(".di-hint", { opacity: 0 });
-            gsap.set(".di-flash", { opacity: 1 });
-            // Promote the heavy movers for the whole show — they animate from
-            // the first beat to the last, so a static hint is correct here.
-            gsap.set([".di-scene", ".di-leaf-l", ".di-leaf-r", ".di-bloom"], {
-              willChange: "transform",
-            });
 
-            // ---- Living diya flames (independent gentle yoyo, killed w/ ctx) ----
-            gsap.to(".di-lamp-a", {
-              opacity: 0.75,
-              scale: 1.02,
-              duration: 2.4,
-              ease: "sine.inOut",
-              yoyo: true,
-              repeat: -1,
-            });
-            gsap.to(".di-lamp-b", {
-              opacity: 0.75,
-              scale: 1.02,
-              duration: 2.4,
-              ease: "sine.inOut",
-              yoyo: true,
-              repeat: -1,
-              delay: 1.2,
-            });
-
-            // ---- Master timeline ----
             const tl = gsap.timeline({ onComplete: finish });
             tl
-              // 0.0 — cream wash lifts, scene settles from 1.05 → 1
-              .to(".di-flash", { opacity: 0, duration: 1.4, ease: "power2.out" }, 0)
-              .to(".di-scene", { scale: 1, duration: 1.8, ease: "power2.out" }, 0)
-              // 0.9 — text apparition
               .to(
                 [".di-mark", ".di-word"],
-                { opacity: 1, y: 0, duration: 1.1, ease: "power3.out", stagger: 0.12 },
-                0.9,
+                { opacity: 1, y: 0, duration: 1.2, ease: "power3.out", stagger: 0.14 },
+                BEATS.textIn,
               )
               .to(
                 [".di-div", ".di-serif", ".di-caps"],
-                { opacity: 1, y: 0, duration: 1.1, ease: "power3.out", stagger: 0.1 },
-                1.25,
+                { opacity: 1, y: 0, duration: 1.2, ease: "power3.out", stagger: 0.12 },
+                BEATS.textIn + 0.4,
               )
-              .to(".di-hint", { opacity: 0.7, duration: 0.9, ease: "power2.out" }, 1.5)
-              // 2.1 — DOORS OPEN (the hero beat). Origin-left: +rotationY pushes
-              // the free edge away from the viewer; origin-right: negative does.
-              .to(".di-leaf-l", { rotationY: 84, duration: doorsDur, ease: "power2.inOut" }, 2.1)
-              .to(".di-leaf-r", { rotationY: -84, duration: doorsDur, ease: "power2.inOut" }, 2.1)
-              .to(".di-shade", { opacity: 0.5, duration: doorsDur, ease: "power2.inOut" }, 2.1)
-              .to(
-                ".di-bloom",
-                { opacity: 1, scale: 1.3, duration: doorsDur, ease: "power2.inOut" },
-                2.1,
-              )
-              .to(".di-ray", { opacity: 0.45, duration: doorsDur, ease: "power2.inOut" }, 2.1)
-              // faint gold edge-glow sweeping each leaf as it turns
-              .fromTo(
-                ".di-sweep-l",
-                { xPercent: -160 },
-                { xPercent: 320, duration: doorsDur * 0.85, ease: "power2.inOut" },
-                2.25,
-              )
-              .fromTo(
-                ".di-sweep-r",
-                { xPercent: 320 },
-                { xPercent: -160, duration: doorsDur * 0.85, ease: "power2.inOut" },
-                2.25,
-              )
-              // 2.6 — text exits (gone before the dolly)
+              .to(".di-hint", { opacity: 0.7, duration: 0.9, ease: "power2.out" }, BEATS.hintIn)
               .to(
                 ".di-text > *",
-                { y: -30, opacity: 0, duration: 0.9, ease: "power2.in", stagger: 0.05 },
-                2.6,
+                { y: -28, opacity: 0, duration: 1.0, ease: "power2.in", stagger: 0.05 },
+                BEATS.textOut,
               )
-              .to(".di-hint", { opacity: 0, duration: 0.6, ease: "power2.in" }, 3.6)
-              // 4.0 — DOLLY-THROUGH the doorway (origin = doorway center)
-              .to(".di-scene", { scale: 3.15, duration: dollyDur, ease: "power2.in" }, 4.0)
-              // 4.6 — handoff: hero intro is already mid-flight underneath
-              .call(fireDoorsOpen, undefined, 4.6)
-              // 4.9 — cream flash swallows the frame
-              .to(".di-flash", { opacity: 1, duration: 0.7, ease: "power2.in" }, 4.9)
-              // 6.0 — the component fades itself out, then unmounts
-              .to(el, { opacity: 0, duration: 0.5, ease: "power2.out" }, 6.0);
-            // Cinematic slow-motion: the whole score plays at ~4/5 speed —
-            // beats keep their relationships, everything breathes longer.
-            tl.timeScale(cond.mobile ? 0.85 : 0.78);
-            if (skipped) tl.timeScale(3.2); // skip arrived during preload
+              .to(".di-hint", { opacity: 0, duration: 0.6, ease: "power2.in" }, BEATS.hintOut)
+              .call(fireDoorsOpen, undefined, BEATS.doorsOpen)
+              .to(el, { opacity: 0, duration: 0.45, ease: "power2.out" }, BEATS.end - 0.35);
+            if (skipped) {
+              tl.timeScale(4);
+              try {
+                vid.playbackRate = 4;
+              } catch {
+                /* noop */
+              }
+            }
             tlRef.current = tl;
+
+            // Roll the film. If playback is refused (ancient browser/policy —
+            // we're muted+playsInline so this is rare), finish gracefully.
+            vid.play().catch(finish);
+            // Belt & braces: if the film somehow ends before the timeline
+            // (drift, throttling), finish on its `ended` too.
+            vid.addEventListener("ended", finish, { once: true });
           },
         );
       }, el);
@@ -297,19 +232,44 @@ export default function DoorIntro() {
       begin();
     };
 
-    // Preload + decode the sprites + brand art. FAILSAFE: a slow dev build must
-    // never block the site — if not decoded in 3.5s, skip (flag + event +
-    // unmount). Skip listeners are live from here, so even the preload window
-    // is skippable.
-    failsafe = window.setTimeout(finish, 3500);
+    // Preload: brand art decode + enough film buffered to play through.
+    // FAILSAFE: a slow network must never block the site — if not ready in
+    // 4s while the user is actually LOOKING, skip (flag + event + unmount).
+    // In a hidden tab the browser deprioritizes video buffering, so the
+    // countdown would misfire on a show nobody has seen yet — hold instead
+    // and re-arm when the tab becomes visible. Skip listeners live from here.
+    const armFailsafe = () => {
+      failsafe = window.setTimeout(() => {
+        if (document.hidden) {
+          const rearm = () => {
+            document.removeEventListener("visibilitychange", rearm);
+            if (!finished) armFailsafe();
+          };
+          document.addEventListener("visibilitychange", rearm);
+          return;
+        }
+        finish();
+      }, 4000);
+    };
+    armFailsafe();
     addSkipListeners();
-    const imgs = PRELOAD_ASSETS.map((src) => {
-      const im = new window.Image();
-      im.decoding = "async";
-      im.src = src;
-      return im;
+
+    const artReady = Promise.all(
+      PRELOAD_ASSETS.map((src) => {
+        const im = new window.Image();
+        im.decoding = "async";
+        im.src = src;
+        return im.decode().catch(() => undefined);
+      }),
+    );
+    const filmReady = new Promise<void>((resolve) => {
+      if (vid.readyState >= 3) return resolve(); // HAVE_FUTURE_DATA
+      vid.addEventListener("canplaythrough", () => resolve(), { once: true });
+      vid.addEventListener("canplay", () => resolve(), { once: true });
+      vid.load();
     });
-    Promise.all(imgs.map((im) => im.decode()))
+
+    Promise.all([artReady, filmReady])
       .then(() => {
         if (finished) return;
         window.clearTimeout(failsafe);
@@ -323,7 +283,7 @@ export default function DoorIntro() {
       .catch(finish);
 
     return () => {
-      finished = true; // block any late decode/timeline callbacks
+      finished = true; // block any late callbacks
       window.clearTimeout(failsafe);
       removeSkipListeners();
       document.removeEventListener("visibilitychange", onVisible);
@@ -333,222 +293,82 @@ export default function DoorIntro() {
       const wrapper = document.getElementById("smooth-wrapper");
       if (wrapper) wrapper.style.visibility = "";
       document.getElementById("pm-precover")?.remove();
+      vid.pause();
       ctx?.revert();
     };
   }, [play]);
 
   if (done || !play) return null;
 
+  // Small screens get the lighter encode — same film, same clock.
+  const src =
+    typeof window !== "undefined" && window.innerWidth < 768 ? FILM_SM : FILM;
+
   return createPortal(
     <div
       ref={root}
       aria-hidden
-      className="fixed inset-0 z-[250] flex cursor-pointer items-center justify-center overflow-hidden bg-espresso select-none"
+      className="fixed inset-0 z-[250] cursor-pointer overflow-hidden bg-cream select-none"
     >
-      {/* scene box — covers the viewport keeping the 2752×1536 render's ratio */}
+      {/* 1 — THE FILM: the entire door-opening shot, hardware-decoded. */}
+      <video
+        ref={video}
+        src={src}
+        poster={FILM_POSTER}
+        muted
+        playsInline
+        preload="auto"
+        disablePictureInPicture
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+
+      {/* 2 — brand text column at the doorway center (DOM = razor sharp) */}
       <div
-        className="di-scene relative flex-none will-change-transform"
-        style={{ aspectRatio: "2752 / 1536", minWidth: "100vw", minHeight: "100vh" }}
+        className="di-text absolute flex flex-col items-center text-center"
+        style={{
+          left: "50%",
+          top: "52%",
+          transform: "translate(-50%, -50%)",
+          textShadow: "0 0 26px rgba(226,202,130,0.55)",
+        }}
       >
-        {/* 1 — golden bloom + god-rays + interior hall (seen through the doorway) */}
-        <div
-          className="absolute"
-          style={{ left: "50%", top: "58.36%", width: "46%", transform: "translate(-50%, -50%)" }}
-        >
-          <div
-            className="di-bloom aspect-square w-full will-change-transform"
-            style={{
-              background:
-                "radial-gradient(circle, #FFF6DC 0%, #E2CA82 38%, rgba(226,202,130,0) 68%)",
-              opacity: 0.55,
-            }}
-          />
-        </div>
-        <div
-          className="di-ray absolute"
-          style={{
-            left: "46.5%",
-            top: "30%",
-            width: "7%",
-            height: "52%",
-            transform: "skewX(-12deg)",
-            background: "linear-gradient(to bottom, rgba(226,202,130,0.55), rgba(226,202,130,0))",
-            opacity: 0,
-          }}
-        />
-        <div
-          className="di-ray absolute"
-          style={{
-            left: "51%",
-            top: "30%",
-            width: "9%",
-            height: "58%",
-            transform: "skewX(9deg)",
-            background: "linear-gradient(to bottom, rgba(255,246,220,0.5), rgba(226,202,130,0))",
-            opacity: 0,
-          }}
-        />
         <img
-          src="/door/interior.webp"
+          src="/brand/a-mark-white.png"
           alt=""
           draggable={false}
-          className="absolute"
-          style={{ ...DOORWAY, objectFit: "fill" }}
+          className="di-mark h-[8vh] w-auto will-change-transform"
+          style={{ opacity: 0 }}
         />
-
-        {/* 2 — the doors (3D stage exactly on the doorway rect) */}
-        <div className="di-doors absolute" style={{ ...DOORWAY, perspectiveOrigin: "50% 50%" }}>
-          <div
-            className="di-leaf-l absolute inset-y-0 left-0 w-1/2 will-change-transform"
-            style={{ transformOrigin: "left center", backfaceVisibility: "hidden" }}
-          >
-            <img
-              src="/door/door-left.webp"
-              alt=""
-              draggable={false}
-              className="h-full w-full"
-              style={{ objectFit: "fill" }}
-            />
-            {/* fake recede-light as the leaf turns */}
-            <div
-              className="di-shade absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(to right, rgba(46,35,19,0.85), rgba(46,35,19,0) 75%)",
-                opacity: 0,
-              }}
-            />
-            <div className="absolute inset-0 overflow-hidden">
-              <div
-                className="di-sweep-l absolute inset-y-0 left-0 w-2/5 will-change-transform"
-                style={{
-                  background:
-                    "linear-gradient(100deg, rgba(226,202,130,0) 0%, rgba(254,244,218,0.38) 50%, rgba(226,202,130,0) 100%)",
-                  transform: "translateX(-160%)",
-                }}
-              />
-            </div>
-          </div>
-          <div
-            className="di-leaf-r absolute inset-y-0 right-0 w-1/2 will-change-transform"
-            style={{ transformOrigin: "right center", backfaceVisibility: "hidden" }}
-          >
-            <img
-              src="/door/door-right.webp"
-              alt=""
-              draggable={false}
-              className="h-full w-full"
-              style={{ objectFit: "fill" }}
-            />
-            <div
-              className="di-shade absolute inset-0"
-              style={{
-                background:
-                  "linear-gradient(to left, rgba(46,35,19,0.85), rgba(46,35,19,0) 75%)",
-                opacity: 0,
-              }}
-            />
-            <div className="absolute inset-0 overflow-hidden">
-              <div
-                className="di-sweep-r absolute inset-y-0 left-0 w-2/5 will-change-transform"
-                style={{
-                  background:
-                    "linear-gradient(100deg, rgba(226,202,130,0) 0%, rgba(254,244,218,0.38) 50%, rgba(226,202,130,0) 100%)",
-                  transform: "translateX(320%)",
-                }}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* 3 — the facade (its feathered doorway hole reveals layers 1–2) */}
         <img
-          src="/door/facade.webp"
-          alt=""
+          src="/brand/paramount-word-white.png"
+          alt="A Paramount"
           draggable={false}
-          className="absolute inset-0 h-full w-full"
-          style={{ objectFit: "fill" }}
+          className="di-word mt-[3vh] h-auto will-change-transform"
+          style={{ width: "clamp(260px, 30vw, 500px)", opacity: 0 }}
         />
-
-        {/* 4 — living diya flames over the facade lamps */}
         <div
-          className="absolute"
-          style={{ left: "20.35%", top: "80.4%", width: "12%", transform: "translate(-50%, -50%)" }}
+          className="di-div mt-[3vh] flex items-center gap-3 will-change-transform"
+          style={{ color: GOLD, opacity: 0 }}
         >
-          <div
-            className="di-lamp di-lamp-a aspect-square w-full will-change-transform"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(226,202,130,0.85) 0%, rgba(226,202,130,0.25) 45%, rgba(226,202,130,0) 70%)",
-              opacity: 0.45,
-            }}
-          />
+          <span className="h-px w-12 bg-current" />
+          <span className="text-[12px]">✦</span>
+          <span className="h-px w-12 bg-current" />
         </div>
-        <div
-          className="absolute"
-          style={{ left: "79.58%", top: "80.4%", width: "12%", transform: "translate(-50%, -50%)" }}
+        <p
+          className="di-serif mt-[2.5vh] font-serif text-xl text-cream italic will-change-transform sm:text-2xl"
+          style={{ opacity: 0 }}
         >
-          <div
-            className="di-lamp di-lamp-b aspect-square w-full will-change-transform"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(226,202,130,0.85) 0%, rgba(226,202,130,0.25) 45%, rgba(226,202,130,0) 70%)",
-              opacity: 0.45,
-            }}
-          />
-        </div>
-
-        {/* 5 — brand text column at the doorway center */}
-        <div
-          className="di-text absolute flex flex-col items-center text-center"
-          style={{
-            left: "50%",
-            top: "52%",
-            transform: "translate(-50%, -50%)",
-            textShadow: "0 0 26px rgba(226,202,130,0.55)",
-          }}
+          The doors have been opening since 1968.
+        </p>
+        <p
+          className="di-caps mt-[2vh] font-display text-[11px] tracking-[0.28em] uppercase will-change-transform"
+          style={{ color: GOLD, opacity: 0 }}
         >
-          <img
-            src="/brand/a-mark-white.png"
-            alt=""
-            draggable={false}
-            className="di-mark h-[8vh] w-auto will-change-transform"
-            style={{ opacity: 0 }}
-          />
-          <img
-            src="/brand/paramount-word-white.png"
-            alt="A Paramount"
-            draggable={false}
-            className="di-word mt-[3vh] h-auto will-change-transform"
-            style={{ width: "clamp(260px, 30vw, 500px)", opacity: 0 }}
-          />
-          <div
-            className="di-div mt-[3vh] flex items-center gap-3 will-change-transform"
-            style={{ color: GOLD, opacity: 0 }}
-          >
-            <span className="h-px w-12 bg-current" />
-            <span className="text-[12px]">✦</span>
-            <span className="h-px w-12 bg-current" />
-          </div>
-          <p
-            className="di-serif mt-[2.5vh] font-serif text-xl text-cream italic will-change-transform sm:text-2xl"
-            style={{ opacity: 0 }}
-          >
-            The doors have been opening since 1968.
-          </p>
-          <p
-            className="di-caps mt-[2vh] font-display text-[11px] tracking-[0.28em] uppercase will-change-transform"
-            style={{ color: GOLD, opacity: 0 }}
-          >
-            Temple Artefacts · Crafted in Mumbai
-          </p>
-        </div>
+          Temple Artefacts · Crafted in Mumbai
+        </p>
       </div>
 
-      {/* 6 — full-screen cream wash (entry + exit) */}
-      <div className="di-flash pointer-events-none absolute inset-0 bg-cream" style={{ opacity: 1 }} />
-
-      {/* 7 — skip hint */}
+      {/* 3 — skip hint */}
       <div
         className="di-hint pointer-events-none absolute right-6 bottom-6 font-display text-[10px] tracking-[0.3em] text-cream/60 uppercase"
         style={{ opacity: 0 }}

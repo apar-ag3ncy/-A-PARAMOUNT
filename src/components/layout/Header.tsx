@@ -13,15 +13,15 @@ export default function Header() {
     <header className="sticky top-0 z-50 border-b border-olive/15 bg-cream/95">
       {/* fine gold top rule */}
       <div className="h-[2px] w-full bg-gradient-to-r from-transparent via-olive/60 to-transparent" />
-      <div className="flex items-center justify-between px-5 py-3 sm:px-8">
-        <Link href="/" className="flex items-center gap-3" aria-label="A Paramount — home">
+      <div className="flex items-center justify-between px-5 py-3.5 sm:px-8">
+        <Link href="/" className="flex items-center gap-3.5" aria-label="A Paramount — home">
           <Image
             src="/brand/a-mark-olive.png"
             alt=""
             width={269}
             height={234}
             priority
-            className="h-9 w-auto"
+            className="h-11 w-auto"
           />
           <Image
             src="/brand/paramount-word-olive.png"
@@ -29,10 +29,15 @@ export default function Header() {
             width={1117}
             height={219}
             priority
-            className="h-[20px] w-auto translate-y-[1px]"
+            className="h-6 w-auto translate-y-[1px]"
           />
         </Link>
-        <MegaMenu />
+        {/* Bump the top-level nav link size a step (12px -> 13px) from here so the
+            MegaMenu file stays untouched; scoped to the nav's direct links only —
+            the mega panel's inner links and MobileNav keep their own sizes. */}
+        <div className="contents [&>nav>a]:text-[13px] [&>nav>div>a]:text-[13px]">
+          <MegaMenu />
+        </div>
         <MobileNav />
       </div>
     </header>

@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface Props {
   className?: string;
 }
@@ -16,7 +18,7 @@ export default function LotusFlourish({ className }: Props) {
   return (
     <svg
       viewBox="0 0 64 64"
-      className={`h-16 w-16 ${className ?? ""}`}
+      className={cn("h-16 w-16", className)}
       fill="currentColor"
       aria-hidden
     >

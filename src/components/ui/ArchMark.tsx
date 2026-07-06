@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+
 interface Props {
   className?: string;
 }
@@ -16,7 +18,7 @@ export default function ArchMark({ className }: Props) {
   return (
     <svg
       viewBox="0 0 44 60"
-      className={`h-[60px] w-[44px] ${className ?? ""}`}
+      className={cn("h-[60px] w-[44px]", className)}
       fill="none"
       stroke="currentColor"
       strokeWidth={2}

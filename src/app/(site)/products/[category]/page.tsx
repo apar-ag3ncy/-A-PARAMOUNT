@@ -29,6 +29,9 @@ export default async function CategoryPage({
   if (!family) notFound();
 
   const products = await getProductsByFamily(family.slug);
+  // Deck p13 hero circle — the family's leading piece with real photography
+  // (products arrive in the client's order of importance).
+  const heroImage = products.find((p) => p.image)?.image;
 
   return (
     <>
@@ -36,6 +39,7 @@ export default async function CategoryPage({
         title={family.title}
         subtitle={family.blurb}
         count={products.length}
+        image={heroImage}
       />
       <div className="mx-auto max-w-7xl px-6 pb-32">
         <CategoryBrowser familySlug={family.slug} products={products} />
