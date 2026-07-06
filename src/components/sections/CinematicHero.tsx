@@ -152,19 +152,19 @@ export default function CinematicHero() {
           yoyo: true,
           repeat: -1,
         });
-        // recurring golden sweep through the logo glyphs
-        const shine = gsap.fromTo(
-          ".hv-shine",
-          { xPercent: -170 },
-          {
-            xPercent: 320,
-            duration: 1.8,
-            ease: "power2.inOut",
-            repeat: -1,
-            repeatDelay: 4.6,
-            delay: 3.4,
-          },
-        );
+        // recurring golden sweep through the logo glyphs — constant travel with
+        // a fade-out BEFORE the far edge, so the gleam melts away instead of
+        // visibly parking at the end of the wordmark
+        const shine = gsap
+          .timeline({ repeat: -1, repeatDelay: 4.6, delay: 3.4 })
+          .fromTo(
+            ".hv-shine",
+            { xPercent: -170, opacity: 0 },
+            { xPercent: 320, duration: 1.6, ease: "power1.inOut" },
+            0,
+          )
+          .to(".hv-shine", { opacity: 1, duration: 0.35, ease: "power1.in" }, 0.12)
+          .to(".hv-shine", { opacity: 0, duration: 0.5, ease: "power1.out" }, 1.0);
         // Same deal as the motes canvas: only burn frames while the hero is
         // actually on screen — both repeat:-1 tweens sleep offscreen.
         const io = new IntersectionObserver(
@@ -306,13 +306,22 @@ export default function CinematicHero() {
       ref={root}
       className="hv relative flex h-[100svh] items-center justify-center overflow-hidden bg-cream"
     >
-      {/* divine light bloom */}
+      {/* warm base wash — imperceptible edge, keeps the whole frame golden */}
+      <div
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(120% 90% at 50% 46%, #FDF7E3 0%, #FEF4DA 55%, #FBEEC9 100%)",
+        }}
+      />
+      {/* divine light bloom — sized by vmin so the halo stays a true, un-clipped
+          circle at every aspect ratio (vmax clipped into a squashed dome) */}
       <div className="hv-bloom-wrap pointer-events-none absolute inset-0 -z-10 grid place-items-center overflow-hidden">
         <div
-          className="hv-bloom h-[110vmax] w-[110vmax] rounded-full"
+          className="hv-bloom h-[130vmin] w-[130vmin] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, #FFFBEF 0%, #FBF1D2 26%, rgba(226,202,130,0.35) 46%, rgba(138,127,74,0.12) 66%, rgba(138,127,74,0) 78%)",
+              "radial-gradient(circle, #FFFBEF 0%, #FBF1D2 30%, rgba(226,202,130,0.32) 52%, rgba(138,127,74,0.10) 68%, rgba(138,127,74,0) 78%)",
           }}
         />
       </div>

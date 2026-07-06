@@ -8,6 +8,8 @@ interface MasonryItemProps {
   ratio: string;
   href?: string;
   image?: SanityImage | null;
+  /** Local photo path (e.g. catalog `image`) — shown uncropped in the frame. */
+  src?: string;
   /** Small material tag pinned to the frame. */
   material?: string;
   depth?: number;
@@ -28,6 +30,7 @@ export default function MasonryItem({
   ratio,
   href,
   image,
+  src,
   material,
   depth,
   priority,
@@ -39,6 +42,8 @@ export default function MasonryItem({
       <div className="relative transition-transform duration-[400ms] ease-out group-hover:-translate-y-1.5">
         <AssetFrame
           image={image ?? null}
+          src={src}
+          fit={src ? "contain" : "cover"}
           ratio={ratio}
           depth={depth}
           priority={priority}

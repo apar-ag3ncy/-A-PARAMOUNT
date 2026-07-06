@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 const STATS: { to: number; suffix: string; label: string }[] = [
@@ -32,9 +33,9 @@ function Corner({ className }: { className?: string }) {
 }
 
 /**
- * The velvet interlude — a deep-oxblood devotional statement (inspo: ornamental
- * gold-cornered cards). Numbers count up as the panel enters; the statement line
- * reveals word by word.
+ * The velvet interlude — a full-screen deep-olive devotional statement (inspo:
+ * ornamental gold-cornered cards from the brand deck). Numbers count up as the
+ * panel enters; the statement line reveals word by word.
  */
 export default function DevotionStatement() {
   const root = useRef<HTMLElement>(null);
@@ -79,12 +80,19 @@ export default function DevotionStatement() {
   }, []);
 
   return (
-    <section ref={root} className="px-4 py-24 sm:px-8">
+    <section ref={root} className="flex min-h-svh flex-col bg-cream p-6 sm:p-8">
       <div
-        className="relative mx-auto max-w-6xl overflow-hidden rounded-card px-6 py-20 text-center sm:px-16 sm:py-28"
+        className="relative flex w-full flex-1 flex-col items-center justify-center overflow-hidden rounded-card px-6 py-20 text-center sm:px-16"
         style={{
-          background:
-            "radial-gradient(circle at 20% 10%, rgba(226,202,130,0.10), transparent 45%), radial-gradient(circle at 80% 90%, rgba(226,202,130,0.08), transparent 45%), linear-gradient(160deg, #4F1A16 0%, #3A120F 55%, #2C0D0B 100%)",
+          // Velvet olive: soft gold sheens over a centre-lit olive vignette that
+          // deepens to espresso at the edges, plus a whisper of woven grain.
+          background: [
+            "repeating-linear-gradient(115deg, rgba(226,202,130,0.028) 0px, rgba(226,202,130,0.028) 1px, transparent 1px, transparent 8px)",
+            "radial-gradient(ellipse at 50% 35%, rgba(226,202,130,0.13), transparent 58%)",
+            "radial-gradient(circle at 15% 8%, rgba(220,207,149,0.10), transparent 42%)",
+            "radial-gradient(circle at 85% 92%, rgba(226,202,130,0.08), transparent 45%)",
+            "radial-gradient(ellipse at 50% 50%, #4A4428 0%, #3D3823 55%, #2E2313 100%)",
+          ].join(", "),
         }}
       >
         {/* hairline inner frame + gold corners */}
@@ -99,31 +107,27 @@ export default function DevotionStatement() {
           alt=""
           width={269}
           height={234}
-          className="mx-auto h-14 w-auto opacity-80"
+          className="mx-auto h-14 w-auto opacity-80 sm:h-16"
         />
 
-        <p className="mt-8 font-display text-[10px] tracking-[0.34em] text-[#E2CA82]/80 uppercase">
+        <p className="mt-8 font-display text-[10px] tracking-[0.34em] text-[#DCCF95] uppercase sm:text-[11px]">
           Three generations of shastra &amp; craft
         </p>
 
         <SplitTextReveal
           as="h2"
           by="words"
-          className="mx-auto mt-6 max-w-3xl font-serif text-3xl leading-snug text-cream italic sm:text-5xl"
+          className="mx-auto mt-6 max-w-3xl font-serif text-3xl leading-snug text-cream italic sm:text-5xl lg:max-w-4xl lg:text-6xl"
         >
           Fifty years of devotion, cast in silver, brass and prayer.
         </SplitTextReveal>
 
-        <div className="mx-auto mt-8 flex items-center justify-center gap-3 text-[#E2CA82]/60" aria-hidden>
-          <span className="h-px w-14 bg-current" />
-          <span className="text-[12px]">✦</span>
-          <span className="h-px w-14 bg-current" />
-        </div>
+        <OrnamentDivider className="mx-auto mt-9 text-[#E2CA82]/65" />
 
-        <div className="mx-auto mt-12 grid max-w-2xl grid-cols-3 gap-6">
+        <div className="mx-auto mt-12 grid max-w-2xl grid-cols-3 gap-6 sm:mt-14">
           {STATS.map((s) => (
             <div key={s.label}>
-              <p className="font-serif text-3xl text-[#E2CA82] tabular-nums sm:text-5xl">
+              <p className="font-display text-3xl font-light text-[#E2CA82] tabular-nums sm:text-5xl">
                 <span className="dv-num" data-to={s.to}>
                   0
                 </span>

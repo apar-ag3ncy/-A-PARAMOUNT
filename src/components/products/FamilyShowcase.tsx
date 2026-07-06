@@ -69,6 +69,8 @@ export default function FamilyShowcase({ family, products }: Props) {
           >
             <AssetFrame
               image={p.heroImage}
+              src={p.image}
+              fit={p.image ? "contain" : "cover"}
               ratio="3/4"
               caption={p.title}
               frameClassName={

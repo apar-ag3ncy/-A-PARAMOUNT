@@ -24,14 +24,15 @@ interface Props {
 /**
  * SplitText line/word/char reveal (PARAMOUNT_SCROLL_UI_PROMPT.md §4.2). Lines are
  * wrapped in overflow:hidden (.split-line) so words rise from behind a mask.
- * Reduced-motion: renders plain text, no split.
+ * House motion system: duration 1s, ease power3.out, word stagger 0.08
+ * (char reveals pass a finer explicit stagger). Reduced-motion: plain text.
  */
 export default function SplitTextReveal({
   children,
   as = "div",
   by = "words",
   className,
-  stagger = 0.03,
+  stagger = 0.08,
   start = "top 82%",
   delay = 0,
 }: Props) {
@@ -56,7 +57,7 @@ export default function SplitTextReveal({
           yPercent: 100,
           opacity: 0,
           duration: 1,
-          ease: "power4.out",
+          ease: "power3.out",
           stagger,
           delay,
           scrollTrigger: { trigger: el, start, once: true },

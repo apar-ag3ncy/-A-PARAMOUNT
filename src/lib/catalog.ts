@@ -19,6 +19,8 @@ export interface CatalogCategory {
   ratio: string;
   /** Populated from Sanity; null on the local catalog (shows the empty frame). */
   heroImage?: SanityImage | null;
+  /** Local hero photo under /public — filled from the client's photography. */
+  image?: string;
 }
 
 const RATIOS = ["3/4", "4/5", "1/1", "4/3", "2/3"] as const;
@@ -89,16 +91,57 @@ function slugify(title: string): string {
     .replace(/(^-|-$)/g, "");
 }
 
+/**
+ * Client photography (hero shot per category), converted to WEBP under
+ * /public/products/<slug>.webp. Rows without an entry keep the empty frame.
+ */
+const IMAGES: Record<string, string> = {
+  "dhwajadand": "/products/dhwajadand.webp",
+  "kalash": "/products/kalash.webp",
+  "doors": "/products/doors.webp",
+  "bhandar": "/products/bhandar.webp",
+  "samovasaran-trigadu": "/products/samovasaran-trigadu.webp",
+  "divistand": "/products/divistand.webp",
+  "angi-mugat": "/products/angi-mugat.webp",
+  "14-swapna-and-parna": "/products/14-swapna-and-parna.webp",
+  "chattar": "/products/chattar.webp",
+  "mandir": "/products/mandir.webp",
+  "door-step": "/products/door-step.webp",
+  "brass-tijori": "/products/brass-tijori.webp",
+  "brass-bell": "/products/brass-bell.webp",
+  "brass-gate": "/products/brass-gate.webp",
+  "brass-grill-jali": "/products/brass-grill-jali.webp",
+  "puja-table": "/products/puja-table.webp",
+  "patla": "/products/patla.webp",
+  "ashtaprakari-puja-bajot": "/products/ashtaprakari-puja-bajot.webp",
+  "vyaakhyan-paat": "/products/vyaakhyan-paat.webp",
+  "toran": "/products/toran.webp",
+  "manekstambh-toran": "/products/manekstambh-toran.webp",
+  "rath": "/products/rath.webp",
+  "cloth-dhaja": "/products/cloth-dhaja.webp",
+  "shatrunjay-pat": "/products/shatrunjay-pat.webp",
+  "vyaakhyan-kamal": "/products/vyaakhyan-kamal.webp",
+  "kalpavruksh-naan": "/products/kalpavruksh-naan.webp",
+  "wooden-carved-murti": "/products/wooden-carved-murti.webp",
+  "silver-aarti-mangal-divo": "/products/silver-aarti-mangal-divo.webp",
+  "108-diva-aarti": "/products/108-diva-aarti.webp",
+  "silver-kothi": "/products/silver-kothi.webp",
+};
+
 export const CATEGORIES: CatalogCategory[] = ROWS.map(
-  ([order, title, family, variants, blurb]) => ({
-    order,
-    title,
-    family,
-    variants,
-    blurb,
-    slug: slugify(title),
-    ratio: RATIOS[(order - 1) % RATIOS.length],
-  }),
+  ([order, title, family, variants, blurb]) => {
+    const slug = slugify(title);
+    return {
+      order,
+      title,
+      family,
+      variants,
+      blurb,
+      slug,
+      ratio: RATIOS[(order - 1) % RATIOS.length],
+      image: IMAGES[slug],
+    };
+  },
 );
 
 export function getCategory(slug: string): CatalogCategory | undefined {

@@ -14,7 +14,10 @@ interface Props {
 
 /**
  * Velocity-reactive marquee (PARAMOUNT_SCROLL_UI_PROMPT.md §4.6). Scrolls right
- * to left; speeds up and skews with scroll velocity, settles when still.
+ * to left; speeds up with scroll velocity, settles when still. ONE transform
+ * animates the track (the xPercent loop via timeScale) — the old per-frame
+ * skewX stacked a second transform on the same wide element and forced a large
+ * re-raster every frame.
  */
 export default function MarqueeRow({ items, pxPerSecond = 24, className }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
@@ -36,7 +39,6 @@ export default function MarqueeRow({ items, pxPerSecond = 24, className }: Props
         const update = () => {
           const v = smoother ? smoother.getVelocity() : 0;
           loop.timeScale(1 + gsap.utils.clamp(0, 5, Math.abs(v) * 0.004));
-          gsap.set(track, { skewX: gsap.utils.clamp(-8, 8, v * -0.004) });
         };
         // Only run the per-frame velocity ticker while the marquee is on-screen.
         let active = false;

@@ -21,7 +21,7 @@ export default function FpsMeter() {
     let raf = 0;
     let frames = 0;
     let mark = performance.now();
-    let warmupUntil = mark + 800; // ignore the first jittery frames
+    let warmupUntil = mark + 3000; // ignore load/hydration jitter — min tracks scrolling, not boot
     const loop = () => {
       frames++;
       const now = performance.now();

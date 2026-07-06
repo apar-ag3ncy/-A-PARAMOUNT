@@ -64,7 +64,7 @@ export default function HomeHero() {
         <SplitTextReveal
           as="div"
           by="chars"
-          stagger={0.04}
+          stagger={0.03}
           delay={0.3}
           className="font-serif text-[16vw] leading-[1] font-medium text-olive italic sm:text-8xl"
         >

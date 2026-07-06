@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils";
 
 /**
  * Four product families as temple-arch frames (inspo: arch-framed galleries).
- * Alternating data-speed/data-lag give the row a floaty, layered drift under
- * ScrollSmoother; hover lifts the arch and draws the caption underline.
+ * Alternating data-speed gives the row a layered depth drift under
+ * ScrollSmoother (ONE scroll-linked effect per card — no data-lag on top);
+ * hover lifts the arch and draws the caption underline.
  */
 export default function FeaturedFamilies() {
   return (
@@ -33,7 +34,6 @@ export default function FeaturedFamilies() {
             href={`/products/${f.slug}`}
             className={cn("group block", i % 2 === 1 && "lg:mt-14")}
             data-speed={i % 2 ? 1.03 : 0.97}
-            data-lag={i % 2 ? 0.08 : 0}
           >
             <div className="relative transition-transform duration-500 ease-out group-hover:-translate-y-2">
               <AssetFrame

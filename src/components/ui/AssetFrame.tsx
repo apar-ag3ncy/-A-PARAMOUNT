@@ -57,6 +57,11 @@ interface AssetFrameProps {
   fill?: boolean;
   /** Show the "Image coming soon" plate in the empty state. */
   showLabel?: boolean;
+  /**
+   * How the image sits in the frame. "contain" never crops — the product
+   * floats in the frame with a little breathing room (client photography).
+   */
+  fit?: "cover" | "contain";
 }
 
 const DEFAULT_SIZES =
@@ -88,6 +93,7 @@ export default function AssetFrame({
   frameClassName,
   fill = false,
   showLabel = true,
+  fit = "cover",
 }: AssetFrameProps) {
   const [loaded, setLoaded] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -180,12 +186,20 @@ export default function AssetFrame({
             priority={priority}
             placeholder={image?.blurDataURL ? "blur" : "empty"}
             blurDataURL={image?.blurDataURL}
+            // onLoad misses images that are already complete when React
+            // attaches (cached repeat visits) — the ref check covers those.
+            ref={(el) => {
+              if (el?.complete && el.naturalWidth > 0) setLoaded(true);
+            }}
             onLoad={() => setLoaded(true)}
             className={cn(
-              "object-cover transition-opacity duration-[600ms] ease-out",
+              "transition-opacity duration-[600ms] ease-out",
+              // "contain" never crops: the shot floats in the frame with ~6%
+              // padding (object-fit resolves inside the content box).
+              fit === "contain" ? "object-contain p-[6%]" : "object-cover",
               loaded ? "opacity-100" : "opacity-0",
             )}
-            style={{ objectPosition }}
+            style={fit === "contain" ? undefined : { objectPosition }}
           />
         )}
       </div>

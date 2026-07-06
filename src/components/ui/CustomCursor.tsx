@@ -33,11 +33,15 @@ export default function CustomCursor() {
     };
     const isInteractive = (t: EventTarget | null) =>
       t instanceof Element && !!t.closest('a, button, [role="tab"], input, select, textarea');
+    // overwrite:"auto" — rapid over/out across nested interactive elements must
+    // replace the in-flight scale tween, not stack a competing one on the ring.
     const over = (e: MouseEvent) => {
-      if (isInteractive(e.target)) gsap.to(ring, { scale: 1.8, duration: 0.3 });
+      if (isInteractive(e.target))
+        gsap.to(ring, { scale: 1.8, duration: 0.3, overwrite: "auto" });
     };
     const out = (e: MouseEvent) => {
-      if (isInteractive(e.target)) gsap.to(ring, { scale: 1, duration: 0.3 });
+      if (isInteractive(e.target))
+        gsap.to(ring, { scale: 1, duration: 0.3, overwrite: "auto" });
     };
 
     document.body.classList.add("has-custom-cursor");
