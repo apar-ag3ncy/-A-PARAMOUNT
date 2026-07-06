@@ -61,6 +61,8 @@ export default function DoorIntro() {
   useIsomorphicLayoutEffect(() => {
     if (sessionStorage.getItem(SESSION_KEY)) {
       sessionStorage.setItem(LOADED_KEY, "1");
+      // Repeat visit: no show — lift the server-rendered cream cover now.
+      document.getElementById("pm-precover")?.remove();
       if (!fired.current) {
         fired.current = true;
         window.dispatchEvent(new CustomEvent("pm:doors-open"));
@@ -84,6 +86,11 @@ export default function DoorIntro() {
     const tlRef: { current: gsap.core.Timeline | null } = { current: null };
 
     const fireDoorsOpen = () => {
+      // The page beneath is hidden for the whole show (its compositing cost
+      // caused visible lag, and half-rendered frames could bleed through).
+      // Restore it exactly at handoff so the hero is live for the reveal.
+      const wrapper = document.getElementById("smooth-wrapper");
+      if (wrapper) wrapper.style.visibility = "";
       if (fired.current) return;
       fired.current = true;
       window.dispatchEvent(new CustomEvent("pm:doors-open"));
@@ -133,6 +140,13 @@ export default function DoorIntro() {
       const smoother = ScrollSmoother.get();
       smoother?.scrollTo(0, false);
       smoother?.paused(true);
+      // Our stage now covers everything — retire the server-rendered cream
+      // precover and hide the page beneath (it would otherwise be composited
+      // on every frame under the full-screen dolly, the main source of lag,
+      // and could flash through between frames). fireDoorsOpen restores it.
+      document.getElementById("pm-precover")?.remove();
+      const wrapper = document.getElementById("smooth-wrapper");
+      if (wrapper) wrapper.style.visibility = "hidden";
 
       ctx = gsap.context(() => {
         const mm = gsap.matchMedia();
@@ -183,6 +197,11 @@ export default function DoorIntro() {
             gsap.set(".di-text > *", { opacity: 0, y: 26 });
             gsap.set(".di-hint", { opacity: 0 });
             gsap.set(".di-flash", { opacity: 1 });
+            // Promote the heavy movers for the whole show — they animate from
+            // the first beat to the last, so a static hint is correct here.
+            gsap.set([".di-scene", ".di-leaf-l", ".di-leaf-r", ".di-bloom"], {
+              willChange: "transform",
+            });
 
             // ---- Living diya flames (independent gentle yoyo, killed w/ ctx) ----
             gsap.to(".di-lamp-a", {
@@ -260,6 +279,9 @@ export default function DoorIntro() {
               .to(".di-flash", { opacity: 1, duration: 0.7, ease: "power2.in" }, 4.9)
               // 6.0 — the component fades itself out, then unmounts
               .to(el, { opacity: 0, duration: 0.5, ease: "power2.out" }, 6.0);
+            // Cinematic slow-motion: the whole score plays at ~4/5 speed —
+            // beats keep their relationships, everything breathes longer.
+            tl.timeScale(cond.mobile ? 0.85 : 0.78);
             if (skipped) tl.timeScale(3.2); // skip arrived during preload
             tlRef.current = tl;
           },
@@ -306,6 +328,11 @@ export default function DoorIntro() {
       removeSkipListeners();
       document.removeEventListener("visibilitychange", onVisible);
       ScrollSmoother.get()?.paused(false);
+      // Unmounted mid-show (e.g. client navigation)? Never leave the page
+      // hidden or covered.
+      const wrapper = document.getElementById("smooth-wrapper");
+      if (wrapper) wrapper.style.visibility = "";
+      document.getElementById("pm-precover")?.remove();
       ctx?.revert();
     };
   }, [play]);

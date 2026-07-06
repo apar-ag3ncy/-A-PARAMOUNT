@@ -11,6 +11,12 @@ import ScrollReveal from "@/components/animations/ScrollReveal";
 export default function Home() {
   return (
     <>
+      {/* Server-rendered cream cover: present from the very first byte, so the
+          landing page can never flash beneath the door intro while it boots.
+          DoorIntro removes it the moment it takes over (or immediately on a
+          session-gated repeat visit); a CSS fallback fades it after ~4.5s so
+          a broken script can never leave the page blank. */}
+      <div id="pm-precover" aria-hidden />
       {/* Once-per-session temple-door opening. Portals itself onto <body> so
           position:fixed escapes the transformed #smooth-content wrapper. */}
       <DoorIntro />
@@ -29,7 +35,7 @@ export default function Home() {
             Turn it in your hands
           </h2>
         </ScrollReveal>
-        <Showcase3D label="Brass Kalash" />
+        <Showcase3D label="Silver Kalash" />
       </section>
 
       <EnquiryCTA />

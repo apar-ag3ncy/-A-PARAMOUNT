@@ -103,6 +103,24 @@
   overflow: hidden;
 }
 
+/* Pre-hydration cover for the home page: the door intro's stage is client-
+   rendered, so this server-rendered cream sheet guarantees the landing page
+   never shows "in between". DoorIntro removes it; the animation is a no-JS
+   failsafe only. */
+#pm-precover {
+  position: fixed;
+  inset: 0;
+  z-index: 240;
+  background: var(--color-cream, #fef4da);
+  animation: pm-precover-out 0.6s ease 4.5s forwards;
+}
+@keyframes pm-precover-out {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
 /* Per-navigation enter fade (template.tsx). Opacity only — pin-safe. */
 @keyframes pm-fade-in {
   from { opacity: 0; }

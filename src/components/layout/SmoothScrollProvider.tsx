@@ -29,7 +29,7 @@ export default function SmoothScrollProvider({
       smoother.current = ScrollSmoother.create({
         wrapper: "#smooth-wrapper",
         content: "#smooth-content",
-        smooth: reduce ? 0 : 1.05, // seconds of catch-up — buttery but responsive
+        smooth: reduce ? 0 : 1.25, // seconds of catch-up — slow-mo glide, sticky-smooth
         smoothTouch: 0, // keep native compositor touch scrolling on phones
         effects: !reduce, // enables data-speed / data-lag parallax
         normalizeScroll: finePointer, // JS scroll normalization only for mouse/trackpad devices

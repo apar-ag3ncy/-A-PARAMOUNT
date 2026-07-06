@@ -237,6 +237,18 @@ export default function CinematicHero() {
           document.addEventListener("visibilitychange", onVis);
         }
 
+        // The intro and the scroll cinematic touch the same stage. If the
+        // user starts scrolling while the intro is still playing, both animate
+        // at once and the motion reads doubled/laggy — so the first scroll
+        // intent gracefully hurries the intro to its end (no jump cut).
+        const hurry = () => {
+          if (intro.isActive()) intro.timeScale(4);
+          window.removeEventListener("wheel", hurry);
+          window.removeEventListener("touchmove", hurry);
+        };
+        window.addEventListener("wheel", hurry, { passive: true });
+        window.addEventListener("touchmove", hurry, { passive: true });
+
         // ---- 2. the scroll cinematic (wrappers only) ----
         gsap
           .timeline({
@@ -265,6 +277,8 @@ export default function CinematicHero() {
         return () => {
           if (onVis) document.removeEventListener("visibilitychange", onVis);
           if (onDoors) window.removeEventListener("pm:doors-open", onDoors);
+          window.removeEventListener("wheel", hurry);
+          window.removeEventListener("touchmove", hurry);
         };
       });
 

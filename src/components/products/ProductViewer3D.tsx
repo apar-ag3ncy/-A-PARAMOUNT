@@ -223,12 +223,89 @@ function Scene({ modelUrl }: { modelUrl?: string }) {
   );
 }
 
+/* ------------------------------------------------------------------ */
+/* KalashSpin — a pre-rendered 48-frame turntable of the real product  */
+/* photo (sprite sheet baked offline from the verified simulator).     */
+/* Every frame is a finished image: nothing can smear, clip or break   */
+/* at runtime, and three.js never loads for the default showcase.      */
+/* ------------------------------------------------------------------ */
+
+const SPIN_URL = "/kalash/kalash-spin.webp?v=1";
+const SPIN = { frames: 48, cols: 8, rows: 6, fw: 500, fh: 620 };
+/** Horizontal drag pixels per frame step — full 360° ≈ one frame-width drag. */
+const PX_PER_FRAME = 10;
+
+function KalashSpin() {
+  const [ready, setReady] = useState(false);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef(0);
+  const drag = useRef<{ startX: number; startFrame: number } | null>(null);
+
+  useIsomorphicLayoutEffect(() => {
+    const img = new window.Image();
+    img.src = SPIN_URL;
+    const done = () => setReady(true);
+    if (img.decode) img.decode().then(done).catch(done);
+    else img.onload = done;
+  }, []);
+
+  const show = (f: number) => {
+    const el = stageRef.current;
+    if (!el) return;
+    const idx = ((Math.round(f) % SPIN.frames) + SPIN.frames) % SPIN.frames;
+    frameRef.current = idx;
+    const col = idx % SPIN.cols;
+    const row = Math.floor(idx / SPIN.cols);
+    el.style.backgroundPosition = `${(col / (SPIN.cols - 1)) * 100}% ${(row / (SPIN.rows - 1)) * 100}%`;
+  };
+
+  return (
+    <div
+      className="absolute inset-0 flex items-center justify-center touch-pan-y"
+      style={{ cursor: "grab" }}
+      onPointerDown={(e) => {
+        drag.current = { startX: e.clientX, startFrame: frameRef.current };
+        (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+        e.currentTarget.style.cursor = "grabbing";
+      }}
+      onPointerMove={(e) => {
+        if (!drag.current) return;
+        const dx = e.clientX - drag.current.startX;
+        show(drag.current.startFrame + dx / PX_PER_FRAME);
+      }}
+      onPointerUp={(e) => {
+        drag.current = null;
+        e.currentTarget.style.cursor = "grab";
+      }}
+      onPointerCancel={() => (drag.current = null)}
+    >
+      <div
+        ref={stageRef}
+        className="transition-opacity duration-500"
+        style={{
+          aspectRatio: `${SPIN.fw}/${SPIN.fh}`,
+          height: "88%",
+          backgroundImage: `url(${SPIN_URL})`,
+          backgroundSize: `${SPIN.cols * 100}% ${SPIN.rows * 100}%`,
+          backgroundPosition: "0% 0%",
+          opacity: ready ? 1 : 0,
+        }}
+      />
+      {!ready && (
+        <span className="absolute font-display text-[10px] tracking-[0.24em] text-olive/50 uppercase">
+          Loading…
+        </span>
+      )}
+    </div>
+  );
+}
+
 /**
- * ProductViewer3D (build-plan Prompt G). Lazy-mounts the R3F canvas when in
- * view; a photo-lathe of the real silver kalash (real product photo projected
- * onto its edge-refined lathe silhouette) rests photo-still and rotates 360°
- * ONLY while the user drags. Falls back to the brand motif when WebGL is
- * unavailable. GLBs from `product.model3d` still take precedence.
+ * ProductViewer3D (build-plan Prompt G). The default showcase is a
+ * pre-rendered 48-frame spin of the real silver kalash (drag to rotate —
+ * rests photo-still otherwise; every frame is a baked image, so the look is
+ * identical at every angle by construction). GLBs from `product.model3d`
+ * still render through the lazy R3F canvas.
  */
 export default function ProductViewer3D({ modelUrl, label }: Props) {
   const [inView, setInView] = useState(false);
@@ -266,7 +343,10 @@ export default function ProductViewer3D({ modelUrl, label }: Props) {
       ref={ref}
       className="relative mx-auto aspect-square w-full max-w-lg overflow-hidden rounded-card border border-olive/25 bg-gradient-to-b from-cream-deep to-[#E9DBC0]"
     >
-      {webgl && hasEntered ? (
+      {!modelUrl && hasEntered ? (
+        // Default showcase: baked sprite spin — no WebGL, no three.js chunk.
+        <KalashSpin />
+      ) : modelUrl && webgl && hasEntered ? (
         <Canvas
           camera={{ position: [0, 0.4, 4.2], fov: 40 }}
           dpr={[1, 2]}
