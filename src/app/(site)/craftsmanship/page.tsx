@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import AssetFrame from "@/components/ui/AssetFrame";
 import ImageMaskReveal from "@/components/animations/ImageMaskReveal";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
@@ -56,6 +57,7 @@ export default function CraftsmanshipPage() {
           A rare combination of engineering expertise and artistic skill — every
           temple need under one roof.
         </p>
+        <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
       </header>
 
       <div className="mx-auto max-w-7xl px-6 py-16">

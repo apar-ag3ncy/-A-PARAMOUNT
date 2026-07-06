@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import AssetFrame from "@/components/ui/AssetFrame";
+import ArchMark from "@/components/ui/ArchMark";
 import { FAMILIES } from "@/lib/constants";
 import { categoriesByFamily } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
@@ -135,13 +136,13 @@ export default function MegaMenu() {
                     <Link
                       href={`/products/${f.slug}`}
                       onClick={() => setOpen(false)}
-                      className="font-serif text-[15px] text-olive-deep italic transition-colors hover:text-oxblood"
+                      className="font-display text-[13px] tracking-[0.14em] text-olive-deep uppercase transition-colors hover:text-olive"
                     >
                       {f.title}
                     </Link>
                     <div className="mt-2 mb-3 flex items-center gap-2 text-olive/45" aria-hidden>
                       <span className="h-px w-8 bg-current" />
-                      <span className="text-[8px]">✦</span>
+                      <ArchMark className="h-4 w-3 shrink-0" />
                       <span className="h-px flex-1 bg-current opacity-40" />
                     </div>
                     <ul className="space-y-2">
@@ -152,7 +153,7 @@ export default function MegaMenu() {
                             <Link
                               href={`/products/${f.slug}/${p.slug}`}
                               onClick={() => setOpen(false)}
-                              className="font-body text-[12.5px] text-espresso/70 transition-colors hover:text-oxblood"
+                              className="font-body text-[12.5px] text-espresso/70 transition-colors hover:text-olive"
                             >
                               {p.title}
                             </Link>
@@ -162,7 +163,7 @@ export default function MegaMenu() {
                         <Link
                           href={`/products/${f.slug}`}
                           onClick={() => setOpen(false)}
-                          className="font-display text-[10px] tracking-[0.18em] text-olive uppercase hover:text-oxblood"
+                          className="font-display text-[10px] tracking-[0.18em] text-olive uppercase hover:text-olive-deep"
                         >
                           View all →
                         </Link>

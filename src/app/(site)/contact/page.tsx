@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ContactForm from "@/components/ContactForm";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import { CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -26,6 +27,7 @@ export default function ContactPage() {
         <p className="mx-auto mt-6 max-w-xl font-body text-espresso/75">
           Tell us about your temple. Every piece is handcrafted to order.
         </p>
+        <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
       </header>
 
       <div className="mx-auto mt-14 grid max-w-6xl gap-14 px-6 lg:grid-cols-[1.1fr_0.9fr]">

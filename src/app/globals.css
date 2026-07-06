@@ -18,9 +18,9 @@
   --color-olive-deep:   #6F6639; /* headings, hover, shadow of olive */
   --color-olive-muted:  #A69A6E; /* borders, dividers, muted UI */
   --color-tan:          #BCAF87; /* damask pattern lines, light accents */
-  --color-oxblood:      #4F1A16; /* deep-maroon accent — icon strokes, badges */
   --color-espresso:     #2E2313; /* body text (a11y-safe on cream) */
   --color-taupe:        #A89E8C; /* neutral grey-brown — icon chips */
+  --color-heading-brown: #431716; /* dark warm brown — "Crafting Divine" display text */
 
   /* -- Semantic aliases -- */
   --color-background:   #FEF4DA;
@@ -29,8 +29,8 @@
   --color-accent:       #8A7F4A;
 
   /* -- Typography — wired to next/font in src/styles/fonts.ts -- */
-  --font-display:    var(--font-poppins);         /* headings, display */
-  --font-serif:      var(--font-playfair);        /* elegant italic accent */
+  --font-display:    var(--font-spectral);        /* headings, display */
+  --font-serif:      var(--font-cormorant);       /* elegant italic accent */
   --font-body:       var(--font-inter);           /* body, UI */
   --font-sans:       var(--font-inter);           /* default sans */
   --font-devanagari: var(--font-noto-devanagari); /* product names in script */

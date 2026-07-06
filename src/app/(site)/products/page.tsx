@@ -3,6 +3,7 @@ import { FAMILIES } from "@/lib/constants";
 import { getProductsByFamily } from "@/lib/data";
 import FamilyShowcase from "@/components/products/FamilyShowcase";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 export const metadata: Metadata = {
   title: "Collections",
@@ -28,10 +29,11 @@ export default async function ProductsPage() {
         <SplitTextReveal
           as="h1"
           by="words"
-          className="font-display text-5xl leading-[1.05] font-light text-olive-deep sm:text-7xl"
+          className="font-display text-5xl leading-[1.05] font-light text-[color:var(--color-heading-brown)] sm:text-7xl"
         >
           Our Collections
         </SplitTextReveal>
+        <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
         <p className="mx-auto mt-6 max-w-xl font-body text-base text-espresso/75">
           Four families of temple artifacts. Scroll through each — every piece is
           handcrafted to order in your choice of material.

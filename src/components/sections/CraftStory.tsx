@@ -2,6 +2,7 @@ import Link from "next/link";
 import AssetFrame from "@/components/ui/AssetFrame";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
 import ImageMaskReveal from "@/components/animations/ImageMaskReveal";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 /**
  * Editorial split — text (SplitText word reveal) beside an image that reveals via
@@ -11,16 +12,17 @@ export default function CraftStory() {
   return (
     <section className="mx-auto grid max-w-7xl gap-12 px-6 py-24 lg:grid-cols-2 lg:items-center lg:gap-20">
       <div>
-        <p className="mb-4 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
+        <p className="mb-4 font-body text-xs font-medium tracking-[0.32em] text-olive/80 uppercase">
           The Craft
         </p>
         <SplitTextReveal
           as="h2"
           by="words"
-          className="font-display text-4xl leading-tight font-light text-olive-deep sm:text-5xl"
+          className="font-display text-4xl leading-tight font-light text-[color:var(--color-heading-brown)] sm:text-5xl"
         >
           Engineering expertise, met with artistic skill
         </SplitTextReveal>
+        <OrnamentDivider className="mt-5 text-olive/50" />
         <div className="mt-7 space-y-4 font-body text-espresso/80">
           <p>
             For three generations and over fifty years, every piece has been

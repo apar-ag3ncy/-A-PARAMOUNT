@@ -1,6 +1,8 @@
 import Link from "next/link";
 import AssetFrame from "@/components/ui/AssetFrame";
 import ScrollReveal from "@/components/animations/ScrollReveal";
+import SectionHeading from "@/components/ui/SectionHeading";
+import BrandDamask from "@/components/ui/BrandDamask";
 import { FAMILIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
@@ -12,19 +14,12 @@ import { cn } from "@/lib/utils";
  */
 export default function FeaturedFamilies() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-28">
-      <ScrollReveal className="mb-16 text-center">
-        <p className="mb-4 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
-          Explore
-        </p>
-        <h2 className="font-display text-4xl leading-tight font-light text-olive-deep sm:text-5xl">
-          Four families, <span className="font-serif text-olive italic">one sanctum</span>
-        </h2>
-        <div className="mt-6 flex items-center justify-center gap-3 text-olive/50" aria-hidden>
-          <span className="h-px w-12 bg-current" />
-          <span className="text-[11px]">✦</span>
-          <span className="h-px w-12 bg-current" />
-        </div>
+    <section className="relative mx-auto max-w-7xl px-6 py-28">
+      {/* faint brand damask texture on the cream ground (deck p118) */}
+      <BrandDamask className="text-olive" opacity={0.045} />
+
+      <ScrollReveal className="relative mb-16 flex justify-center">
+        <SectionHeading eyebrow="Explore" title="Four families, one sanctum" />
       </ScrollReveal>
 
       <div className="grid grid-cols-2 gap-5 sm:gap-8 lg:grid-cols-4">

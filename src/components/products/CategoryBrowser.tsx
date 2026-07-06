@@ -117,22 +117,32 @@ export default function CategoryBrowser({
         ref={railRef}
         className="z-30 -mx-6 mb-10 border-y border-olive/15 bg-cream/95 px-6 py-3"
       >
-        <div className="flex gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {materials.map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => pick(m)}
-              className={cn(
-                "shrink-0 rounded-button border px-4 py-1.5 font-display text-[11px] tracking-[0.14em] whitespace-nowrap uppercase transition-colors",
-                m === material
-                  ? "border-olive bg-olive text-cream"
-                  : "border-olive/30 text-olive-deep hover:border-olive",
-              )}
-            >
-              {m}
-            </button>
-          ))}
+        <div className="flex gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {materials.map((m) => {
+            const active = m === material;
+            return (
+              <button
+                key={m}
+                type="button"
+                onClick={() => pick(m)}
+                aria-pressed={active}
+                className={cn(
+                  "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-1.5 font-body text-[11px] font-medium tracking-[0.22em] whitespace-nowrap uppercase transition-colors",
+                  active
+                    ? "bg-olive text-cream"
+                    : "text-espresso hover:text-olive-deep",
+                )}
+              >
+                {/* gold coin marker — matches the deck's variant chips (p13) */}
+                <svg viewBox="0 0 32 32" className="h-4 w-4 shrink-0" aria-hidden>
+                  <circle cx={16} cy={16} r={15} fill="#E2CA82" />
+                  <circle cx={16} cy={16} r={15} fill="none" stroke="#C9A85E" strokeWidth={1} />
+                  <circle cx={16} cy={16} r={11.5} fill="none" stroke="#B8933F" strokeWidth={1.4} opacity={0.7} />
+                </svg>
+                {m}
+              </button>
+            );
+          })}
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import AssetFrame from "@/components/ui/AssetFrame";
+import VariantChip from "@/components/ui/VariantChip";
 import { cn } from "@/lib/utils";
 import type { SanityImage } from "@/types/sanity";
 
@@ -53,8 +54,8 @@ export default function MasonryItem({
           )}
         />
         {material && (
-          <span className="absolute top-3 left-3 rounded-button bg-cream/90 px-2.5 py-1 font-display text-[10px] tracking-[0.14em] text-olive-deep uppercase">
-            {material}
+          <span className="absolute top-3 left-3 rounded-full bg-cream/90 px-2.5 py-1">
+            <VariantChip label={material} />
           </span>
         )}
       </div>

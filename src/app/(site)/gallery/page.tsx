@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import MasonryGrid from "@/components/products/MasonryGrid";
 import MasonryItem from "@/components/products/MasonryItem";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import { getCategory } from "@/lib/catalog";
 
 export const metadata: Metadata = {
@@ -37,10 +38,11 @@ export default function GalleryPage() {
         <SplitTextReveal
           as="h1"
           by="words"
-          className="font-display text-4xl leading-[1.08] font-light text-olive-deep sm:text-6xl"
+          className="font-display text-4xl leading-[1.08] font-light text-[color:var(--color-heading-brown)] sm:text-6xl"
         >
           Installations & Photography
         </SplitTextReveal>
+        <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
         <p className="mx-auto mt-6 max-w-xl font-body text-espresso/75">
           A portfolio of pieces in place — filling in as photography arrives.
         </p>

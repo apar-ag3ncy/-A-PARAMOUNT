@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRef } from "react";
 import AssetFrame from "@/components/ui/AssetFrame";
+import SectionHeading from "@/components/ui/SectionHeading";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import type { CatalogCategory } from "@/lib/catalog";
@@ -52,10 +53,11 @@ export default function FamilyShowcase({ family, products }: Props) {
       className="relative border-t border-olive/10 py-16 lg:flex lg:h-screen lg:flex-col lg:justify-center lg:overflow-hidden lg:py-0"
     >
       <div className="mb-8 px-6 lg:px-[8vw]">
-        <p className="font-serif text-sm text-olive-muted italic">{family.title}</p>
-        <h2 className="mt-1 font-display text-3xl font-light text-olive-deep sm:text-4xl">
-          {family.blurb}
-        </h2>
+        <SectionHeading
+          eyebrow={family.title}
+          title={family.blurb}
+          align="left"
+        />
       </div>
       <div
         ref={trackRef}

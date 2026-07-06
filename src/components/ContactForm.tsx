@@ -18,7 +18,7 @@ type Values = z.infer<typeof schema>;
 
 const field =
   "w-full rounded-button border border-olive/30 bg-cream px-4 py-3 font-body text-espresso placeholder:text-espresso/40 focus:border-olive focus:outline-none";
-const errCls = "mt-1 font-body text-xs text-oxblood";
+const errCls = "mt-1 font-body text-xs text-[color:var(--color-heading-brown)]";
 
 /**
  * Enquiry form (build-plan Prompt H). react-hook-form + zod validation, posts to
@@ -107,7 +107,7 @@ export default function ContactForm() {
         {isSubmitting ? "Sending…" : "Send enquiry"}
       </button>
       {failed && (
-        <p className="font-body text-sm text-oxblood">
+        <p className="font-body text-sm text-[color:var(--color-heading-brown)]">
           The enquiry service isn’t connected yet — please email us directly at{" "}
           <a href={`mailto:${CONTACT.email}`} className="underline">
             {CONTACT.email}

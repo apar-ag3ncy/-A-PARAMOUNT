@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef } from "react";
 import { gsap } from "@/lib/gsap";
 import { SITE } from "@/lib/constants";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 const MASK_STYLE: React.CSSProperties = {
@@ -429,13 +430,11 @@ export default function CinematicHero() {
           </div>
 
           <div className="hv-lift-b flex flex-col items-center">
-            <div className="hv-div mt-9 flex items-center gap-3 text-olive/60" aria-hidden>
-              <span className="h-px w-14 bg-current" />
-              <span className="text-[13px]">✦</span>
-              <span className="h-px w-14 bg-current" />
-            </div>
-            <p className="hv-tag mt-7 font-serif text-2xl text-olive italic sm:text-4xl">
-              Crafting Divine Elegance
+            <OrnamentDivider className="hv-div mt-9 text-olive/60" />
+
+            <p className="hv-tag mt-7 font-display text-2xl text-[color:var(--color-heading-brown)] sm:text-4xl">
+              Crafting Divine{" "}
+              <span className="font-serif text-olive italic">Elegance</span>
             </p>
           </div>
         </div>

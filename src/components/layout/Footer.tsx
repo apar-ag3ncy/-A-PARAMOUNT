@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SITE, CONTACT, FAMILIES } from "@/lib/constants";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 export default function Footer() {
   return (
@@ -16,7 +17,8 @@ export default function Footer() {
             className="h-auto w-36"
           />
           <p className="mt-5 max-w-xs font-serif text-cream/80 italic">{SITE.tagline}</p>
-          <p className="mt-2 text-sm text-cream/60">
+          <OrnamentDivider width="sm" className="mt-4 text-[#E2CA82]/70" />
+          <p className="mt-4 font-display text-xs uppercase tracking-[0.18em] text-cream/60">
             Since {SITE.since} · Mumbai
           </p>
         </div>

@@ -1,4 +1,5 @@
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 interface Props {
   title: string;
@@ -17,10 +18,11 @@ export default function CategoryHero({ title, subtitle, count }: Props) {
         as="h1"
         by="chars"
         stagger={0.02}
-        className="font-display text-5xl leading-[1.05] font-light text-olive-deep sm:text-7xl"
+        className="font-display text-5xl leading-[1.05] font-light text-[color:var(--color-heading-brown)] sm:text-7xl"
       >
         {title}
       </SplitTextReveal>
+      <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
       {subtitle && (
         <p className="mx-auto mt-6 max-w-xl font-body text-base text-espresso/75">
           {subtitle}

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import AssetFrame from "@/components/ui/AssetFrame";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
-import ImageMaskReveal from "@/components/animations/ImageMaskReveal";
 import Testimonials from "@/components/sections/Testimonials";
+import SectionHeading from "@/components/ui/SectionHeading";
+import SemicircleField from "@/components/ui/SemicircleField";
+import StatBlock from "@/components/ui/StatBlock";
 
 export const metadata: Metadata = {
   title: "About",
@@ -79,39 +80,46 @@ export default function AboutPage() {
         </p>
       </header>
 
-      <ScrollReveal className="mx-auto mt-16 grid max-w-5xl grid-cols-2 gap-8 px-6 sm:grid-cols-4">
-        {STATS.map(([n, l]) => (
-          <div key={l} className="text-center">
-            <p className="font-serif text-4xl text-olive-deep sm:text-5xl">{n}</p>
-            <p className="mt-1 font-display text-[10px] tracking-[0.18em] text-olive/70 uppercase">
-              {l}
+      {/* ABOUT US body beside the olive GENERATION semicircle (deck p07) */}
+      <section className="mx-auto mt-20 grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-8">
+        <ScrollReveal>
+          <SectionHeading eyebrow="Since 1968" title="ABOUT US" align="left" />
+          <div className="mt-8 max-w-xl space-y-5 font-body text-espresso/85">
+            <p>
+              Established in 1968, A Paramount Engineering Works is a manufacturing
+              company based in Mumbai, India which deals in all kinds of Jain Derasar
+              and Hindu Temple accessories.
+            </p>
+            <p>
+              Backed by rich experience and extensive knowledge, we pride ourselves
+              on being the only company that provides all kinds of temple needs under
+              one roof — with a rare combination of engineering expertise and artistic
+              skill.
+            </p>
+            <p>
+              The knowledge we possess about our shastra gives us an upper hand. With
+              three generations in the business, the company is driven by passion and
+              a commitment to craftsmanship, customer satisfaction and innovation.
             </p>
           </div>
-        ))}
-      </ScrollReveal>
+        </ScrollReveal>
 
-      <section className="mx-auto grid max-w-7xl gap-12 px-6 py-24 lg:grid-cols-2 lg:items-center lg:gap-20">
-        <div className="space-y-5 font-body text-espresso/85">
-          <p>
-            Established in 1968, A Paramount Engineering Works is a manufacturing
-            company based in Mumbai, India which deals in all kinds of Jain Derasar
-            and Hindu Temple accessories.
-          </p>
-          <p>
-            Backed by rich experience and extensive knowledge, we pride ourselves
-            on being the only company that provides all kinds of temple needs under
-            one roof — with a rare combination of engineering expertise and artistic
-            skill.
-          </p>
-          <p>
-            The knowledge we possess about our shastra gives us an upper hand. With
-            three generations in the business, the company is driven by passion and
-            a commitment to craftsmanship, customer satisfaction and innovation.
-          </p>
-        </div>
-        <ImageMaskReveal className="rounded-card">
-          <AssetFrame image={null} ratio="4/5" showLabel={false} />
-        </ImageMaskReveal>
+        <SemicircleField
+          side="right"
+          flourish
+          className="h-[560px] lg:-mr-6"
+        >
+          <div className="flex h-[560px] flex-col items-center justify-center gap-10 px-6 text-center">
+            <p className="font-display text-3xl tracking-[0.12em] text-cream uppercase sm:text-4xl">
+              Generation
+            </p>
+            <div className="flex flex-col items-center gap-8">
+              {STATS.map(([n, l]) => (
+                <StatBlock key={l} value={n} label={l} />
+              ))}
+            </div>
+          </div>
+        </SemicircleField>
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-24 lg:grid-cols-2">
@@ -139,10 +147,8 @@ export default function AboutPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-24">
-        <ScrollReveal className="mb-12 text-center">
-          <h2 className="font-display text-3xl font-light text-olive-deep sm:text-4xl">
-            Why choose us
-          </h2>
+        <ScrollReveal className="mb-12">
+          <SectionHeading eyebrow="Our Promise" title="Why choose us" />
         </ScrollReveal>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {PILLARS.map((p) => (
@@ -150,7 +156,7 @@ export default function AboutPage() {
               key={p.title}
               className="rounded-card border border-olive/15 bg-cream p-7"
             >
-              <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-cream-deep text-oxblood">
+              <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-cream-deep text-olive-deep">
                 <svg
                   width="20"
                   height="20"
