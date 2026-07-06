@@ -39,8 +39,9 @@ function hasWebGL(): boolean {
 /* whose data is inlined below so no runtime fetch is needed).         */
 /* ------------------------------------------------------------------ */
 
-// Query param busts stale browser caches whenever the texture is regenerated.
-const KALASH_TEXTURE_URL = "/kalash/kalash-texture.png?v=3";
+// The cylindrically-unwrapped photo (see geometry comment). Query param busts
+// stale browser caches whenever the texture is regenerated.
+const KALASH_TEXTURE_URL = "/kalash/kalash-unwrap.png?v=2";
 /** height / maxRadius of the vessel (from kalash-profile.json). */
 const KALASH_ASPECT = 2.3323;
 /** Silhouette [y, r] pairs, y: 1=top → 0=bottom, r: 0..1 of max radius.
@@ -60,10 +61,6 @@ const KALASH_PROFILE: [number, number][] = [
 ];
 /** World max radius — height becomes R * KALASH_ASPECT ≈ 2.1 (matches the old procedural size). */
 const KALASH_R = 0.9;
-/** Horizontal half-extent sampled from the texture. Deliberately inside the
-    subject's alpha bbox: the outer few % is the feathered cutout edge, and
-    sampling it smears a white fringe along the 3D silhouette. */
-const TEX_U_HALF = 0.46;
 
 function PhotoKalash() {
   const gl = useThree((s) => s.gl);
@@ -72,6 +69,9 @@ function PhotoKalash() {
   useMemo(() => {
     texture.colorSpace = THREE.SRGBColorSpace;
     texture.anisotropy = Math.min(8, gl.capabilities.getMaxAnisotropy());
+    // The unwrap tiles around the revolve by mirroring — sampler-level, so
+    // pattern reversal is C0-continuous with zero stretch anywhere.
+    texture.wrapS = THREE.MirroredRepeatWrapping;
     texture.needsUpdate = true;
   }, [texture, gl]);
 
@@ -92,29 +92,23 @@ function PhotoKalash() {
     ]);
     const geo = new THREE.LatheGeometry(pts, 64);
 
-    // UNIFORM angular projection (triangle wave, not sin): |du/dθ| is constant
-    // around the revolve, so texture density is identical at every rotation —
-    // a sin projection starves the bands photographed edge-on and they melt
-    // into smears the moment they rotate to face the camera. tri() is
-    // continuous across the ±π wrap, so the lathe seam is invisible, and the
-    // photo mirrors once per hemisphere (plausible for a symmetric vessel).
-    const tri = (theta: number) => {
-      const t = ((theta + Math.PI * 3) % (Math.PI * 2)) - Math.PI; // wrap [-π,π)
-      const h = Math.PI / 2;
-      return Math.abs(t) <= h ? t / h : Math.sign(t) * (2 - Math.abs(t) / h);
-    };
+    // The texture is the photo CYLINDRICALLY UNWRAPPED (each row resampled by
+    // arc length), so u maps LINEARLY around the revolve — uniform engraving
+    // density at every rotation angle, no fold/stretch stripes (the flaw of
+    // projecting the raw photo). u runs monotonically 0.5 → 2.5 by SEGMENT
+    // INDEX (never atan2 — its ±π wrap puts an interpolation jump inside one
+    // back segment); MirroredRepeat makes 2.5 ≡ 0.5, so the seam is invisible
+    // and the pattern mirrors twice per revolve, imperceptible on ornament.
+    const rowsPerCol = pts.length;
+    const segments = 64;
     const pos = geo.getAttribute("position") as THREE.BufferAttribute;
     const uv = geo.getAttribute("uv") as THREE.BufferAttribute;
     for (let i = 0; i < pos.count; i++) {
-      const x = pos.getX(i);
+      const col = Math.floor(i / rowsPerCol);
       const y = pos.getY(i);
-      const z = pos.getZ(i);
-      const localR = Math.hypot(x, z);
-      const theta = Math.atan2(x, z);
-      const u = 0.5 + TEX_U_HALF * tri(theta) * (localR / KALASH_R);
-      // Clamp v inside the texture so the feathered first/last rows (alpha
-      // edge + base shadow fade) never smear across whole rings.
-      const v = 0.012 + 0.976 * (y / height);
+      const u = 0.5 + 2 * (col / segments);
+      // Slight v inset avoids bleeding at the texture's first/last rows.
+      const v = 0.005 + 0.99 * (y / height);
       uv.setXY(i, u, v);
     }
     uv.needsUpdate = true;
