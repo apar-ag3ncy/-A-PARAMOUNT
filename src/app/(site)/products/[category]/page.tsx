@@ -41,7 +41,7 @@ export default async function CategoryPage({
         count={products.length}
         image={heroImage}
       />
-      <div className="mx-auto max-w-7xl px-6 pb-32">
+      <div className="mx-auto max-w-7xl px-6 pb-20 sm:pb-32">
         <CategoryBrowser familySlug={family.slug} products={products} />
       </div>
     </>

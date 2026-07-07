@@ -147,13 +147,15 @@ export default function AssetFrame({
   }, [hasShimmer]);
 
   return (
-    <figure className={cn("group", fill && "h-full", useHeight && "w-fit", className)}>
+    <figure className={cn("group", fill && "h-full", useHeight && "w-fit max-w-full", className)}>
       <div
         ref={frameRef}
         className={cn(
           "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0] [contain:content]",
           fill && "h-full w-full",
-          useHeight && "h-full w-auto",
+          // height-driven derives width from height × ratio; cap it so a wide
+          // photo can never push past the viewport on a small screen.
+          useHeight && "h-full w-auto max-w-full",
           frameClassName,
         )}
         style={fill ? undefined : { aspectRatio: frameAspect }}

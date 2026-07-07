@@ -85,6 +85,13 @@ export default function CategoryBrowser({
   // FLIP the grid whenever the material filter changes.
   useIsomorphicLayoutEffect(() => {
     if (!flipState.current) return;
+    // The FLIP absolutely-repositions + scales every masonry card — the most
+    // expensive path on a phone. Skip it entirely for reduced-motion users
+    // (React just re-renders the filtered grid in place).
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      flipState.current = null;
+      return;
+    }
     Flip.from(flipState.current, {
       duration: 0.6,
       ease: "power2.inOut",
@@ -116,9 +123,13 @@ export default function CategoryBrowser({
     <>
       <div
         ref={railRef}
-        className="z-30 -mx-6 mb-10 border-y border-olive/15 bg-cream/95 px-6 py-3"
+        // Touch (below lg) has native scrolling (smoothTouch:0), so plain CSS
+        // sticky keeps the filters reachable through a long list. Desktop uses
+        // ScrollSmoother's transform (which breaks sticky), so there the
+        // ScrollTrigger pin below takes over — hence lg:static.
+        className="sticky top-[75px] z-30 -mx-6 mb-10 border-y border-olive/15 bg-cream/95 px-6 py-3 lg:static"
       >
-        <div className="flex gap-2.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-2.5 overflow-x-auto lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden">
           {materials.map((m) => {
             const active = m === material;
             return (

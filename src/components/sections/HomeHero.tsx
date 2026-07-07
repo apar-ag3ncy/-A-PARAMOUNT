@@ -42,7 +42,7 @@ export default function HomeHero() {
   return (
     <section
       ref={ref}
-      className="hero relative flex h-[86vh] items-center justify-center overflow-hidden lg:h-screen"
+      className="hero relative flex h-[86svh] items-center justify-center overflow-hidden lg:h-svh"
     >
       <div className="hero-bg absolute inset-0 will-change-transform">
         <AssetFrame image={null} fill showLabel={false} priority />

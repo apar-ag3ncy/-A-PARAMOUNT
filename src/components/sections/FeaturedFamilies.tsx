@@ -22,7 +22,7 @@ const FAMILY_COVER: Record<string, string> = {
  */
 export default function FeaturedFamilies() {
   return (
-    <section className="relative mx-auto max-w-7xl px-6 py-28">
+    <section className="relative mx-auto max-w-7xl px-6 py-16 sm:py-28">
       {/* faint brand damask texture on the cream ground (deck p118) */}
       <BrandDamask className="text-olive" opacity={0.045} />
 

@@ -33,7 +33,7 @@ export default function FeaturedGallery() {
   if (!items.length) return null;
 
   return (
-    <section className="relative mx-auto max-w-7xl px-6 py-28">
+    <section className="relative mx-auto max-w-7xl px-6 py-16 sm:py-28">
       <ScrollReveal className="mb-14 flex justify-center">
         <SectionHeading eyebrow="Selected works" title="From the workshop floor" />
       </ScrollReveal>

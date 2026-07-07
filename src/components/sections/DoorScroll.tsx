@@ -65,7 +65,11 @@ export default function DoorScroll() {
     };
 
     // ---------- frame store (progressive, decode off the main thread) ----------
-    const src = seqSrc(window.innerWidth < 768 ? 800 : 1600);
+    // Key off the SHORTER screen dimension so a landscape phone or a small
+    // tablet can't fall into the heavy 1600px tier over a mobile connection.
+    const src = seqSrc(
+      Math.min(window.innerWidth, window.innerHeight) < 900 ? 800 : 1600,
+    );
     const frames: (ImageBitmap | HTMLImageElement | null)[] =
       Array(FRAME_COUNT).fill(null);
     let disposed = false;
@@ -310,10 +314,11 @@ export default function DoorScroll() {
   return (
     <section
       ref={root}
-      className="relative bg-cream"
-      // A long pinned span = slow, deliberate, majestic: it takes a real,
-      // unhurried scroll to swing the doors fully open.
-      style={{ height: "640svh" }}
+      // A long pinned span = slow, deliberate, majestic. Responsive: a phone
+      // shouldn't demand 6 screen-heights of swiping to open the doors, so the
+      // scrub distance scales up with the device. ScrollTrigger reads this
+      // element's height, so the CSS class alone retunes the whole scrub.
+      className="relative bg-cream h-[360svh] md:h-[520svh] lg:h-[640svh]"
       aria-label="The temple doors open as you scroll"
     >
       <div
