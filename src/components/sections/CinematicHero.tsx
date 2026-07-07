@@ -215,16 +215,36 @@ export default function CinematicHero() {
           .to(".hv-frame", { opacity: 1, duration: 1.6 }, 3.3)
           .to(".hv-cue", { opacity: 1, duration: 1 }, 4.0);
 
-        // DoorIntro plays this session? Hold the intro and launch it on the
-        // once-only doors-open handoff instead (already mid-flight at handoff).
-        const doorWillPlay =
-          window.location.pathname === "/" &&
-          !sessionStorage.getItem("pm-door-intro");
+        // On the home page the DoorScroll section above owns the arrival: the
+        // visitor scrolls the doors open, and the once-only doors-open handoff
+        // launches this apparition beneath the cream flood (already mid-flight
+        // by the time the hero reaches the viewport).
+        const doorWillPlay = window.location.pathname === "/";
         let onVis: (() => void) | undefined;
         let onDoors: (() => void) | undefined;
+
+        // The intro and the scroll cinematic touch the same stage. If the
+        // user starts scrolling while the intro is still playing, both animate
+        // at once and the motion reads doubled/laggy — so the first scroll
+        // intent gracefully hurries the intro to its end (no jump cut). On the
+        // door path this must arm only AFTER the handoff — the door scrub
+        // itself is driven by wheel events and would consume it instantly.
+        const hurry = () => {
+          if (intro.isActive()) intro.timeScale(4);
+          window.removeEventListener("wheel", hurry);
+          window.removeEventListener("touchmove", hurry);
+        };
+        const armHurry = () => {
+          window.addEventListener("wheel", hurry, { passive: true });
+          window.addEventListener("touchmove", hurry, { passive: true });
+        };
+
         if (doorWillPlay) {
           intro.pause(0);
-          onDoors = () => intro.play(0);
+          onDoors = () => {
+            intro.play(0);
+            armHurry();
+          };
           window.addEventListener("pm:doors-open", onDoors, { once: true });
         } else if (document.hidden) {
           // Opened in a background tab? Hold and play in full once visible.
@@ -236,19 +256,10 @@ export default function CinematicHero() {
             }
           };
           document.addEventListener("visibilitychange", onVis);
+          armHurry();
+        } else {
+          armHurry();
         }
-
-        // The intro and the scroll cinematic touch the same stage. If the
-        // user starts scrolling while the intro is still playing, both animate
-        // at once and the motion reads doubled/laggy — so the first scroll
-        // intent gracefully hurries the intro to its end (no jump cut).
-        const hurry = () => {
-          if (intro.isActive()) intro.timeScale(4);
-          window.removeEventListener("wheel", hurry);
-          window.removeEventListener("touchmove", hurry);
-        };
-        window.addEventListener("wheel", hurry, { passive: true });
-        window.addEventListener("touchmove", hurry, { passive: true });
 
         // ---- 2. the scroll cinematic (wrappers only) ----
         gsap
@@ -290,14 +301,11 @@ export default function CinematicHero() {
         gsap.set(".hv-bloom", { opacity: 0.85 });
         gsap.set(".hv-rays", { opacity: 0.3 });
 
-        // DoorIntro plays this session? Don't waste the entrance under its
-        // overlay — hold and launch it on the once-only doors-open handoff.
+        // On the home page the DoorScroll section above owns the arrival —
+        // hold the entrance and launch it on the once-only doors-open handoff.
         // Reduced motion keeps its immediate fade regardless (no event dep).
         const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const doorWillPlay =
-          !reduce &&
-          window.location.pathname === "/" &&
-          !sessionStorage.getItem("pm-door-intro");
+        const doorWillPlay = !reduce && window.location.pathname === "/";
         let onDoors: (() => void) | undefined;
         if (doorWillPlay) {
           gsap.set(".hv-stage", { opacity: 0 });
@@ -441,7 +449,7 @@ export default function CinematicHero() {
       </div>
 
       <div className="hv-cue absolute bottom-8 left-1/2 -translate-x-1/2 font-display text-[10px] tracking-[0.34em] text-olive/50 uppercase">
-        Scroll to enter
+        Scroll to continue
       </div>
     </section>
   );

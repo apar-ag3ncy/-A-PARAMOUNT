@@ -15,10 +15,10 @@ export default function LoadingScreen() {
   const pathname = usePathname();
 
   useIsomorphicLayoutEffect(() => {
-    // The home page hands the first impression to DoorIntro (which sets
-    // "pm-loaded" when it finishes). The render gate below already hides the
-    // overlay on "/"; latch `done` so a later client-side navigation away from
-    // "/" can't surface a stale, never-animated overlay.
+    // The home page hands the first impression to the DoorScroll section
+    // (which sets "pm-loaded" at its doors-open handoff). The render gate
+    // below already hides the overlay on "/"; latch `done` so a later client-
+    // side navigation away from "/" can't surface a stale overlay.
     if (pathname === "/") {
       setDone(true);
       return;
@@ -53,7 +53,7 @@ export default function LoadingScreen() {
 
   // Route-only gate, evaluated identically on server and client (no storage
   // reads): "/" never paints the mantra overlay — not even in the SSR HTML —
-  // because DoorIntro owns the home page's first impression.
+  // because the DoorScroll section owns the home page's first impression.
   if (done || pathname === "/") return null;
 
   return (

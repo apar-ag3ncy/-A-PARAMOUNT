@@ -6,6 +6,14 @@ import BrandDamask from "@/components/ui/BrandDamask";
 import { FAMILIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
+/** A photogenic, centre-framed hero photo per family — the arch cover tiles. */
+const FAMILY_COVER: Record<string, string> = {
+  architecture: "/products/kalash.webp",
+  symbols: "/products/angi-mugat.webp",
+  ceremonial: "/products/samovasaran-trigadu.webp",
+  devotional: "/products/108-diva-aarti.webp",
+};
+
 /**
  * Four product families as temple-arch frames (inspo: arch-framed galleries).
  * Alternating data-speed gives the row a layered depth drift under
@@ -32,10 +40,24 @@ export default function FeaturedFamilies() {
           >
             <div className="relative transition-transform duration-500 ease-out group-hover:-translate-y-2">
               <AssetFrame
+                src={FAMILY_COVER[f.slug]}
                 image={null}
                 ratio="3/4"
+                crop
+                fit="cover"
+                sizes="(min-width:1024px) 25vw, (min-width:640px) 50vw, 100vw"
                 showLabel={false}
                 frameClassName="rounded-t-full transition-[border-color] duration-500 group-hover:border-olive"
+              />
+              {/* soft gradient scrim so the family name stays legible over the
+                  photo and the arch reads as a framed cover, not a raw crop */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-image rounded-t-full"
+                style={{
+                  background:
+                    "linear-gradient(to top, rgba(46,35,19,0.34) 0%, rgba(46,35,19,0.05) 34%, transparent 60%)",
+                }}
               />
               {/* Shadow lives on a separate layer so hover only animates opacity (compositor-friendly, no box-shadow repaints). */}
               <div

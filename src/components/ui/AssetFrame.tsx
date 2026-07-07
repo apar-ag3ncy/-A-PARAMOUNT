@@ -6,6 +6,7 @@ import type { SanityImage } from "@/types/sanity";
 import type { SanityImageSource } from "@sanity/image-url";
 import { cn } from "@/lib/utils";
 import { urlFor } from "@/lib/sanity/image";
+import { productAspect } from "@/lib/productImageDims";
 
 /**
  * ONE shared IntersectionObserver for every empty-state shimmer on the page
@@ -55,6 +56,13 @@ interface AssetFrameProps {
   frameClassName?: string;
   /** Fill the parent (h-full) instead of using aspect-ratio — for heroes. */
   fill?: boolean;
+  /**
+   * Height-driven: the frame takes the PARENT's height and derives its width
+   * from the photo's natural ratio (a justified equal-height row). Used by the
+   * family carousel so every card is the same height and each photo still
+   * fills its frame edge-to-edge, uncropped.
+   */
+  heightDriven?: boolean;
   /** Show the "Image coming soon" plate in the empty state. */
   showLabel?: boolean;
   /**
@@ -62,6 +70,12 @@ interface AssetFrameProps {
    * floats in the frame with a little breathing room (client photography).
    */
   fit?: "cover" | "contain";
+  /**
+   * Force the given `ratio` and cover-fill instead of adopting the photo's
+   * natural ratio. For uniform mood/cover tiles (e.g. the family arches) where
+   * a consistent grid matters more than showing every edge of the shot.
+   */
+  crop?: boolean;
 }
 
 const DEFAULT_SIZES =
@@ -92,8 +106,10 @@ export default function AssetFrame({
   className,
   frameClassName,
   fill = false,
+  heightDriven = false,
   showLabel = true,
   fit = "cover",
+  crop = false,
 }: AssetFrameProps) {
   const [loaded, setLoaded] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
@@ -103,6 +119,17 @@ export default function AssetFrame({
     ? `${hotspot.x * 100}% ${hotspot.y * 100}%`
     : "center";
   const hasShimmer = !url;
+
+  // When we know the client photo's true pixel ratio, the frame ADOPTS it:
+  // the shot then fills the frame edge-to-edge with zero crop and zero empty
+  // margin (object-cover on a matching ratio can't crop). Falls back to the
+  // seeded `ratio` only for the empty state and Sanity images of unknown size.
+  const naturalAspect = productAspect(src);
+  const fitToPhoto = !fill && !crop && naturalAspect != null;
+  const frameAspect = fitToPhoto ? String(naturalAspect) : ratio;
+  // height-driven derives width from the parent height; aspect-driven derives
+  // height from the parent width. Either way the frame matches the photo ratio.
+  const useHeight = heightDriven && !fill;
 
   // Pause the shimmer while the frame is offscreen: register with the shared
   // observer only while the shimmer actually renders.
@@ -120,15 +147,16 @@ export default function AssetFrame({
   }, [hasShimmer]);
 
   return (
-    <figure className={cn("group", fill && "h-full", className)}>
+    <figure className={cn("group", fill && "h-full", useHeight && "w-fit", className)}>
       <div
         ref={frameRef}
         className={cn(
           "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0] [contain:content]",
           fill && "h-full w-full",
+          useHeight && "h-full w-auto",
           frameClassName,
         )}
-        style={fill ? undefined : { aspectRatio: ratio }}
+        style={fill ? undefined : { aspectRatio: frameAspect }}
         data-speed={depth}
         // Start PAUSED; the shared observer lifts this on first intersection.
         data-shimmer-off={hasShimmer ? "" : undefined}
@@ -194,12 +222,14 @@ export default function AssetFrame({
             onLoad={() => setLoaded(true)}
             className={cn(
               "transition-opacity duration-[600ms] ease-out",
-              // "contain" never crops: the shot floats in the frame with ~6%
-              // padding (object-fit resolves inside the content box).
-              fit === "contain" ? "object-contain p-[6%]" : "object-cover",
+              // Frame already matches the photo's ratio -> object-cover fills
+              // it completely without cropping a single pixel. Otherwise fall
+              // back: "contain" floats the shot with breathing room; "cover"
+              // fills a mismatched frame (Sanity images of unknown ratio).
+              fitToPhoto || fit === "cover" ? "object-cover" : "object-contain p-[6%]",
               loaded ? "opacity-100" : "opacity-0",
             )}
-            style={fit === "contain" ? undefined : { objectPosition }}
+            style={fitToPhoto || fit === "cover" ? { objectPosition } : undefined}
           />
         )}
       </div>

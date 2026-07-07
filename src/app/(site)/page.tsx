@@ -1,6 +1,7 @@
 import CinematicHero from "@/components/sections/CinematicHero";
-import DoorIntro from "@/components/sections/DoorIntro";
+import DoorScroll from "@/components/sections/DoorScroll";
 import FeaturedFamilies from "@/components/sections/FeaturedFamilies";
+import FeaturedGallery from "@/components/sections/FeaturedGallery";
 import DevotionStatement from "@/components/sections/DevotionStatement";
 import CraftStory from "@/components/sections/CraftStory";
 import HeritageStrip from "@/components/sections/HeritageStrip";
@@ -12,17 +13,12 @@ import ScrollReveal from "@/components/animations/ScrollReveal";
 export default function Home() {
   return (
     <>
-      {/* Server-rendered cream cover: present from the very first byte, so the
-          landing page can never flash beneath the door intro while it boots.
-          DoorIntro removes it the moment it takes over (or immediately on a
-          session-gated repeat visit); a CSS fallback fades it after ~4.5s so
-          a broken script can never leave the page blank. */}
-      <div id="pm-precover" aria-hidden />
-      {/* Once-per-session temple-door opening. Portals itself onto <body> so
-          position:fixed escapes the transformed #smooth-content wrapper. */}
-      <DoorIntro />
+      {/* The temple doors, opened by the visitor's own scroll: a pinned,
+          scrubbed frame-sequence film that ends on the hero's exact cream. */}
+      <DoorScroll />
       <CinematicHero />
       <FeaturedFamilies />
+      <FeaturedGallery />
       <DevotionStatement />
       <CraftStory />
       <HeritageStrip />

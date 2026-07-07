@@ -5,6 +5,7 @@ import { gsap, ScrollTrigger, Flip } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import MasonryItem from "@/components/products/MasonryItem";
 import type { CatalogCategory } from "@/lib/catalog";
+import { productAspect } from "@/lib/productImageDims";
 import { cn } from "@/lib/utils";
 
 /**
@@ -150,19 +151,26 @@ export default function CategoryBrowser({
         ref={gridRef}
         className="columns-1 [column-gap:1.5rem] sm:columns-2 lg:columns-3 xl:columns-4"
       >
-        {products.map((p, i) => (
-          <MasonryItem
-            key={p.slug}
-            caption={p.title}
-            ratio={p.ratio}
-            image={p.heroImage}
-            src={p.image}
-            href={`/products/${familySlug}/${p.slug}`}
-            depth={i % 2 ? 1.04 : 0.96}
-            hidden={!isShown(p)}
-            arch={i % 3 === 0 && ["3/4", "4/5", "2/3"].includes(p.ratio)}
-          />
-        ))}
+        {products.map((p, i) => {
+          // A real photo drives its own frame ratio; the temple arch only
+          // reads on a tall (portrait) frame, so gate it on the true photo.
+          const aspect = productAspect(p.image);
+          const isPortrait =
+            aspect != null ? aspect < 0.82 : ["3/4", "4/5", "2/3"].includes(p.ratio);
+          return (
+            <MasonryItem
+              key={p.slug}
+              caption={p.title}
+              ratio={p.ratio}
+              image={p.heroImage}
+              src={p.image}
+              href={`/products/${familySlug}/${p.slug}`}
+              depth={i % 2 ? 1.04 : 0.96}
+              hidden={!isShown(p)}
+              arch={i % 3 === 0 && isPortrait}
+            />
+          );
+        })}
       </div>
     </>
   );
