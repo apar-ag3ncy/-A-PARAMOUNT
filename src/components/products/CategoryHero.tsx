@@ -36,7 +36,7 @@ export default function CategoryHero({ title, subtitle, count, image }: Props) {
   // No photography for this family — keep the original centered layout.
   if (!image) {
     return (
-      <header className="mx-auto max-w-4xl px-6 pt-28 pb-12 text-center">
+      <header className="mx-auto max-w-4xl px-6 pt-20 pb-10 sm:pt-28 sm:pb-12 text-center">
         {eyebrow}
         {heading}
         <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
@@ -51,7 +51,7 @@ export default function CategoryHero({ title, subtitle, count, image }: Props) {
 
   // Deck p13 template: text block left, big photo circle bleeding off the right.
   return (
-    <header className="relative overflow-x-clip pt-28 pb-12">
+    <header className="relative overflow-x-clip pt-20 pb-10 sm:pt-28 sm:pb-12">
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-6">
         <div className="text-center lg:max-w-xl lg:text-left">
           {eyebrow}

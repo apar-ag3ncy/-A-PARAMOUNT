@@ -63,7 +63,7 @@ export default function FamilyShowcase({ family, products }: Props) {
       </div>
       <div
         ref={trackRef}
-        className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 lg:w-max lg:snap-none lg:overflow-visible lg:px-[8vw] lg:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 lg:w-max lg:snap-none lg:overflow-visible lg:px-[8vw] lg:pb-0 lg:[scrollbar-width:none] lg:[&::-webkit-scrollbar]:hidden"
       >
         {products.map((p, i) => {
           const aspect = productAspect(p.image);

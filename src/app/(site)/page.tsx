@@ -26,7 +26,7 @@ export default function Home() {
       {/* Deck p30 interlude — "Shaped by devotion," + olive damask circle */}
       <QuoteInterlude />
 
-      <section className="mx-auto max-w-6xl px-6 py-24 text-center">
+      <section className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-24">
         <ScrollReveal className="mb-12">
           <p className="mb-4 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
             Interactive

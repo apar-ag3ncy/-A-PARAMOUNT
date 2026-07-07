@@ -11,7 +11,7 @@ interface Props {
 export default function RelatedProducts({ items, familySlug }: Props) {
   if (!items.length) return null;
   return (
-    <section className="mt-28 border-t border-olive/15 pt-16">
+    <section className="mt-16 border-t border-olive/15 pt-10 sm:mt-28 sm:pt-16">
       <h2 className="mb-10 text-center font-display text-2xl font-light text-olive-deep">
         More from this collection
       </h2>

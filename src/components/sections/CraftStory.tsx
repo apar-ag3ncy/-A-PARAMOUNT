@@ -10,7 +10,7 @@ import OrnamentDivider from "@/components/ui/OrnamentDivider";
  */
 export default function CraftStory() {
   return (
-    <section className="mx-auto grid max-w-7xl gap-12 px-6 py-24 lg:grid-cols-2 lg:items-center lg:gap-20">
+    <section className="mx-auto grid max-w-7xl gap-12 px-6 py-16 sm:py-24 lg:grid-cols-2 lg:items-center lg:gap-20">
       <div>
         <p className="mb-4 font-body text-xs font-medium tracking-[0.32em] text-olive/80 uppercase">
           The Craft

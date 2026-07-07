@@ -57,7 +57,7 @@ export default function MegaMenu() {
   };
 
   return (
-    <nav className="hidden items-center gap-8 md:flex">
+    <nav className="hidden items-center gap-8 lg:flex">
       <NavLink href="/craftsmanship">Craftsmanship</NavLink>
 
       <div
@@ -87,7 +87,7 @@ export default function MegaMenu() {
               : "pointer-events-none invisible -translate-y-2 opacity-0",
           )}
         >
-          <div className="mx-auto max-w-6xl px-6 pt-3">
+          <div className="mx-auto max-h-[calc(100svh-64px)] max-w-6xl overflow-y-auto px-6 pt-3">
             <div
               className="relative overflow-hidden rounded-card border border-olive/25 shadow-[0_24px_60px_-24px_rgba(79,26,22,0.35)]"
               style={{
