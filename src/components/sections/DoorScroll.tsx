@@ -267,36 +267,86 @@ export default function DoorScroll() {
           const setIntro = (on: boolean) =>
             document.documentElement.classList.toggle("pm-intro", on);
 
-          const st = ScrollTrigger.create({
-            trigger: rootEl,
-            start: "top top",
-            end: "bottom bottom",
-            pin: stageEl,
-            anticipatePin: 1,
-            onToggle: (self) => setIntro(self.isActive),
-            onUpdate(self) {
-              if (self.progress > 0.03) settleEntrance();
-              if (self.progress >= P.doorsOpen) fireDoorsOpen();
-              targetP = self.progress;
+          // Pinning strategy depends on the scroll environment (matched to
+          // SmoothScrollProvider):
+          //  • Fine pointer (mouse) → ScrollSmoother transforms #smooth-content,
+          //    so native CSS sticky can't hold; GSAP must pin (position:fixed).
+          //  • Touch (coarse) → the smoother uses NATIVE scroll (smoothTouch:0,
+          //    no transform), where a GSAP pin is notoriously jittery/broken on
+          //    phones — but native `position:sticky` holds the stage perfectly.
+          const nativeScroll = !window.matchMedia("(pointer: fine)").matches;
+          let st: ScrollTrigger | undefined;
+          let onNativeScroll: (() => void) | undefined;
+
+          if (nativeScroll) {
+            // ---- TOUCH / native scroll ----
+            // Pin the stage with native CSS sticky (validated to hold on native
+            // scroll), and read scroll progress STRAIGHT FROM the section's own
+            // position. Both GSAP pinning and ScrollTrigger's scrub are flaky on
+            // phones; this layout-read progress is correct under any native or
+            // momentum scrolling, so the doors track the finger exactly.
+            gsap.set(stageEl, { position: "sticky", top: 0 });
+            // With native scroll the site header can sit in normal flow and push
+            // this first section down. Measure whatever gap actually exists at
+            // the top and pull the section up by exactly that, so the doors are
+            // full-bleed from the very top without ever over-pulling (the header
+            // is lifted away during the intro anyway).
+            const gap = rootEl.getBoundingClientRect().top;
+            if (gap > 1) gsap.set(rootEl, { marginTop: -gap });
+            const span = () => Math.max(1, rootEl.offsetHeight - window.innerHeight);
+            onNativeScroll = () => {
+              const p = gsap.utils.clamp(
+                0,
+                1,
+                -rootEl.getBoundingClientRect().top / span(),
+              );
+              if (p > 0.03) settleEntrance();
+              if (p >= P.doorsOpen) fireDoorsOpen();
+              setIntro(p < 0.999);
+              targetP = p;
               kick();
-            },
-            // Deep links / restored scroll positions land past the doors — snap
-            // (no glide) so a mid-page reload isn't caught mid-animation.
-            onRefresh(self) {
-              if (self.progress >= P.doorsOpen) fireDoorsOpen();
-              setIntro(self.isActive);
-              targetP = renderedP = self.progress;
-              apply(renderedP);
-            },
-          });
-          // Hidden from the very first paint (the page opens ON the intro).
-          setIntro(st.isActive !== false);
+            };
+            window.addEventListener("scroll", onNativeScroll, { passive: true });
+            window.addEventListener("resize", onNativeScroll, { passive: true });
+            onNativeScroll(); // paint the closed doors + hide header immediately
+          } else {
+            // ---- MOUSE ----
+            // ScrollSmoother transforms #smooth-content, so CSS sticky can't
+            // hold; GSAP pins (position:fixed) and drives the scrub via scrub.
+            st = ScrollTrigger.create({
+              trigger: rootEl,
+              start: "top top",
+              end: "bottom bottom",
+              pin: stageEl,
+              anticipatePin: 1,
+              onToggle: (self) => setIntro(self.isActive),
+              onUpdate(self) {
+                if (self.progress > 0.03) settleEntrance();
+                if (self.progress >= P.doorsOpen) fireDoorsOpen();
+                targetP = self.progress;
+                kick();
+              },
+              // Deep links / restored scroll positions land past the doors.
+              onRefresh(self) {
+                if (self.progress >= P.doorsOpen) fireDoorsOpen();
+                setIntro(self.isActive);
+                targetP = renderedP = self.progress;
+                apply(renderedP);
+              },
+            });
+            // Hidden from the very first paint (the page opens ON the intro).
+            setIntro(st.isActive !== false);
+          }
 
           return () => {
             cancelAnimationFrame(rafId);
             setIntro(false);
             cuePulse.kill();
-            st.kill();
+            st?.kill();
+            if (onNativeScroll) {
+              window.removeEventListener("scroll", onNativeScroll);
+              window.removeEventListener("resize", onNativeScroll);
+            }
           };
         },
       );
