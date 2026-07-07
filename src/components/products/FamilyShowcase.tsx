@@ -4,8 +4,10 @@ import Link from "next/link";
 import { useRef } from "react";
 import AssetFrame from "@/components/ui/AssetFrame";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
+import { productAspect } from "@/lib/productImageDims";
+import { cn } from "@/lib/utils";
 import type { CatalogCategory } from "@/lib/catalog";
 
 interface Props {
@@ -63,26 +65,38 @@ export default function FamilyShowcase({ family, products }: Props) {
         ref={trackRef}
         className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-6 pb-4 lg:w-max lg:snap-none lg:overflow-visible lg:px-[8vw] lg:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
-        {products.map((p, i) => (
-          <Link
-            key={p.slug}
-            href={`/products/${family.slug}/${p.slug}`}
-            className="group w-64 shrink-0 snap-start sm:w-72"
-          >
-            <AssetFrame
-              image={p.heroImage}
-              src={p.image}
-              fit={p.image ? "contain" : "cover"}
-              ratio="3/4"
-              caption={p.title}
-              frameClassName={
-                i % 2
-                  ? "rounded-t-full transition-colors duration-[400ms] group-hover:border-olive"
-                  : "transition-colors duration-[400ms] group-hover:border-olive"
-              }
-            />
-          </Link>
-        ))}
+        {products.map((p, i) => {
+          const aspect = productAspect(p.image);
+          const isPortrait = aspect != null ? aspect < 0.82 : true;
+          // Arch only reads as a temple arch on a tall frame; alternate it
+          // among the portrait cards for rhythm, never on a wide one.
+          const arch = isPortrait && i % 2 === 1;
+          return (
+            <Link
+              key={p.slug}
+              href={`/products/${family.slug}/${p.slug}`}
+              className="group flex shrink-0 snap-start flex-col items-center gap-3"
+            >
+              <AssetFrame
+                image={p.heroImage}
+                src={p.image}
+                heightDriven
+                // Equal-height justified row: every card is the same height,
+                // its width follows the photo so nothing is cropped or padded.
+                ratio="3/4"
+                className="h-72 sm:h-80"
+                fit="cover"
+                frameClassName={cn(
+                  "transition-colors duration-[400ms] group-hover:border-olive",
+                  arch && "rounded-t-full",
+                )}
+              />
+              <span className="max-w-[16rem] text-center font-display text-xs tracking-[0.18em] text-olive-deep uppercase">
+                {p.title}
+              </span>
+            </Link>
+          );
+        })}
       </div>
     </section>
   );
