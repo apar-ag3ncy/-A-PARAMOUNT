@@ -98,7 +98,12 @@
   transform: translateY(60px) scale(0.96);
 }
 
-/* SplitText line mask — words rise from behind a hidden edge. */
+/* SplitText line mask — words rise from behind a hidden edge.
+   Do NOT add padding-bottom here to "rescue descenders". Measured on the clone
+   of a settled h1 (GSAP detached) at 36/48/60/72px: the j-tail of "Dhwajadand"
+   clears this mask edge by 0.6-1.2px at every size. A descender that *looks*
+   sheared is a tween caught mid-rise — that is the mask working. Padding the
+   mask would instead let the rising word's ascenders peek out below the line. */
 .split-line {
   overflow: hidden;
 }
