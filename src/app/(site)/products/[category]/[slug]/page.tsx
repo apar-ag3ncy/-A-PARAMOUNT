@@ -66,11 +66,15 @@ export default async function ProductPage({
       </nav>
 
       <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+        {/* `src` carries the 30 local /public/products/*.webp photos; `image` is
+            the Sanity field. Passing only `image` (as this did) left every
+            photographed product showing the empty "Image coming soon" frame. */}
         <ProductGalleryTabs
           title={product.title}
           materials={materials}
           ratio={product.ratio}
           image={product.heroImage}
+          src={product.image}
         />
 
         <div className="lg:pt-6">

@@ -11,6 +11,8 @@ interface Props {
   material: string;
   ratio?: string;
   image?: SanityImage | null;
+  /** Local photo path (catalog `image`) — shown uncropped, like MasonryItem. */
+  src?: string;
 }
 
 /**
@@ -23,6 +25,7 @@ export default function ProductGallery({
   material,
   ratio = "4/5",
   image,
+  src,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -43,6 +46,9 @@ export default function ProductGallery({
     <div ref={ref}>
       <AssetFrame
         image={image ?? null}
+        src={src}
+        alt={title}
+        fit={src ? "contain" : "cover"}
         ratio={ratio}
         caption={material === "Standard" ? title : `${title} · ${material}`}
         priority

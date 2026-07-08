@@ -18,8 +18,13 @@ export default function RelatedProducts({ items, familySlug }: Props) {
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
         {items.map((p) => (
           <Link key={p.slug} href={`/products/${familySlug}/${p.slug}`} className="group">
+            {/* `src` = the local /public photo, `image` = Sanity. Passing only
+                `image` showed the empty frame for all 30 photographed products. */}
             <AssetFrame
               image={p.heroImage}
+              src={p.image}
+              alt={p.title}
+              fit={p.image ? "contain" : "cover"}
               ratio="3/4"
               caption={p.title}
               frameClassName="rounded-t-full transition-colors duration-[400ms] group-hover:border-olive"
