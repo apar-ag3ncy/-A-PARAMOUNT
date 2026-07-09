@@ -3,7 +3,11 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
 import Lightbox from "@/components/products/Lightbox";
-import { MATERIAL_ICONS, type ProductGallery } from "@/lib/galleries";
+import {
+  MATERIAL_ICONS,
+  type GalleryImage,
+  type ProductGallery,
+} from "@/lib/galleries";
 import { cn } from "@/lib/utils";
 
 /**
@@ -44,7 +48,7 @@ interface Finish {
   key: string;
   label: string;
   iconKey: string | null;
-  images: string[];
+  images: GalleryImage[];
 }
 
 export default function CategoryGallery({
@@ -159,32 +163,32 @@ export default function CategoryGallery({
         </div>
       )}
 
-      {/* the grid — masonry columns keep organic heights; each photo FILLS its
-          tile (object-cover) so no empty frames. The whole, uncropped piece is
-          always one tap away in the fullscreen viewer. */}
+      {/* True masonry: each frame takes its photo's OWN aspect ratio (width/
+          height from the manifest), so every image fills its frame completely —
+          no crop, no empty bands — whether it's a tall dhwajadand or a wide
+          bhandar. CSS columns balance the varying heights. */}
       <div className="[column-fill:_balance] gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4">
-        {images.map((src, i) => (
+        {images.map((img, i) => (
           <button
-            key={src}
+            key={img.src}
             onClick={() => setOpen(i)}
             aria-label={`View ${caption} photo ${i + 1}`}
             className="group block w-full break-inside-avoid overflow-hidden rounded-card border border-olive/15 bg-cream-deep transition-colors duration-300 hover:border-olive/50"
           >
-            <span className="relative block aspect-[4/5] w-full">
-              <Image
-                src={src}
-                alt={`${caption} — ${i + 1}`}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-              />
-            </span>
+            <Image
+              src={img.src}
+              width={img.w}
+              height={img.h}
+              alt={`${caption} — ${i + 1}`}
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.04]"
+            />
           </button>
         ))}
       </div>
 
       <Lightbox
-        images={images}
+        images={images.map((img) => img.src)}
         index={open}
         caption={caption}
         onClose={() => setOpen(null)}
