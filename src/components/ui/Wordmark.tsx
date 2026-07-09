@@ -30,10 +30,10 @@ export default function Wordmark({
       className={cn("inline-flex flex-col items-center leading-none", className)}
     >
       <span
-        className="font-display font-medium"
+        className="font-display font-medium whitespace-nowrap"
         style={{ fontSize: "1em", letterSpacing: "0.015em", lineHeight: 1 }}
       >
-        PARAMOUNT
+        A&nbsp;PARAMOUNT
       </span>
       {tagline && (
         <span

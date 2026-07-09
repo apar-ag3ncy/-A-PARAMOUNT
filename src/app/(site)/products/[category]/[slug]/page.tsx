@@ -74,12 +74,13 @@ export default async function ProductPage({
           <p className="font-display text-[11px] tracking-[0.2em] text-olive uppercase">
             Available in
           </p>
-          <ul className="mt-3 flex flex-wrap gap-2">
+          <ul className="mt-3 flex flex-wrap gap-2.5">
             {product.variants.map((v) => (
               <li
                 key={v}
-                className="rounded-button border border-olive/30 px-3 py-1 font-body text-sm text-olive-deep"
+                className="inline-flex items-center gap-2 rounded-full border border-olive/25 bg-cream-deep/40 px-3.5 py-1.5 font-body text-[13px] text-olive-deep/90 transition-colors duration-300 hover:border-olive/60 hover:bg-cream-deep/70"
               >
+                <span className="size-1.5 rounded-full bg-[#E2CA82]" />
                 {v}
               </li>
             ))}

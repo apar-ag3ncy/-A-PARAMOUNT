@@ -81,17 +81,6 @@ export default function CategoryGallery({
                       {g.label.charAt(0)}
                     </span>
                   )}
-                  {/* count badge */}
-                  <span
-                    className={cn(
-                      "absolute -right-1 -bottom-1 grid size-5 place-items-center rounded-full border font-body text-[10px] tabular-nums transition-colors sm:size-6 sm:text-[11px]",
-                      on
-                        ? "border-olive bg-olive text-cream"
-                        : "border-olive/30 bg-cream text-olive-deep/70",
-                    )}
-                  >
-                    {g.images.length}
-                  </span>
                 </span>
                 <span
                   className={cn(

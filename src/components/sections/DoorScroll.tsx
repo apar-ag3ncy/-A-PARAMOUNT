@@ -73,8 +73,8 @@ export default function DoorScroll() {
     const frames: (ImageBitmap | HTMLImageElement | null)[] =
       Array(FRAME_COUNT).fill(null);
     let disposed = false;
-    let current = 0; // frame the scrub wants
-    let drawn = -1; // frame actually on the canvas
+    let current = 0; // FRACTIONAL frame the scrub wants (0 … FRAME_COUNT-1)
+    let drawnF = -1; // fractional frame actually on the canvas
 
     const dims = (img: ImageBitmap | HTMLImageElement) =>
       img instanceof HTMLImageElement
@@ -94,17 +94,36 @@ export default function DoorScroll() {
 
     let cw = 0;
     let ch = 0;
-    const draw = (i: number) => {
-      const j = nearest(i);
-      if (j < 0 || j === drawn) return;
-      const img = frames[j]!;
+    const paint = (j: number, alpha: number) => {
+      const img = frames[j];
+      if (!img) return;
       const { w, h } = dims(img);
       if (!w || !h) return;
       const s = Math.max(cw / w, ch / h); // cover
       const dw = w * s;
       const dh = h * s;
+      ctx2d.globalAlpha = alpha;
       ctx2d.drawImage(img, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
-      drawn = j;
+      ctx2d.globalAlpha = 1;
+    };
+
+    // Cross-dissolve between the two frames straddling the fractional position.
+    // This is what makes a SLOW scrub buttery: instead of snapping to whole
+    // frames (visible stepping), adjacent frames blend by the sub-frame fraction
+    // so the doors move continuously at any scroll speed. The base frame is
+    // opaque and covers the canvas, so no clear is needed before compositing.
+    const draw = (f: number) => {
+      if (drawnF >= 0 && Math.abs(f - drawnF) < 0.008) return;
+      const i0 = Math.floor(f);
+      const frac = f - i0;
+      const j0 = nearest(i0);
+      if (j0 < 0) return;
+      paint(j0, 1);
+      if (frac > 0.004 && i0 + 1 < FRAME_COUNT) {
+        const j1 = nearest(i0 + 1);
+        if (j1 >= 0 && j1 !== j0) paint(j1, frac);
+      }
+      drawnF = f;
     };
 
     const resize = () => {
@@ -114,7 +133,7 @@ export default function DoorScroll() {
       cv.width = Math.round(cw * dpr);
       cv.height = Math.round(ch * dpr);
       ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
-      drawn = -1;
+      drawnF = -1;
       draw(current);
     };
     resize();
@@ -138,7 +157,7 @@ export default function DoorScroll() {
         }
       }
       if (disposed) return;
-      drawn = -1; // a closer frame may have arrived — repaint
+      drawnF = -1; // a closer frame may have arrived — repaint
       draw(current);
     };
 
@@ -219,7 +238,7 @@ export default function DoorScroll() {
             gsap.utils.clamp(0, 1, (p - from) / len);
           const easeIn = gsap.parseEase("power1.in");
           const apply = (p: number) => {
-            current = Math.round(seg(p, 0, P.filmEnd) * (FRAME_COUNT - 1));
+            current = seg(p, 0, P.filmEnd) * (FRAME_COUNT - 1);
             draw(current);
             const t = easeIn(seg(p, P.textOut, 0.13));
             gsap.set(textEls, { opacity: 1 - t, y: -30 * t });
