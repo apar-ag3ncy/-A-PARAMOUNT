@@ -52,7 +52,10 @@ export default async function ProductPage({
       : {}),
   };
 
-  const Intro = (
+  // `showVariants` prints the finish text-pills. The gallery branch hides them
+  // because the coin buttons already present every finish; the non-photographed
+  // branch shows them (its layout has no coins).
+  const renderIntro = (showVariants: boolean) => (
     <>
       <p className="font-display text-[11px] tracking-[0.24em] text-olive uppercase">
         {family?.title}
@@ -69,7 +72,7 @@ export default async function ProductPage({
           {product.blurb}
         </p>
       )}
-      {product.variants.length > 0 && (
+      {showVariants && product.variants.length > 0 && (
         <div className="mt-8">
           <p className="font-display text-[11px] tracking-[0.2em] text-olive uppercase">
             Available in
@@ -110,8 +113,12 @@ export default async function ProductPage({
         // Gallery-forward: compact intro, then the full material-filtered grid
         // with a fullscreen viewer (the client's per-category photo folders).
         <>
-          <header className="mb-14 max-w-3xl">{Intro}</header>
-          <CategoryGallery title={product.title} gallery={gallery} />
+          <header className="mb-14 max-w-3xl">{renderIntro(false)}</header>
+          <CategoryGallery
+            title={product.title}
+            gallery={gallery}
+            variants={product.variants}
+          />
           <div className="mt-14">
             <MagneticButton href="/contact">
               Enquire about {product.title}
@@ -133,7 +140,7 @@ export default async function ProductPage({
             src={product.image}
           />
           <div className="lg:pt-6">
-            {Intro}
+            {renderIntro(true)}
             <div className="mt-12">
               <MagneticButton href="/contact">
                 Enquire about {product.title}

@@ -7,50 +7,112 @@ import { MATERIAL_ICONS, type ProductGallery } from "@/lib/galleries";
 import { cn } from "@/lib/utils";
 
 /**
- * The photo gallery for one product/category. The client's `icon-buttons` PNGs
- * are the MATERIAL selectors — tap a finish (Wooden / Silver / Diamond …) and
- * the grid filters in place to that finish's real photographs. Products with a
- * single "All" group render the grid with no selector. Every photo is shown
- * UNCROPPED (object-contain on a fixed-ratio tile) so the whole piece is
- * visible; clicking one opens the fullscreen Lightbox for that group only.
+ * The photo gallery for one product/category.
+ *
+ * The client's `icon-buttons` PNGs are the MATERIAL selector — big circular coin
+ * buttons shown on EVERY product that comes in more than one finish:
+ *  • products whose photos are split by finish (Doors, Bhandar, 14-Swapna) get a
+ *    coin per photo group, and tapping one filters the grid to that finish;
+ *  • products with a single photo set but multiple catalogue finishes (Kalash →
+ *    Brass/Copper, Chattar → Silver/Gold/…) show a coin per finish over the same
+ *    photos, so the selector looks and feels identical everywhere.
+ * Tapping a photo opens the fullscreen Lightbox.
  */
+
+/** Map a finish label to one of the coin icon keys (mirror of the build script). */
+function matchIcon(label: string): string | null {
+  const n = label.toLowerCase().replace(/[^a-z0-9]/g, "");
+  if (n.includes("brass") && (n.includes("germansilver") || n.includes("gs")))
+    return "brass-germansilver";
+  if (n.includes("copper") && n.includes("brass")) return "copper-brass";
+  if (n.includes("brass") && (n.includes("jaali") || n.includes("jali")))
+    return "brass-jaali";
+  if (n.includes("minakari")) return "minakari";
+  if (n.includes("diamond")) return "diamond";
+  if ((n.includes("wood") && !n.includes("nowood")) || n.includes("carving"))
+    return "wooden";
+  if (n.includes("silver")) return "silver";
+  if (n.includes("copper")) return "copper";
+  if (n.includes("polish")) return "polish";
+  if (n.includes("inlay") || n.includes("emboss")) return "inlay";
+  if (n.includes("jaali") || n.includes("jali")) return "brass-jaali";
+  if (n.includes("brass")) return "brass";
+  return null;
+}
+
+interface Finish {
+  key: string;
+  label: string;
+  iconKey: string | null;
+  images: string[];
+}
+
 export default function CategoryGallery({
   title,
   gallery,
+  variants = [],
 }: {
   title: string;
   gallery: ProductGallery;
+  /** Catalogue finishes, used to build coins when photos aren't split by finish. */
+  variants?: string[];
 }) {
   const groups = gallery.groups;
-  const multi = groups.length > 1;
+
+  // Build the finish coins. Real photo groups win (they filter); otherwise fall
+  // back to the catalogue finishes over the product's single photo set.
+  const finishes: Finish[] = useMemo(() => {
+    if (groups.length > 1) {
+      return groups.map((g) => ({
+        key: g.material,
+        label: g.label,
+        iconKey: g.icon,
+        images: g.images,
+      }));
+    }
+    const base = groups[0]?.images ?? [];
+    if (variants.length > 1) {
+      return variants.map((v) => ({
+        key: v,
+        label: v,
+        iconKey: matchIcon(v),
+        images: base,
+      }));
+    }
+    return [];
+  }, [groups, variants]);
+
+  const hasSelector = finishes.length > 1;
   const [active, setActive] = useState(0);
   const [open, setOpen] = useState<number | null>(null);
 
-  const group = groups[Math.min(active, groups.length - 1)];
-  const images = group.images;
+  const activeFinish = hasSelector
+    ? finishes[Math.min(active, finishes.length - 1)]
+    : undefined;
+  const images = activeFinish?.images ?? groups[0]?.images ?? [];
   const caption = useMemo(
-    () => (multi ? `${title} · ${group.label}` : title),
-    [multi, title, group.label],
+    () => (activeFinish ? `${title} · ${activeFinish.label}` : title),
+    [activeFinish, title],
   );
 
   return (
     <div>
-      {/* material selector — the icon-button chips */}
-      {multi && (
+      {/* material selector — big circular coin buttons */}
+      {hasSelector && (
         <div
           role="tablist"
           aria-label="Choose a finish"
           className="mb-10 flex flex-wrap gap-x-6 gap-y-5 sm:gap-x-8"
         >
-          {groups.map((g, i) => {
+          {finishes.map((f, i) => {
             const on = i === active;
-            const iconSrc = g.icon ? MATERIAL_ICONS[g.icon] : undefined;
+            const iconSrc = f.iconKey ? MATERIAL_ICONS[f.iconKey] : undefined;
             return (
               <button
-                key={g.material}
+                key={f.key}
                 role="tab"
                 aria-selected={on}
-                title={`${g.label} — ${g.images.length} photo${g.images.length === 1 ? "" : "s"}`}
+                title={f.label}
                 onClick={() => {
                   setActive(i);
                   setOpen(null);
@@ -75,10 +137,9 @@ export default function CategoryGallery({
                       className="rounded-full object-cover"
                     />
                   ) : (
-                    // no coin art for this finish (e.g. Patra) — a tonal disc
-                    // with the initial, styled to sit in the same family.
+                    // no coin art for this finish — a tonal disc with the initial.
                     <span className="grid size-full place-items-center rounded-full bg-gradient-to-b from-cream-deep to-[#E4D6B6] font-display text-xl text-olive-deep">
-                      {g.label.charAt(0)}
+                      {f.label.charAt(0)}
                     </span>
                   )}
                 </span>
@@ -90,7 +151,7 @@ export default function CategoryGallery({
                       : "text-olive-deep/60 group-hover:text-olive-deep",
                   )}
                 >
-                  {g.label}
+                  {f.label}
                 </span>
               </button>
             );
@@ -98,7 +159,9 @@ export default function CategoryGallery({
         </div>
       )}
 
-      {/* the grid — masonry-ish columns keep organic heights, uncropped tiles */}
+      {/* the grid — masonry columns keep organic heights; each photo FILLS its
+          tile (object-cover) so no empty frames. The whole, uncropped piece is
+          always one tap away in the fullscreen viewer. */}
       <div className="[column-fill:_balance] gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4">
         {images.map((src, i) => (
           <button
@@ -113,7 +176,7 @@ export default function CategoryGallery({
                 alt={`${caption} — ${i + 1}`}
                 fill
                 sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                className="object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
+                className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
               />
             </span>
           </button>
