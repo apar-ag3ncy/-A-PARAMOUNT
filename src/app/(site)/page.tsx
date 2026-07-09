@@ -4,7 +4,6 @@ import FeaturedFamilies from "@/components/sections/FeaturedFamilies";
 import FeaturedGallery from "@/components/sections/FeaturedGallery";
 import DevotionStatement from "@/components/sections/DevotionStatement";
 import CraftStory from "@/components/sections/CraftStory";
-import HeritageStrip from "@/components/sections/HeritageStrip";
 import QuoteInterlude from "@/components/sections/QuoteInterlude";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
 import Showcase3D from "@/components/products/Showcase3D";
@@ -21,7 +20,6 @@ export default function Home() {
       <FeaturedGallery />
       <DevotionStatement />
       <CraftStory />
-      <HeritageStrip />
 
       {/* Deck p30 interlude — "Shaped by devotion," + olive damask circle */}
       <QuoteInterlude />

@@ -21,10 +21,12 @@ export default function QuoteInterlude() {
         <div className="px-6 py-20 text-center sm:px-12 lg:py-28 lg:pl-[max(3rem,calc((100vw-72rem)/2))] lg:text-left">
           <ScrollReveal>
             <blockquote className="mx-auto max-w-xl lg:mx-0">
-              <p className="font-serif text-4xl text-olive italic sm:text-5xl">
+              {/* Inter, not Storica: Storica is caps-only, and this line must
+                  read sentence-case. Light italic olive opening, upright
+                  heading-brown continuation — the deck p30 rhythm. */}
+              <p className="font-body text-4xl leading-tight font-light text-olive italic sm:text-5xl">
                 Shaped by devotion,
               </p>
-              {/* The deck (p30) sets the upright continuation in the body sans. */}
               <p className="mt-3 font-body text-4xl leading-tight font-medium tracking-tight text-heading-brown sm:text-5xl">
                 Destined to inspire generations.
               </p>

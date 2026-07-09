@@ -22,7 +22,7 @@ export default function Footer() {
 
   return (
     <footer
-      className="pm-footer relative flex min-h-svh flex-col overflow-hidden text-cream"
+      className="pm-footer relative overflow-hidden text-cream"
       style={{
         background:
           "radial-gradient(125% 90% at 50% 0%, #57502F 0%, #4A4428 42%, #332815 78%, #2A2011 100%)",
@@ -45,7 +45,7 @@ export default function Footer() {
       />
       {/* a vast, ghosted arch-A monogram — the printed back cover's grandeur */}
       <ArchMark
-        className="pointer-events-none absolute top-1/2 left-1/2 h-[86vh] w-auto -translate-x-1/2 -translate-y-1/2 text-[#E2CA82] opacity-[0.05]"
+        className="pointer-events-none absolute top-[42%] left-1/2 h-[520px] w-auto -translate-x-1/2 -translate-y-1/2 text-[#E2CA82] opacity-[0.05]"
       />
       {/* fine gold top rule */}
       <div
@@ -55,38 +55,38 @@ export default function Footer() {
       />
 
       {/* ---- centre: the closing line + brand lockup ---- */}
-      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+      <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-6 pt-24 pb-16 text-center sm:pt-28">
         <p
-          className="mb-10 font-display text-[11px] tracking-[0.4em] uppercase"
+          className="mb-9 font-display text-[11px] tracking-[0.4em] uppercase"
           style={{ color: PISTA }}
         >
           {SITE.name} · Est. {SITE.since}
         </p>
 
-        {/* deck p30 — the emotional centre */}
-        <p className="font-serif text-[clamp(2rem,6vw,4.25rem)] leading-[1.12] text-cream italic">
-          Shaped by devotion,
-          <br />
-          destined to inspire generations.
+        {/* deck p30 — the emotional centre. Set in Inter (the brand's only
+            lowercase face; Storica is caps-only), light italic, so it reads as a
+            soft sentence-case murmur rather than a shout. */}
+        <p className="max-w-3xl font-body text-[clamp(1.6rem,4vw,2.9rem)] leading-[1.28] font-light text-cream/95 italic">
+          Shaped by devotion, destined to inspire generations.
         </p>
 
-        <OrnamentDivider width="lg" className="mt-12 text-[#E2CA82]" />
+        <OrnamentDivider width="lg" className="mt-11 text-[#E2CA82]" />
 
         {/* brand lockup */}
-        <div className="mt-12 flex flex-col items-center">
+        <div className="mt-11 flex flex-col items-center">
           <Image
             src="/brand/a-mark-white.png"
             alt=""
             aria-hidden
             width={269}
             height={234}
-            className="h-14 w-auto opacity-90 sm:h-16"
+            className="h-12 w-auto opacity-90 sm:h-14"
           />
           <Wordmark
             ariaLabel={SITE.name}
-            className="mt-5 text-[clamp(26px,5vw,40px)] text-cream opacity-95"
+            className="mt-5 text-[clamp(24px,4.5vw,36px)] text-cream opacity-95"
           />
-          <p className="mt-4 font-serif text-lg text-cream/80 italic">
+          <p className="mt-4 font-body text-base text-cream/75 italic">
             {SITE.tagline}
           </p>
         </div>
