@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 
 /**
@@ -52,7 +53,8 @@ export default function Lightbox({
     };
   }, [open, go, onClose]);
 
-  if (!open || index === null) return null;
+  // Guard the portal target for SSR (the component only ever opens client-side).
+  if (!open || index === null || typeof document === "undefined") return null;
 
   // swipe follows the finger: a leftward drag advances (natural direction).
   const onDown = (e: React.PointerEvent) => {
@@ -70,7 +72,11 @@ export default function Lightbox({
     if (Math.abs(moved) > 60 && Math.abs(moved) > dy) go(moved < 0 ? 1 : -1);
   };
 
-  return (
+  // Portal to <body>: the gallery lives inside ScrollSmoother's transformed
+  // #smooth-content, where `position: fixed` is relative to that transformed
+  // box — not the viewport — so an in-tree overlay would be offset by the scroll
+  // amount and sit UNDER the header. On <body> it's a true viewport overlay.
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -147,6 +153,7 @@ export default function Lightbox({
           </button>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
