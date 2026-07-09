@@ -1,46 +1,41 @@
-import {
-  Spectral,
-  Cormorant_Garamond,
-  Inter,
-  Noto_Serif_Devanagari,
-} from "next/font/google";
+import localFont from "next/font/local";
+import { Noto_Serif_Devanagari } from "next/font/google";
 
 /*
- * NOTE: The deck's real fonts are Storica (display) + Juana (italic accent) —
- * commercial faces present only as incomplete PDF subsets. These next/font/google
- * calls (Spectral / Cormorant_Garamond) are the closest properly-licensed stand-ins.
- * To use the exact brand fonts, drop Storica/Juana `.woff2` into src/fonts and swap
- * these `next/font/google` calls for `next/font/local` — the CSS variables downstream
- * (--font-spectral / --font-cormorant, remapped to --font-display / --font-serif in
- * globals.css) stay identical, so no consumer needs to change.
+ * BRAND FONTS — the real client-supplied faces (../../FONTS), wired via
+ * next/font/local. Storica-Medium is the display/logo face; Inter is the body
+ * face. These are the ONLY two families the brand uses. The previous Google
+ * stand-ins (Spectral for Storica, Cormorant Garamond for the italic accent)
+ * are gone.
+ *
+ * Noto Serif Devanagari stays: it is NOT a brand face but the only way to draw
+ * the Devanagari mantra/product names (LoadingScreen, marquee) — neither Storica
+ * nor Inter contains Devanagari glyphs, so dropping it would render those as
+ * tofu. It never touches Latin text.
  */
 
-// Display / headings — warm even-contrast serif (the deck's "Crafting Divine")
-export const spectral = Spectral({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-spectral",
+// Display / headings / the "PARAMOUNT" wordmark — Storica Medium (single weight,
+// exactly the logo art). Requests for other weights resolve to this one face.
+export const storica = localFont({
+  src: "../fonts/Storica-Medium.ttf",
+  weight: "500",
+  style: "normal",
+  variable: "--font-storica",
   display: "swap",
 });
 
-// Elegant serif-italic accent — the italic "Elegance"
-export const cormorant = Cormorant_Garamond({
-  subsets: ["latin"],
-  weight: ["500", "600"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
-  display: "swap",
-});
-
-// Body / UI
-export const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500"],
+// Body / UI — Inter, the real variable font (one file covers every weight; the
+// italic axis is a second file). Replaces the Google Inter import.
+export const inter = localFont({
+  src: [
+    { path: "../fonts/Inter-Variable.ttf", weight: "100 900", style: "normal" },
+    { path: "../fonts/Inter-Italic-Variable.ttf", weight: "100 900", style: "italic" },
+  ],
   variable: "--font-inter",
   display: "swap",
 });
 
-// Devanagari accent for product names in original script (loaded on demand)
+// Devanagari script support only (see note above) — loaded on demand.
 export const notoDevanagari = Noto_Serif_Devanagari({
   subsets: ["devanagari"],
   weight: ["400"],
@@ -51,8 +46,7 @@ export const notoDevanagari = Noto_Serif_Devanagari({
 
 /** Space-joined CSS-variable class names — apply to <html>. */
 export const fontVariables = [
-  spectral.variable,
-  cormorant.variable,
+  storica.variable,
   inter.variable,
   notoDevanagari.variable,
 ].join(" ");

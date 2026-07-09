@@ -2,11 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import MegaMenu from "@/components/layout/MegaMenu";
 import MobileNav from "@/components/layout/MobileNav";
+import Wordmark from "@/components/ui/Wordmark";
 
 /**
- * Site header. The brand lockup uses the ORIGINAL logo artwork (public/brand/*,
- * generated untouched from a-paramount.png) — never re-typeset. Olive variant on
- * the cream ground, per the deck's own usage.
+ * Site header. The arch-"A" monogram is the original logo GLYPH (public/brand/*);
+ * the PARAMOUNT wordmark beside it is live text set in the real Storica face
+ * (see Wordmark). Olive on the cream ground, per the deck's own usage.
  */
 export default function Header() {
   return (
@@ -23,14 +24,7 @@ export default function Header() {
             priority
             className="h-11 w-auto"
           />
-          <Image
-            src="/brand/paramount-word-olive.png"
-            alt="A Paramount — Engineering Works"
-            width={1117}
-            height={219}
-            priority
-            className="h-6 w-auto translate-y-[1px]"
-          />
+          <Wordmark className="translate-y-[1px] text-[19px] text-olive" />
         </Link>
         {/* Bump the top-level nav link size a step (12px -> 13px) from here so the
             MegaMenu file stays untouched; scoped to the nav's direct links only —

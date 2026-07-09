@@ -12,6 +12,8 @@ interface Props {
   materials: string[];
   ratio?: string;
   image?: SanityImage | null;
+  /** Local photo path (catalog `image`) — forwarded to the gallery. */
+  src?: string;
 }
 
 /**
@@ -25,6 +27,7 @@ export default function ProductGalleryTabs({
   materials,
   ratio,
   image,
+  src,
 }: Props) {
   const [active, setActive] = useState(materials[0] ?? "Standard");
   const cellRef = useRef<HTMLDivElement>(null);
@@ -65,6 +68,7 @@ export default function ProductGalleryTabs({
           material={active}
           ratio={ratio}
           image={image}
+          src={src}
         />
       </div>
     </div>
