@@ -3,6 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getProductsByFamily, productParams } from "@/lib/data";
 import { FAMILIES } from "@/lib/constants";
+import { galleryFor } from "@/lib/galleries";
+import CategoryGallery from "@/components/products/CategoryGallery";
 import ProductGalleryTabs from "@/components/products/ProductGalleryTabs";
 import RelatedProducts from "@/components/products/RelatedProducts";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
@@ -33,6 +35,7 @@ export default async function ProductPage({
 
   const family = FAMILIES.find((f) => f.slug === product.family);
   const materials = product.variants.length ? product.variants : ["Standard"];
+  const gallery = galleryFor(slug);
   const related = (await getProductsByFamily(product.family))
     .filter((p) => p.slug !== slug)
     .slice(0, 4);
@@ -48,6 +51,43 @@ export default async function ProductPage({
       ? { material: product.variants.join(", ") }
       : {}),
   };
+
+  const Intro = (
+    <>
+      <p className="font-display text-[11px] tracking-[0.24em] text-olive uppercase">
+        {family?.title}
+      </p>
+      <SplitTextReveal
+        as="h1"
+        by="words"
+        className="mt-3 font-display text-4xl leading-[1.08] font-light text-olive-deep sm:text-6xl"
+      >
+        {product.title}
+      </SplitTextReveal>
+      {product.blurb && (
+        <p className="mt-6 max-w-xl font-body text-lg leading-relaxed text-espresso/80">
+          {product.blurb}
+        </p>
+      )}
+      {product.variants.length > 0 && (
+        <div className="mt-8">
+          <p className="font-display text-[11px] tracking-[0.2em] text-olive uppercase">
+            Available in
+          </p>
+          <ul className="mt-3 flex flex-wrap gap-2">
+            {product.variants.map((v) => (
+              <li
+                key={v}
+                className="rounded-button border border-olive/30 px-3 py-1 font-body text-sm text-olive-deep"
+              >
+                {v}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </>
+  );
 
   return (
     <article className="mx-auto max-w-7xl px-6 pt-24 pb-24">
@@ -65,62 +105,46 @@ export default async function ProductPage({
         </Link>
       </nav>
 
-      <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
-        {/* `src` carries the 30 local /public/products/*.webp photos; `image` is
-            the Sanity field. Passing only `image` (as this did) left every
-            photographed product showing the empty "Image coming soon" frame. */}
-        <ProductGalleryTabs
-          title={product.title}
-          materials={materials}
-          ratio={product.ratio}
-          image={product.heroImage}
-          src={product.image}
-        />
-
-        <div className="lg:pt-6">
-          <SplitTextReveal
-            as="h1"
-            by="words"
-            className="font-display text-4xl leading-[1.08] font-light text-olive-deep sm:text-6xl"
-          >
-            {product.title}
-          </SplitTextReveal>
-
-          {product.blurb && (
-            <p className="mt-6 font-body text-lg leading-relaxed text-espresso/80">
-              {product.blurb}
-            </p>
-          )}
-
-          {product.variants.length > 0 && (
-            <div className="mt-10">
-              <p className="font-display text-[11px] tracking-[0.2em] text-olive uppercase">
-                Available in
-              </p>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {product.variants.map((v) => (
-                  <li
-                    key={v}
-                    className="rounded-button border border-olive/30 px-3 py-1 font-body text-sm text-olive-deep"
-                  >
-                    {v}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="mt-12">
+      {gallery ? (
+        // Gallery-forward: compact intro, then the full material-filtered grid
+        // with a fullscreen viewer (the client's per-category photo folders).
+        <>
+          <header className="mb-14 max-w-3xl">{Intro}</header>
+          <CategoryGallery title={product.title} gallery={gallery} />
+          <div className="mt-14">
             <MagneticButton href="/contact">
               Enquire about {product.title}
             </MagneticButton>
+            <p className="mt-6 max-w-md font-body text-sm text-espresso/60">
+              Every piece is handcrafted to order — sized to your derasar and to
+              religious norms.
+            </p>
           </div>
-          <p className="mt-6 max-w-md font-body text-sm text-espresso/60">
-            Every piece is handcrafted to order — sized to your derasar and to
-            religious norms.
-          </p>
+        </>
+      ) : (
+        // No photography yet: keep the two-column layout with the empty frame.
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <ProductGalleryTabs
+            title={product.title}
+            materials={materials}
+            ratio={product.ratio}
+            image={product.heroImage}
+            src={product.image}
+          />
+          <div className="lg:pt-6">
+            {Intro}
+            <div className="mt-12">
+              <MagneticButton href="/contact">
+                Enquire about {product.title}
+              </MagneticButton>
+            </div>
+            <p className="mt-6 max-w-md font-body text-sm text-espresso/60">
+              Every piece is handcrafted to order — sized to your derasar and to
+              religious norms.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       <RelatedProducts items={related} familySlug={product.family} />
     </article>
