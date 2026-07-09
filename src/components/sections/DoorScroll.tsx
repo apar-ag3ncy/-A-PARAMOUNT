@@ -277,6 +277,7 @@ export default function DoorScroll() {
           const nativeScroll = !window.matchMedia("(pointer: fine)").matches;
           let st: ScrollTrigger | undefined;
           let onNativeScroll: (() => void) | undefined;
+          let onNativeResize: (() => void) | undefined;
 
           if (nativeScroll) {
             // ---- TOUCH / native scroll ----
@@ -293,7 +294,18 @@ export default function DoorScroll() {
             // is lifted away during the intro anyway).
             const gap = rootEl.getBoundingClientRect().top;
             if (gap > 1) gsap.set(rootEl, { marginTop: -gap });
-            const span = () => Math.max(1, rootEl.offsetHeight - window.innerHeight);
+            // The sticky stage stays pinned for exactly (section − stage) of
+            // scroll, so THAT is the scrub span. Both are `svh`-based layout
+            // pixels, stable regardless of the mobile address bar.
+            //
+            // The old span used `window.innerHeight` — the VISUAL viewport,
+            // which grows/shrinks as the phone's address bar hides/shows while
+            // the svh layout stays fixed. That mismatch made the same finger
+            // position resolve to a different progress mid-scroll, so the doors
+            // jumped and skipped frames on phones. Reading the stage height
+            // instead keeps progress monotonic with the finger.
+            const span = () =>
+              Math.max(1, rootEl.offsetHeight - stageEl.offsetHeight);
             onNativeScroll = () => {
               const p = gsap.utils.clamp(
                 0,
@@ -307,7 +319,16 @@ export default function DoorScroll() {
               kick();
             };
             window.addEventListener("scroll", onNativeScroll, { passive: true });
-            window.addEventListener("resize", onNativeScroll, { passive: true });
+            // Only react to real layout changes (orientation), not the address
+            // bar's height flicker — recomputing mid-scroll on every bar nudge
+            // is itself a source of jump. Width is stable across bar show/hide.
+            let lastW = window.innerWidth;
+            onNativeResize = () => {
+              if (window.innerWidth === lastW) return;
+              lastW = window.innerWidth;
+              onNativeScroll!();
+            };
+            window.addEventListener("resize", onNativeResize, { passive: true });
             onNativeScroll(); // paint the closed doors + hide header immediately
           } else {
             // ---- MOUSE ----
@@ -343,10 +364,10 @@ export default function DoorScroll() {
             setIntro(false);
             cuePulse.kill();
             st?.kill();
-            if (onNativeScroll) {
+            if (onNativeScroll)
               window.removeEventListener("scroll", onNativeScroll);
-              window.removeEventListener("resize", onNativeScroll);
-            }
+            if (onNativeResize)
+              window.removeEventListener("resize", onNativeResize);
           };
         },
       );
