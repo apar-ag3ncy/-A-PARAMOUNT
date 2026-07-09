@@ -28,12 +28,15 @@
   --color-foreground:   #2E2313;
   --color-accent:       #8A7F4A;
 
-  /* -- Typography — wired to next/font in src/styles/fonts.ts -- */
-  --font-display:    var(--font-spectral);        /* headings, display */
-  --font-serif:      var(--font-cormorant);       /* elegant italic accent */
+  /* -- Typography — wired to next/font/local in src/styles/fonts.ts.
+        The brand uses exactly two Latin faces: Storica (display/logo) + Inter
+        (body). The italic "accent" role (--font-serif) is Storica too — same
+        brand face, slanted by the `italic` class — since Cormorant is gone. -- */
+  --font-display:    var(--font-storica);         /* headings, display, wordmark */
+  --font-serif:      var(--font-storica);         /* accent word (e.g. "Elegance") */
   --font-body:       var(--font-inter);           /* body, UI */
   --font-sans:       var(--font-inter);           /* default sans */
-  --font-devanagari: var(--font-noto-devanagari); /* product names in script */
+  --font-devanagari: var(--font-noto-devanagari); /* Devanagari script glyphs only */
 
   /* -- Radii (never fully rounded) -- */
   --radius-image:  4px;
@@ -53,7 +56,11 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display), system-ui, sans-serif;
-    font-weight: 300;
+    /* Storica ships a single Medium weight; keep headings at it and never let
+       the browser fake a lighter/heavier cut (font-light utilities become
+       harmless no-ops rather than synthetic thinning). */
+    font-weight: 500;
+    font-synthesis-weight: none;
     text-wrap: balance;
     color: var(--color-olive-deep);
   }

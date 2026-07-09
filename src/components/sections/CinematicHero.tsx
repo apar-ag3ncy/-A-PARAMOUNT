@@ -5,6 +5,7 @@ import { useRef } from "react";
 import { gsap } from "@/lib/gsap";
 import { SITE } from "@/lib/constants";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import Wordmark from "@/components/ui/Wordmark";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 const MASK_STYLE: React.CSSProperties = {
@@ -424,16 +425,9 @@ export default function CinematicHero() {
               </div>
             </div>
 
-            {/* THE wordmark — original artwork, untouched */}
+            {/* THE wordmark — live text in the real Storica face (see Wordmark) */}
             <div className="hv-word mt-9">
-              <Image
-                src="/brand/paramount-word-olive.png"
-                alt="A Paramount — Engineering Works"
-                width={1117}
-                height={219}
-                priority
-                className="h-auto w-[min(380px,70vw)]"
-              />
+              <Wordmark className="text-[clamp(32px,7.4vw,54px)] text-olive" />
             </div>
           </div>
 

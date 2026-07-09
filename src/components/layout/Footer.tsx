@@ -3,6 +3,7 @@ import Image from "next/image";
 import { SITE, CONTACT, FAMILIES } from "@/lib/constants";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import BrandDamask from "@/components/ui/BrandDamask";
+import Wordmark from "@/components/ui/Wordmark";
 
 const GOLD = "#E2CA82";
 const PISTA = "#DCCF95";
@@ -65,12 +66,9 @@ export default function Footer() {
           height={234}
           className="h-16 w-auto opacity-95 sm:h-20"
         />
-        <Image
-          src="/brand/paramount-word-white.png"
-          alt={SITE.name}
-          width={1117}
-          height={219}
-          className="mt-6 h-auto w-[min(360px,72vw)] opacity-95"
+        <Wordmark
+          ariaLabel={SITE.name}
+          className="mt-6 text-[clamp(30px,7vw,52px)] text-cream opacity-95"
         />
 
         <p className="mt-6 font-serif text-xl text-cream/90 italic sm:text-2xl">
