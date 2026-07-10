@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import { openDoors, resetDoors } from "@/lib/doors";
+import { createFrameSequence, frameSize } from "@/lib/frameSequence";
 
 /**
  * DoorScroll — the temple doors, opened BY the visitor's own scroll.
@@ -83,34 +84,16 @@ export default function DoorScroll() {
     const src = seqSrc(
       Math.min(window.innerWidth, window.innerHeight) < 900 ? 800 : 1600,
     );
-    const frames: (ImageBitmap | HTMLImageElement | null)[] =
-      Array(FRAME_COUNT).fill(null);
     let disposed = false;
     let current = 0; // FRACTIONAL frame the scrub wants (0 … FRAME_COUNT-1)
     let drawnF = -1; // fractional frame actually on the canvas
-
-    const dims = (img: ImageBitmap | HTMLImageElement) =>
-      img instanceof HTMLImageElement
-        ? { w: img.naturalWidth, h: img.naturalHeight }
-        : { w: img.width, h: img.height };
-
-    /** Nearest already-decoded frame — lets the scrub feel instant while the
-     *  full sequence is still streaming in. */
-    const nearest = (i: number) => {
-      if (frames[i]) return i;
-      for (let d = 1; d < FRAME_COUNT; d++) {
-        if (i - d >= 0 && frames[i - d]) return i - d;
-        if (i + d < FRAME_COUNT && frames[i + d]) return i + d;
-      }
-      return -1;
-    };
-
     let cw = 0;
     let ch = 0;
+
     const paint = (j: number, alpha: number) => {
-      const img = frames[j];
+      const img = seq.get(j);
       if (!img) return;
-      const { w, h } = dims(img);
+      const { w, h } = frameSize(img);
       if (!w || !h) return;
       const s = Math.max(cw / w, ch / h); // cover
       const dw = w * s;
@@ -129,15 +112,29 @@ export default function DoorScroll() {
       if (drawnF >= 0 && Math.abs(f - drawnF) < 0.008) return;
       const i0 = Math.floor(f);
       const frac = f - i0;
-      const j0 = nearest(i0);
+      const j0 = seq.nearest(i0);
       if (j0 < 0) return;
       paint(j0, 1);
       if (frac > 0.004 && i0 + 1 < FRAME_COUNT) {
-        const j1 = nearest(i0 + 1);
+        const j1 = seq.nearest(i0 + 1);
         if (j1 >= 0 && j1 !== j0) paint(j1, frac);
       }
       drawnF = f;
     };
+
+    // Coarse lattice first (whole film scrubbable in ~16 fetches), then fill.
+    const seq = createFrameSequence({
+      count: FRAME_COUNT,
+      src,
+      strides: [16, 8, 4, 2, 1],
+      concurrency: 6,
+      // A film, not a loop: frame 240 must never fall back to frame 0.
+      wrap: false,
+      onFrame: () => {
+        drawnF = -1; // a closer frame may have arrived — repaint
+        draw(current);
+      },
+    });
 
     const resize = () => {
       cw = stageEl.clientWidth;
@@ -151,54 +148,7 @@ export default function DoorScroll() {
     };
     resize();
     window.addEventListener("resize", resize);
-
-    const decode = async (i: number) => {
-      if (frames[i] || disposed) return;
-      try {
-        // createImageBitmap decodes off-thread — scrolling never stutters.
-        const blob = await (await fetch(src(i))).blob();
-        frames[i] = await createImageBitmap(blob);
-      } catch {
-        try {
-          const im = new window.Image();
-          im.decoding = "async";
-          im.src = src(i);
-          await im.decode();
-          frames[i] = im;
-        } catch {
-          return; // missing frame — nearest() covers the gap
-        }
-      }
-      if (disposed) return;
-      drawnF = -1; // a closer frame may have arrived — repaint
-      draw(current);
-    };
-
-    // Coarse lattice first (whole film scrubbable in ~16 fetches), then fill.
-    const order: number[] = [];
-    const seen = new Set<number>();
-    for (const step of [16, 8, 4, 2, 1]) {
-      for (let i = 0; i < FRAME_COUNT; i += step) {
-        if (!seen.has(i)) {
-          seen.add(i);
-          order.push(i);
-        }
-      }
-    }
-    const queue = [...order];
-    let inFlight = 0;
-    const pump = () => {
-      if (disposed) return;
-      while (inFlight < 6 && queue.length) {
-        const i = queue.shift()!;
-        inFlight++;
-        void decode(i).finally(() => {
-          inFlight--;
-          pump();
-        });
-      }
-    };
-    pump();
+    seq.start();
 
     // ---------- the scrubbed show ----------
     const ctx = gsap.context(() => {
@@ -407,9 +357,9 @@ export default function DoorScroll() {
 
     return () => {
       disposed = true;
+      seq.dispose(); // cancels in-flight decodes and frees the ImageBitmaps
       window.removeEventListener("resize", resize);
       ctx.revert();
-      for (const f of frames) if (f && "close" in f) f.close();
       ScrollTrigger.refresh();
     };
   }, []);
