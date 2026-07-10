@@ -75,7 +75,7 @@ export default function AboutPage() {
         >
           A Paramount Engineering Works
         </SplitTextReveal>
-        <p className="mt-5 font-serif text-xl text-olive italic">
+        <p className="mt-5 font-body text-xl text-olive italic">
           Makers of Temple Accessories
         </p>
       </header>

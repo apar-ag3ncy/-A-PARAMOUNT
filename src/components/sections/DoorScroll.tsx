@@ -472,7 +472,7 @@ export default function DoorScroll() {
           className="ds-text absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-6 text-center"
           style={{ textShadow: "0 0 26px rgba(226,202,130,0.55)" }}
         >
-          <p className="font-serif text-2xl text-cream italic sm:text-3xl">
+          <p className="font-body text-2xl text-cream italic sm:text-3xl">
             The doors have been opening since 1968.
           </p>
           <div

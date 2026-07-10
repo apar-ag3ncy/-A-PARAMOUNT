@@ -66,7 +66,7 @@ export default function FeaturedFamilies() {
               />
             </div>
             <div className="mt-5 text-center">
-              <p className="font-serif text-base text-olive italic">{f.title}</p>
+              <p className="font-body text-base text-olive italic">{f.title}</p>
               <p className="mx-auto mt-1 max-w-[24ch] font-body text-xs text-espresso/60">
                 {f.blurb}
               </p>

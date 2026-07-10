@@ -66,7 +66,7 @@ export default function HomeHero() {
           by="chars"
           stagger={0.03}
           delay={0.3}
-          className="font-serif text-[16vw] leading-[1] font-medium text-olive italic sm:text-8xl"
+          className="font-body text-[16vw] leading-[1] font-medium text-olive italic sm:text-8xl"
         >
           Elegance
         </SplitTextReveal>

@@ -440,7 +440,7 @@ export default function CinematicHero() {
 
             <p className="hv-tag mt-7 font-display text-2xl text-[color:var(--color-heading-brown)] sm:text-4xl">
               Crafting Divine{" "}
-              <span className="font-serif text-olive italic">Elegance</span>
+              <span className="font-body text-olive italic">Elegance</span>
             </p>
           </div>
         </div>

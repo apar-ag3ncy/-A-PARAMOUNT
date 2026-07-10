@@ -116,7 +116,7 @@ export default function MegaMenu() {
                     showLabel={false}
                     frameClassName="rounded-t-full transition-colors duration-[400ms] group-hover:border-olive"
                   />
-                  <p className="mt-3 text-center font-serif text-sm text-olive italic">
+                  <p className="mt-3 text-center font-body text-sm text-olive italic">
                     The Catalogue
                   </p>
                   <p className="mt-0.5 text-center font-display text-[10px] tracking-[0.22em] text-olive/60 uppercase">

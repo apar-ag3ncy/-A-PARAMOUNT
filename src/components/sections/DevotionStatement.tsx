@@ -126,7 +126,7 @@ export default function DevotionStatement() {
           <SplitTextReveal
             as="p"
             by="words"
-            className="mx-auto mt-6 max-w-3xl font-serif text-3xl leading-snug text-cream italic sm:text-5xl lg:max-w-4xl lg:text-6xl"
+            className="mx-auto mt-6 max-w-3xl font-body text-3xl leading-snug text-cream italic sm:text-5xl lg:max-w-4xl lg:text-6xl"
           >
             Fifty years of devotion, cast in silver, brass and prayer.
           </SplitTextReveal>
