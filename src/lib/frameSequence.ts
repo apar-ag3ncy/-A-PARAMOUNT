@@ -46,7 +46,7 @@ export interface FrameSequence {
   get(index: number): Frame | null;
   /** Closest decoded frame to `index`, or -1 when none have landed. */
   nearest(index: number): number;
-  /** Begin fetching. Safe to call once. */
+  /** Begin fetching. Idempotent — later calls are no-ops. */
   start(): void;
   /** Cancel in-flight work, suppress further callbacks, free the bitmaps. */
   dispose(): void;
@@ -117,6 +117,7 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
   let cursor = 0;
   let inFlight = 0;
   let disposed = false;
+  let started = false;
   let landed = 0;
 
   const decode = async (i: number): Promise<void> => {
@@ -143,6 +144,7 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
   // A worker pool rather than fixed batches: a slow frame never stalls the rest.
   const pump = () => {
     if (disposed) return;
+    started = true;
     while (inFlight < concurrency && cursor < queue.length) {
       const i = queue[cursor++];
       inFlight++;
@@ -156,7 +158,10 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
   return {
     get: (i) => frames[i] ?? null,
     nearest: (i) => nearestDecoded(frames, i, wrap),
-    start: pump,
+    // Idempotent: callers may start it from a matchMedia branch that re-runs.
+    start: () => {
+      if (!started) pump();
+    },
     dispose: () => {
       disposed = true;
       queue.length = cursor = 0;

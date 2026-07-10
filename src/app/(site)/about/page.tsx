@@ -104,12 +104,16 @@ export default function AboutPage() {
           </div>
         </ScrollReveal>
 
+        {/* min-h, not h: the stack needs ~742px at the sm/md widths, and a hard
+            560px box with overflow-hidden was clipping 182px of it (the last
+            StatBlock). At lg the content fits inside 560, so the desktop
+            composition is unchanged. */}
         <SemicircleField
           side="right"
           flourish
-          className="h-[560px] lg:-mr-6"
+          className="min-h-[560px] lg:-mr-6"
         >
-          <div className="flex h-[560px] flex-col items-center justify-center gap-10 px-6 text-center">
+          <div className="flex min-h-[560px] flex-col items-center justify-center gap-10 px-6 py-14 text-center">
             <p className="font-display text-3xl tracking-[0.12em] text-cream uppercase sm:text-4xl">
               Generation
             </p>

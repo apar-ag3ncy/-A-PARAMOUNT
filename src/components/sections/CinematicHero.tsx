@@ -78,13 +78,23 @@ export default function CinematicHero() {
         p: i,
       }));
     };
+    // Two bugs in one: assigning cv.width reallocates the backing store, and
+    // seed() re-randomises every mote. `resize` also fires when a phone's
+    // address bar slides away — mid-scroll — so the motes used to teleport and
+    // the buffer churned. Bail out unless the box really changed, and when it
+    // does, keep the existing motes and just fold them into the new bounds.
     const resize = () => {
-      w = cv.clientWidth;
-      h = cv.clientHeight;
+      const nw = cv.clientWidth;
+      const nh = cv.clientHeight;
+      if (nw === w && nh === h) return;
+      const first = motes.length === 0;
+      w = nw;
+      h = nh;
       cv.width = Math.round(w * dpr);
       cv.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      seed();
+      if (first) seed();
+      else for (const m of motes) { m.x = m.x % (w || 1); m.y = m.y % (h || 1); }
     };
     resize();
     window.addEventListener("resize", resize);
@@ -356,7 +366,11 @@ export default function CinematicHero() {
       {/* rotating godrays */}
       <div className="hv-rays-wrap pointer-events-none absolute inset-0 -z-10 grid place-items-center overflow-hidden">
         <div
-          className="hv-rays h-[120vmax] w-[120vmax] will-change-transform"
+          // Only OPACITY is ever animated on this element (gsap.set/.to above);
+          // `will-change: transform` hinted a property that never changes while
+          // still promoting a 120vmax (~1814px, ~50MB at dpr 2) layer. Hint the
+          // property we actually animate.
+          className="hv-rays h-[120vmax] w-[120vmax] will-change-[opacity]"
           style={{
             background:
               "repeating-conic-gradient(from 0deg at 50% 50%, rgb(var(--gold-rgb) / 0) 0deg, rgb(var(--gold-rgb) / 0.10) 3deg, rgb(var(--gold-rgb) / 0) 8deg, rgb(var(--gold-rgb) / 0) 14deg)",
