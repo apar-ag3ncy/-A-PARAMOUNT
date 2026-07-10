@@ -20,7 +20,7 @@ function Corner({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 56 56"
-      className={`absolute h-10 w-10 text-[#E2CA82]/70 sm:h-14 sm:w-14 ${className ?? ""}`}
+      className={`absolute h-10 w-10 text-gold/70 sm:h-14 sm:w-14 ${className ?? ""}`}
       fill="none"
       stroke="currentColor"
       strokeWidth={1.3}
@@ -89,11 +89,11 @@ export default function DevotionStatement() {
           // Velvet olive: soft gold sheens over a centre-lit olive vignette that
           // deepens to espresso at the edges, plus a whisper of woven grain.
           background: [
-            "repeating-linear-gradient(115deg, rgba(226,202,130,0.028) 0px, rgba(226,202,130,0.028) 1px, transparent 1px, transparent 8px)",
-            "radial-gradient(ellipse at 50% 35%, rgba(226,202,130,0.13), transparent 58%)",
-            "radial-gradient(circle at 15% 8%, rgba(220,207,149,0.10), transparent 42%)",
-            "radial-gradient(circle at 85% 92%, rgba(226,202,130,0.08), transparent 45%)",
-            "radial-gradient(ellipse at 50% 50%, #4A4428 0%, #3D3823 55%, #2E2313 100%)",
+            "repeating-linear-gradient(115deg, rgb(var(--gold-rgb) / 0.028) 0px, rgb(var(--gold-rgb) / 0.028) 1px, transparent 1px, transparent 8px)",
+            "radial-gradient(ellipse at 50% 35%, rgb(var(--gold-rgb) / 0.13), transparent 58%)",
+            "radial-gradient(circle at 15% 8%, rgb(var(--pista-rgb) / 0.10), transparent 42%)",
+            "radial-gradient(circle at 85% 92%, rgb(var(--gold-rgb) / 0.08), transparent 45%)",
+            "radial-gradient(ellipse at 50% 50%, var(--color-velvet-200) 0%, var(--color-velvet-250) 55%, var(--color-espresso) 100%)",
           ].join(", "),
         }}
       >
@@ -101,7 +101,7 @@ export default function DevotionStatement() {
         <BrandDamask className="text-cream" opacity={0.06} />
 
         {/* hairline inner frame + gold corners */}
-        <div className="pointer-events-none absolute inset-4 rounded-[2px] border border-[#E2CA82]/25 sm:inset-6" />
+        <div className="pointer-events-none absolute inset-4 rounded-[2px] border border-gold/25 sm:inset-6" />
         <Corner className="top-3 left-3 sm:top-5 sm:left-5" />
         <Corner className="top-3 right-3 -scale-x-100 sm:top-5 sm:right-5" />
         <Corner className="bottom-3 left-3 -scale-y-100 sm:bottom-5 sm:left-5" />
@@ -126,7 +126,7 @@ export default function DevotionStatement() {
           <SplitTextReveal
             as="p"
             by="words"
-            className="mx-auto mt-6 max-w-3xl font-serif text-3xl leading-snug text-cream italic sm:text-5xl lg:max-w-4xl lg:text-6xl"
+            className="mx-auto mt-6 max-w-3xl font-body text-3xl leading-snug text-cream italic sm:text-5xl lg:max-w-4xl lg:text-6xl"
           >
             Fifty years of devotion, cast in silver, brass and prayer.
           </SplitTextReveal>
@@ -134,7 +134,7 @@ export default function DevotionStatement() {
           <div className="mx-auto mt-12 grid max-w-2xl grid-cols-3 gap-6 sm:mt-14">
             {STATS.map((s) => (
               <div key={s.label} className="flex flex-col items-center text-center">
-                <p className="font-display text-3xl font-light text-[#E2CA82] tabular-nums sm:text-5xl">
+                <p className="font-display text-3xl font-light text-gold tabular-nums sm:text-5xl">
                   <span className="dv-num" data-to={s.to}>
                     0
                   </span>
@@ -143,7 +143,7 @@ export default function DevotionStatement() {
                 <p className="mt-2 font-display text-[9px] tracking-[0.24em] text-cream/60 uppercase sm:text-[10px]">
                   {s.label}
                 </p>
-                <OrnamentDivider width="sm" className="mt-3 text-[#E2CA82]/70" />
+                <OrnamentDivider width="sm" className="mt-3 text-gold/70" />
               </div>
             ))}
           </div>

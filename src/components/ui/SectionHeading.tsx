@@ -35,7 +35,7 @@ export default function SectionHeading({
   const eyebrowColor = tone === "cream" ? "text-cream/70" : "text-olive/80";
   const titleColor =
     tone === "cream" ? "text-cream" : "text-[color:var(--color-heading-brown)]";
-  const dividerColor = tone === "cream" ? "text-[#E2CA82]/70" : "text-olive/50";
+  const dividerColor = tone === "cream" ? "text-gold/70" : "text-olive/50";
 
   return (
     <div className={`flex flex-col ${alignBox} ${className ?? ""}`}>

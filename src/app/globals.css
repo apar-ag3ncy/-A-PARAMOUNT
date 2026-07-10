@@ -5,10 +5,12 @@
    PARAMOUNT — LOCKED DESIGN TOKENS
    Source of truth: ../../PARAMOUNT_CONTENT.md §2–§3 (sampled from the brand deck).
    Tailwind v4 is CSS-first: this @theme block generates BOTH
-     - CSS custom properties on :root  ->  var(--color-olive), var(--font-serif)
+     - CSS custom properties on :root  ->  var(--color-olive), var(--font-display)
      - Tailwind utilities              ->  bg-cream, text-olive-deep, font-display, rounded-card
    Palette = antique olive-brass on warm cream. Do NOT reintroduce the old
-   placeholder tokens (--color-gold / --color-parchment / --color-brass-deep).
+   placeholder tokens (--color-parchment / --color-brass-deep). NOTE: --color-gold
+   below is NOT that placeholder — it is the brand's real pista-gold #E2CA82,
+   which had been pasted as a raw hex into 12 components.
    ============================================================================ */
 @theme {
   /* -- Palette -- */
@@ -22,6 +24,18 @@
   --color-taupe:        #A89E8C; /* neutral grey-brown — icon chips */
   --color-heading-brown: #431716; /* dark warm brown — "Crafting Divine" display text */
 
+  /* Accents + the velvet ramp used by every dark panel (footer, DevotionStatement,
+     Selected Works). These were pasted as raw hex in 12 components; they are
+     brand colours, so they live here like every other token. */
+  --color-gold:        #E2CA82; /* pista-gold — rules, eyebrows, hairlines */
+  --color-pista:       #DCCF95; /* soft pista — secondary on velvet */
+  --color-velvet-100:  #57502F; /* lightest — top of the footer bloom */
+  --color-velvet-200:  #4A4428;
+  --color-velvet-250:  #3D3823; /* DevotionStatement core */
+  --color-velvet-300:  #332815;
+  --color-velvet-400:  #2A2011;
+  --color-velvet-500:  #1E1709; /* deepest */
+
   /* -- Semantic aliases -- */
   --color-background:   #FEF4DA;
   --color-surface:      #F3E4C8;
@@ -29,12 +43,16 @@
   --color-accent:       #8A7F4A;
 
   /* -- Typography — wired to next/font/local in src/styles/fonts.ts.
-        The brand uses exactly two Latin faces: Storica (display/logo) + Inter
-        (body). The italic "accent" role (--font-serif) is Storica too — same
-        brand face, slanted by the `italic` class — since Cormorant is gone. -- */
+        The brand ships exactly two Latin faces, and NOTHING ELSE may be drawn:
+          Storica-Medium  -> display/headings/wordmark. One weight, no italic,
+                             and its lowercase are cap-height letterforms.
+          Inter           -> body, UI, and the ONLY italic (a real italic file,
+                             Inter-Italic-Variable.ttf, -9.4deg).
+        There is deliberately no `--font-serif`: it used to alias Storica, so
+        `font-serif italic` asked the browser to FAKE a slant on a face that has
+        none. Italic accents use `font-body italic` (a genuine cut). -- */
   --font-display:    var(--font-storica);         /* headings, display, wordmark */
-  --font-serif:      var(--font-storica);         /* accent word (e.g. "Elegance") */
-  --font-body:       var(--font-inter);           /* body, UI */
+  --font-body:       var(--font-inter);           /* body, UI, italic accents */
   --font-sans:       var(--font-inter);           /* default sans */
   --font-devanagari: var(--font-noto-devanagari); /* Devanagari script glyphs only */
 
@@ -42,6 +60,14 @@
   --radius-image:  4px;
   --radius-button: 8px;
   --radius-card:   12px;
+}
+
+/* Channel triplets for alpha washes: rgb(var(--gold-rgb) / 0.16) is exactly
+   rgba(226,202,130,0.16), but sourced from the token instead of a magic literal.
+   Kept out of @theme so Tailwind does not mint a nonsense `text-gold-rgb`. */
+:root {
+  --gold-rgb: 226 202 130;
+  --pista-rgb: 220 207 149;
 }
 
 @layer base {
@@ -53,14 +79,17 @@
     background: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body), system-ui, sans-serif;
+    /* Never let the browser invent a face the brand does not ship: no faked
+       obliques (Storica has no italic) and no faked weights. A missing cut now
+       renders upright/regular instead of as a synthetic impostor. */
+    font-synthesis: none;
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display), system-ui, sans-serif;
     /* Storica ships a single Medium weight; keep headings at it and never let
        the browser fake a lighter/heavier cut (font-light utilities become
        harmless no-ops rather than synthetic thinning). */
-    font-weight: 500;
-    font-synthesis-weight: none;
+    font-weight: 500; /* the only cut Storica ships; body sets font-synthesis:none */
     text-wrap: balance;
     color: var(--color-olive-deep);
   }

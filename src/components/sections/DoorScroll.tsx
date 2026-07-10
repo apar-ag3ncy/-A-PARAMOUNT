@@ -3,6 +3,8 @@
 import { useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
+import { openDoors, resetDoors } from "@/lib/doors";
+import { createFrameSequence, frameSize } from "@/lib/frameSequence";
 
 /**
  * DoorScroll — the temple doors, opened BY the visitor's own scroll.
@@ -27,7 +29,7 @@ const FRAME_COUNT = 241;
 const seqSrc = (w: 1600 | 800) => (i: number) =>
   `/door/seq/${w}/f-${String(i).padStart(3, "0")}.webp`;
 const POSTER = "/door/door-open-poster.jpg";
-const GOLD = "#E2CA82";
+const GOLD = "var(--color-gold)"; // token, not a raw hex
 
 /** Scroll-progress beats (fractions of the pinned span). */
 const P = {
@@ -50,8 +52,23 @@ export default function DoorScroll() {
     const stageEl = stage.current;
     const cv = canvas.current;
     if (!rootEl || !stageEl || !cv) return;
-    const ctx2d = cv.getContext("2d");
+    // `alpha: false` — the frames are opaque and cover the canvas, so there is
+    // nothing to blend. It lets the compositor treat the canvas as an opaque
+    // layer instead of alpha-blending 3024x1800 px every frame. The trade: an
+    // opaque canvas paints BLACK before the first frame decodes, which would
+    // hide the poster behind it, so the canvas stays invisible until frame 1
+    // lands (see `onFrame` below).
+    const ctx2d = cv.getContext("2d", { alpha: false });
     if (!ctx2d) return;
+    cv.style.opacity = "0";
+
+    // A fresh mount means the doors are shut again — reset before anything can
+    // fire, so a client-side return to "/" replays the intro. `fired` must be
+    // cleared with it: the ref survives StrictMode's double-invoked effect, so
+    // leaving it set would make the second pass skip openDoors() and strand the
+    // hero behind the gate this reset just closed.
+    fired.current = false;
+    resetDoors();
 
     const fireDoorsOpen = () => {
       if (fired.current) return;
@@ -59,45 +76,36 @@ export default function DoorScroll() {
       try {
         sessionStorage.setItem("pm-loaded", "1");
       } catch {
-        /* storage may be blocked — the event is what matters */
+        /* storage may be blocked — the handoff is what matters */
       }
-      window.dispatchEvent(new CustomEvent("pm:doors-open"));
+      // Records the state as well as dispatching, so the hero can still learn
+      // the doors opened even if it subscribes after this call (reload landing
+      // past the doors fires during DoorScroll's layout effect, which runs
+      // before the hero's).
+      openDoors();
     };
 
     // ---------- frame store (progressive, decode off the main thread) ----------
     // Key off the SHORTER screen dimension so a landscape phone or a small
     // tablet can't fall into the heavy 1600px tier over a mobile connection.
-    const src = seqSrc(
-      Math.min(window.innerWidth, window.innerHeight) < 900 ? 800 : 1600,
-    );
-    const frames: (ImageBitmap | HTMLImageElement | null)[] =
-      Array(FRAME_COUNT).fill(null);
+    // A metered or slow link takes the light tier whatever the screen: the film
+    // is 5.8 MB at 800px and 14 MB at 1600px.
+    type NetInfo = { saveData?: boolean; effectiveType?: string };
+    const net = (navigator as Navigator & { connection?: NetInfo }).connection;
+    const frugal =
+      net?.saveData === true || /^(slow-)?2g$|^3g$/.test(net?.effectiveType ?? "");
+    const smallScreen = Math.min(window.innerWidth, window.innerHeight) < 900;
+    const src = seqSrc(frugal || smallScreen ? 800 : 1600);
     let disposed = false;
     let current = 0; // FRACTIONAL frame the scrub wants (0 … FRAME_COUNT-1)
     let drawnF = -1; // fractional frame actually on the canvas
-
-    const dims = (img: ImageBitmap | HTMLImageElement) =>
-      img instanceof HTMLImageElement
-        ? { w: img.naturalWidth, h: img.naturalHeight }
-        : { w: img.width, h: img.height };
-
-    /** Nearest already-decoded frame — lets the scrub feel instant while the
-     *  full sequence is still streaming in. */
-    const nearest = (i: number) => {
-      if (frames[i]) return i;
-      for (let d = 1; d < FRAME_COUNT; d++) {
-        if (i - d >= 0 && frames[i - d]) return i - d;
-        if (i + d < FRAME_COUNT && frames[i + d]) return i + d;
-      }
-      return -1;
-    };
-
     let cw = 0;
     let ch = 0;
+
     const paint = (j: number, alpha: number) => {
-      const img = frames[j];
+      const img = seq.get(j);
       if (!img) return;
-      const { w, h } = dims(img);
+      const { w, h } = frameSize(img);
       if (!w || !h) return;
       const s = Math.max(cw / w, ch / h); // cover
       const dw = w * s;
@@ -116,20 +124,46 @@ export default function DoorScroll() {
       if (drawnF >= 0 && Math.abs(f - drawnF) < 0.008) return;
       const i0 = Math.floor(f);
       const frac = f - i0;
-      const j0 = nearest(i0);
+      const j0 = seq.nearest(i0);
       if (j0 < 0) return;
       paint(j0, 1);
       if (frac > 0.004 && i0 + 1 < FRAME_COUNT) {
-        const j1 = nearest(i0 + 1);
+        const j1 = seq.nearest(i0 + 1);
         if (j1 >= 0 && j1 !== j0) paint(j1, frac);
       }
       drawnF = f;
     };
 
+    // Coarse lattice first (whole film scrubbable in ~16 fetches), then fill.
+    const seq = createFrameSequence({
+      count: FRAME_COUNT,
+      src,
+      strides: [16, 8, 4, 2, 1],
+      concurrency: 6,
+      // A film, not a loop: frame 240 must never fall back to frame 0.
+      wrap: false,
+      onFrame: (_i, first) => {
+        drawnF = -1; // a closer frame may have arrived — repaint
+        draw(current);
+        // Only now is the opaque canvas safe to show; until here the poster
+        // behind it is what the visitor sees.
+        if (first) cv.style.opacity = "1";
+      },
+    });
+
+    // Assigning cv.width/height REALLOCATES and clears the backing store — at
+    // dpr 2 that is a ~5.4M-pixel buffer. On a phone, `resize` also fires every
+    // time the address bar slides away, i.e. mid-scroll, so this ran in the
+    // middle of the door scrub. The stage is sized in `svh`, so its layout box
+    // does NOT change when the bar collapses: bail out unless the box really
+    // moved.
     const resize = () => {
-      cw = stageEl.clientWidth;
-      ch = stageEl.clientHeight;
+      const w = stageEl.clientWidth;
+      const h = stageEl.clientHeight;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (w === cw && h === ch && cv.width === Math.round(w * dpr)) return;
+      cw = w;
+      ch = h;
       cv.width = Math.round(cw * dpr);
       cv.height = Math.round(ch * dpr);
       ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -139,53 +173,15 @@ export default function DoorScroll() {
     resize();
     window.addEventListener("resize", resize);
 
-    const decode = async (i: number) => {
-      if (frames[i] || disposed) return;
-      try {
-        // createImageBitmap decodes off-thread — scrolling never stutters.
-        const blob = await (await fetch(src(i))).blob();
-        frames[i] = await createImageBitmap(blob);
-      } catch {
-        try {
-          const im = new window.Image();
-          im.decoding = "async";
-          im.src = src(i);
-          await im.decode();
-          frames[i] = im;
-        } catch {
-          return; // missing frame — nearest() covers the gap
-        }
-      }
-      if (disposed) return;
-      drawnF = -1; // a closer frame may have arrived — repaint
-      draw(current);
-    };
-
-    // Coarse lattice first (whole film scrubbable in ~16 fetches), then fill.
-    const order: number[] = [];
-    const seen = new Set<number>();
-    for (const step of [16, 8, 4, 2, 1]) {
-      for (let i = 0; i < FRAME_COUNT; i += step) {
-        if (!seen.has(i)) {
-          seen.add(i);
-          order.push(i);
-        }
-      }
-    }
-    const queue = [...order];
-    let inFlight = 0;
-    const pump = () => {
-      if (disposed) return;
-      while (inFlight < 6 && queue.length) {
-        const i = queue.shift()!;
-        inFlight++;
-        void decode(i).finally(() => {
-          inFlight--;
-          pump();
-        });
-      }
-    };
-    pump();
+    // Reduced motion never scrubs the film — it shows a still tableau — so
+    // fetching all 241 frames would burn 5.8-14 MB for pixels nobody sees. The
+    // canvas stays hidden (see `alpha: false` above) and the poster behind it is
+    // the tableau. `seq.start()` is idempotent, so the motion branch of the
+    // matchMedia below can start it if the user re-enables motion.
+    const reducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (!reducedMotion) seq.start();
 
     // ---------- the scrubbed show ----------
     const ctx = gsap.context(() => {
@@ -198,12 +194,15 @@ export default function DoorScroll() {
         (mctx) => {
           const cond = (mctx.conditions ?? {}) as { reduce?: boolean };
 
-          // Reduced motion: a still landing tableau — no pin, no scrub.
+          // Reduced motion: a still landing tableau — no pin, no scrub, and no
+          // frame sequence at all (the poster is the tableau).
           if (cond.reduce) {
             gsap.set(rootEl, { height: "100svh" });
             fireDoorsOpen();
             return;
           }
+          // Motion (re-)enabled: safe to call repeatedly, start() is idempotent.
+          seq.start();
 
           // The invitation line's entrance is pure CSS (`ds-rise` keyframes in
           // globals.css) — it plays once on load. The moment real scrubbing
@@ -237,15 +236,25 @@ export default function DoorScroll() {
           const seg = (p: number, from: number, len: number) =>
             gsap.utils.clamp(0, 1, (p - from) / len);
           const easeIn = gsap.parseEase("power1.in");
+
+          // Resolve the overlay elements ONCE. A selector string makes gsap.set
+          // re-run querySelectorAll on every call, and `apply` runs every rAF
+          // tick of the scrub — that was 3 DOM queries per frame, ~180 per
+          // second, for the whole length of the door.
+          const cueEl = rootEl.querySelector<HTMLElement>(".ds-cue");
+          const bloomEl = rootEl.querySelector<HTMLElement>(".ds-bloom");
+          const floodEl = rootEl.querySelector<HTMLElement>(".ds-flood");
+
           const apply = (p: number) => {
             current = seg(p, 0, P.filmEnd) * (FRAME_COUNT - 1);
             draw(current);
             const t = easeIn(seg(p, P.textOut, 0.13));
             gsap.set(textEls, { opacity: 1 - t, y: -30 * t });
-            gsap.set(".ds-cue", { opacity: 1 - easeIn(seg(p, P.cueOut, 0.05)) });
+            if (cueEl)
+              gsap.set(cueEl, { opacity: 1 - easeIn(seg(p, P.cueOut, 0.05)) });
             const b = easeIn(seg(p, P.bloomIn, 0.32));
-            gsap.set(".ds-bloom", { opacity: 0.85 * b, scale: 1 + 0.12 * b });
-            gsap.set(".ds-flood", { opacity: seg(p, P.floodIn, 0.16) });
+            if (bloomEl) gsap.set(bloomEl, { opacity: 0.85 * b, scale: 1 + 0.12 * b });
+            if (floodEl) gsap.set(floodEl, { opacity: seg(p, P.floodIn, 0.16) });
           };
 
           // ---- buttery slow-mo glide ----
@@ -259,17 +268,29 @@ export default function DoorScroll() {
           let renderedP = 0;
           let looping = false;
           let rafId = 0;
-          const EASE = 0.17;
-          const tickLerp = () => {
+          let lastT = 0;
+          // Exponential glide, expressed as a TIME constant rather than a
+          // per-frame fraction. `renderedP += d * 0.17` every frame is
+          // refresh-rate dependent: it settles in ~412ms at 60Hz but ~206ms on a
+          // 120Hz ProMotion screen and ~824ms at 30Hz — the door literally felt
+          // different per device. TAU = -16.67ms / ln(1 - 0.17) = 89.45ms
+          // reproduces the tuned 60Hz feel exactly, on any refresh rate.
+          const TAU_MS = 89.45;
+          const tickLerp = (now: number) => {
             if (disposed) return;
+            // Clamp dt so a backgrounded tab (or a long GC pause) resumes with a
+            // glide rather than a jump.
+            const dt = lastT ? Math.min(now - lastT, 50) : 1000 / 60;
+            lastT = now;
             const d = targetP - renderedP;
             if (Math.abs(d) < 0.0002) {
               renderedP = targetP;
               apply(renderedP);
               looping = false;
+              lastT = 0;
               return;
             }
-            renderedP += d * EASE;
+            renderedP += d * (1 - Math.exp(-dt / TAU_MS));
             apply(renderedP);
             rafId = requestAnimationFrame(tickLerp);
           };
@@ -323,13 +344,17 @@ export default function DoorScroll() {
             // position resolve to a different progress mid-scroll, so the doors
             // jumped and skipped frames on phones. Reading the stage height
             // instead keeps progress monotonic with the finger.
-            const span = () =>
-              Math.max(1, rootEl.offsetHeight - stageEl.offsetHeight);
+            // Cached: both heights are svh-based layout pixels that only change
+            // on a real resize. Reading offsetHeight twice per scroll event
+            // forced a synchronous layout right after the rAF loop had written
+            // styles — a reflow on every scroll tick, on exactly the devices
+            // that can least afford one.
+            let spanPx = Math.max(1, rootEl.offsetHeight - stageEl.offsetHeight);
             onNativeScroll = () => {
               const p = gsap.utils.clamp(
                 0,
                 1,
-                -rootEl.getBoundingClientRect().top / span(),
+                -rootEl.getBoundingClientRect().top / spanPx,
               );
               if (p > 0.03) settleEntrance();
               if (p >= P.doorsOpen) fireDoorsOpen();
@@ -345,6 +370,7 @@ export default function DoorScroll() {
             onNativeResize = () => {
               if (window.innerWidth === lastW) return;
               lastW = window.innerWidth;
+              spanPx = Math.max(1, rootEl.offsetHeight - stageEl.offsetHeight);
               onNativeScroll!();
             };
             window.addEventListener("resize", onNativeResize, { passive: true });
@@ -394,9 +420,9 @@ export default function DoorScroll() {
 
     return () => {
       disposed = true;
+      seq.dispose(); // cancels in-flight decodes and frees the ImageBitmaps
       window.removeEventListener("resize", resize);
       ctx.revert();
-      for (const f of frames) if (f && "close" in f) f.close();
       ScrollTrigger.refresh();
     };
   }, []);
@@ -435,11 +461,11 @@ export default function DoorScroll() {
 
         {/* soft bloom, enriching the centre as the camera enters the light */}
         <div
-          className="ds-bloom pointer-events-none absolute inset-0 will-change-transform"
+          className="ds-bloom pointer-events-none absolute inset-0 will-change-[transform,opacity]"
           style={{
             opacity: 0,
             background:
-              "radial-gradient(closest-side circle at 50% 45%, #FFFDF6 0%, #FCF3D6 30%, rgba(226,202,130,0.34) 50%, rgba(226,202,130,0) 72%)",
+              "radial-gradient(closest-side circle at 50% 45%, #FFFDF6 0%, #FCF3D6 30%, rgb(var(--gold-rgb) / 0.34) 50%, rgb(var(--gold-rgb) / 0) 72%)",
           }}
         />
 
@@ -457,9 +483,9 @@ export default function DoorScroll() {
             above and to the hero's reveal after; here, only the line */}
         <div
           className="ds-text absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-6 text-center"
-          style={{ textShadow: "0 0 26px rgba(226,202,130,0.55)" }}
+          style={{ textShadow: "0 0 26px rgb(var(--gold-rgb) / 0.55)" }}
         >
-          <p className="font-serif text-2xl text-cream italic sm:text-3xl">
+          <p className="font-body text-2xl text-cream italic sm:text-3xl">
             The doors have been opening since 1968.
           </p>
           <div

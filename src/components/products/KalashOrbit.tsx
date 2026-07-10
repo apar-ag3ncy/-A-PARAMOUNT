@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
+import { createFrameSequence } from "@/lib/frameSequence";
 
 /**
  * KalashOrbit — the silver kalash, turned by the visitor's own hand.
@@ -58,67 +59,27 @@ export default function KalashOrbit({ label }: { label?: string }) {
     const ctx2d = cv.getContext("2d");
     if (!ctx2d) return;
 
-    let disposed = false;
-
     /* ---------- frame store: progressive, decoded off the main thread ---------- */
-    const frames: (ImageBitmap | HTMLImageElement | null)[] =
-      Array(FRAME_COUNT).fill(null);
-    let firstReady = false;
-
     // Pick the tier once from the rendered size — the card is static layout.
     const px = wrap.getBoundingClientRect().width * Math.min(devicePixelRatio, 2);
     const tier = px > 700 ? TIERS[1] : TIERS[0];
 
-    const decode = async (i: number) => {
-      if (frames[i] || disposed) return;
-      try {
-        const res = await fetch(srcFor(tier, i));
-        const blob = await res.blob();
-        frames[i] = await createImageBitmap(blob);
-      } catch {
-        // fall back to a plain <img>; the painter treats both alike
-        await new Promise<void>((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            frames[i] = img;
-            resolve();
-          };
-          img.onerror = () => resolve();
-          img.src = srcFor(tier, i);
-        });
-      }
-      if (!disposed && !firstReady && frames[i]) {
-        firstReady = true;
+    // `wrap: true` because this is a LOOP — frame 95's neighbour is frame 0, so
+    // a gap near the seam falls back across it rather than to the far side.
+    const seq = createFrameSequence({
+      count: FRAME_COUNT,
+      src: (i) => srcFor(tier, i),
+      // Every 8th frame lands in the first breath, so dragging is responsive
+      // immediately; the gaps fill in behind it.
+      strides: [8, 4, 2, 1],
+      concurrency: 4,
+      wrap: true,
+      onFrame: (_i, first) => {
+        if (!first) return;
         setReady(true);
         requestPaint();
-      }
-    };
-
-    // Coarse-to-fine decode order: every 8th frame lands in the first breath,
-    // so dragging is responsive immediately; gaps fill behind it.
-    const order: number[] = [];
-    for (const stride of [8, 4, 2, 1])
-      for (let i = 0; i < FRAME_COUNT; i += stride)
-        if (!order.includes(i)) order.push(i);
-    let cursor = 0;
-    const pump = () => {
-      if (disposed || cursor >= order.length) return;
-      // 4 in flight keeps the network busy without starving the main thread.
-      const batch = order.slice(cursor, cursor + 4).map(decode);
-      cursor += 4;
-      Promise.all(batch).then(pump);
-    };
-
-    /** Nearest decoded frame — instant scrubbing while the tail arrives. */
-    const nearest = (i: number) => {
-      if (frames[i]) return i;
-      for (let d = 1; d < FRAME_COUNT; d++) {
-        if (frames[(i + d) % FRAME_COUNT]) return (i + d) % FRAME_COUNT;
-        if (frames[(i - d + FRAME_COUNT) % FRAME_COUNT])
-          return (i - d + FRAME_COUNT) % FRAME_COUNT;
-      }
-      return -1;
-    };
+      },
+    });
 
     /* ---------- painter ---------- */
     let angle = 0; // degrees, unbounded; frame = angle mod 360
@@ -130,9 +91,9 @@ export default function KalashOrbit({ label }: { label?: string }) {
       const idx =
         ((Math.round(angle / DEG_PER_FRAME) % FRAME_COUNT) + FRAME_COUNT) %
         FRAME_COUNT;
-      const j = nearest(idx);
+      const j = seq.nearest(idx);
       if (j < 0 || j === drawn) return;
-      const img = frames[j]!;
+      const img = seq.get(j)!;
       const w = cv.width;
       if (w === 0) return;
       ctx2d.drawImage(img, 0, 0, w, w);
@@ -286,11 +247,10 @@ export default function KalashOrbit({ label }: { label?: string }) {
     wrap.addEventListener("keydown", onKey);
 
     fit();
-    pump();
+    seq.start();
     if (!reduced) wake();
 
     return () => {
-      disposed = true;
       if (raf) cancelAnimationFrame(raf);
       ro.disconnect();
       io.disconnect();
@@ -299,7 +259,7 @@ export default function KalashOrbit({ label }: { label?: string }) {
       wrap.removeEventListener("pointerup", onUp);
       wrap.removeEventListener("pointercancel", onUp);
       wrap.removeEventListener("keydown", onKey);
-      frames.forEach((f) => f && "close" in f && f.close());
+      seq.dispose(); // cancels in-flight decodes and frees the ImageBitmaps
     };
   }, []);
 

@@ -5,9 +5,6 @@ import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import ArchMark from "@/components/ui/ArchMark";
 import Wordmark from "@/components/ui/Wordmark";
 
-const GOLD = "#E2CA82";
-const PISTA = "#DCCF95";
-
 /**
  * Footer — the deck's closing spread, reimagined. A full-height velvet-olive
  * panel carrying the brand's own back-page damask (extracted from 27June.pdf
@@ -25,7 +22,7 @@ export default function Footer() {
       className="pm-footer relative overflow-hidden text-cream"
       style={{
         background:
-          "radial-gradient(125% 90% at 50% 0%, #57502F 0%, #4A4428 42%, #332815 78%, #2A2011 100%)",
+          "radial-gradient(125% 90% at 50% 0%, var(--color-velvet-100) 0%, var(--color-velvet-200) 42%, var(--color-velvet-300) 78%, var(--color-velvet-400) 100%)",
       }}
     >
       {/* the deck's own back-page damask, full-bleed and faint */}
@@ -40,26 +37,23 @@ export default function Footer() {
         className="pointer-events-none absolute inset-x-0 top-0 h-2/3"
         style={{
           background:
-            "radial-gradient(60% 70% at 50% 0%, rgba(226,202,130,0.22) 0%, rgba(226,202,130,0.06) 42%, transparent 74%)",
+            "radial-gradient(60% 70% at 50% 0%, rgb(var(--gold-rgb) / 0.22) 0%, rgb(var(--gold-rgb) / 0.06) 42%, transparent 74%)",
         }}
       />
       {/* a vast, ghosted arch-A monogram — the printed back cover's grandeur */}
       <ArchMark
-        className="pointer-events-none absolute top-[42%] left-1/2 h-[520px] w-auto -translate-x-1/2 -translate-y-1/2 text-[#E2CA82] opacity-[0.05]"
+        className="pointer-events-none absolute top-[42%] left-1/2 h-[520px] w-auto -translate-x-1/2 -translate-y-1/2 text-gold opacity-[0.05]"
       />
       {/* fine gold top rule */}
       <div
         aria-hidden
         className="absolute inset-x-0 top-0 h-px"
-        style={{ background: `linear-gradient(to right, transparent, ${GOLD}88, transparent)` }}
+        style={{ background: "linear-gradient(to right, transparent, color-mix(in srgb, var(--color-gold) 53%, transparent), transparent)" }}
       />
 
       {/* ---- centre: the closing line + brand lockup ---- */}
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-6 pt-24 pb-16 text-center sm:pt-28">
-        <p
-          className="mb-9 font-display text-[11px] tracking-[0.4em] uppercase"
-          style={{ color: PISTA }}
-        >
+        <p className="mb-9 font-display text-[11px] tracking-[0.4em] text-pista uppercase">
           {SITE.name} · Est. {SITE.since}
         </p>
 
@@ -70,7 +64,7 @@ export default function Footer() {
           Shaped by devotion, destined to inspire generations.
         </p>
 
-        <OrnamentDivider width="lg" className="mt-11 text-[#E2CA82]" />
+        <OrnamentDivider width="lg" className="mt-11 text-gold" />
 
         {/* brand lockup */}
         <div className="mt-11 flex flex-col items-center">
@@ -97,10 +91,7 @@ export default function Footer() {
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-8 lg:flex-row lg:items-start">
           {/* collections */}
           <nav aria-label="Collections" className="text-center lg:text-left">
-            <h3
-              className="mb-3 font-display text-[10px] tracking-[0.3em] uppercase"
-              style={{ color: GOLD }}
-            >
+            <h3 className="mb-3 font-display text-[10px] tracking-[0.3em] text-gold uppercase">
               Collections
             </h3>
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 lg:justify-start">
@@ -108,7 +99,7 @@ export default function Footer() {
                 <li key={f.slug}>
                   <Link
                     href={`/products/${f.slug}`}
-                    className="font-body text-[13px] text-cream/70 transition-colors hover:text-[#E2CA82]"
+                    className="font-body text-[13px] text-cream/70 transition-colors hover:text-gold"
                   >
                     {f.title}
                   </Link>
@@ -119,17 +110,14 @@ export default function Footer() {
 
           {/* contact essentials — full directory on /contact */}
           <div className="text-center lg:text-right">
-            <h3
-              className="mb-3 font-display text-[10px] tracking-[0.3em] uppercase"
-              style={{ color: GOLD }}
-            >
+            <h3 className="mb-3 font-display text-[10px] tracking-[0.3em] text-gold uppercase">
               Enquiries
             </h3>
             <div className="space-y-1.5 font-body text-[13px] text-cream/70">
               <p>
                 <a
                   href={`mailto:${CONTACT.email}`}
-                  className="underline-offset-4 transition-colors hover:text-[#E2CA82] hover:underline"
+                  className="underline-offset-4 transition-colors hover:text-gold hover:underline"
                 >
                   {CONTACT.email}
                 </a>
@@ -137,12 +125,12 @@ export default function Footer() {
               <p>
                 <a
                   href={`tel:${CONTACT.people[0].phone.replace(/\s/g, "")}`}
-                  className="transition-colors hover:text-[#E2CA82]"
+                  className="transition-colors hover:text-gold"
                 >
                   {CONTACT.people[0].phone}
                 </a>
                 <span className="mx-2 text-cream/30">·</span>
-                <Link href="/contact" className="transition-colors hover:text-[#E2CA82]">
+                <Link href="/contact" className="transition-colors hover:text-gold">
                   Full directory
                 </Link>
               </p>
@@ -160,7 +148,7 @@ export default function Footer() {
           </p>
           <p
             className="font-display text-[10px] tracking-[0.24em] uppercase"
-            style={{ color: `${PISTA}99` }}
+            style={{ color: "color-mix(in srgb, var(--color-pista) 60%, transparent)" }}
           >
             Crafted in Mumbai · Since {SITE.since}
           </p>

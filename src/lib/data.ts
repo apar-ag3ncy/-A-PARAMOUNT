@@ -1,6 +1,7 @@
 import type { Family, SanityImage } from "@/types/sanity";
 import {
   CATEGORIES,
+  RATIOS,
   categoriesByFamily as localByFamily,
   getCategory as localGet,
   type CatalogCategory,
@@ -10,8 +11,6 @@ import {
   PRODUCTS_BY_FAMILY_QUERY,
   PRODUCT_BY_SLUG_QUERY,
 } from "./sanity/queries";
-
-const RATIOS = ["3/4", "4/5", "1/1", "4/3", "2/3"];
 
 function mapDoc(d: Record<string, unknown>, i = 0): CatalogCategory {
   const variants = Array.isArray(d.variants)

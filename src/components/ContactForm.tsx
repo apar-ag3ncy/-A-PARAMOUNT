@@ -54,7 +54,7 @@ export default function ContactForm() {
   if (sent) {
     return (
       <div className="rounded-card border border-olive/20 bg-cream-deep/50 p-10 text-center">
-        <p className="font-serif text-2xl text-olive-deep italic">Thank you.</p>
+        <p className="font-body text-2xl text-olive-deep italic">Thank you.</p>
         <p className="mt-3 font-body text-espresso/75">
           We have received your enquiry and will be in touch shortly.
         </p>

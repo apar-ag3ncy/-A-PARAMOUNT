@@ -6,6 +6,7 @@ import { gsap } from "@/lib/gsap";
 import { SITE } from "@/lib/constants";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import Wordmark from "@/components/ui/Wordmark";
+import { onDoorsOpen } from "@/lib/doors";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 const MASK_STYLE: React.CSSProperties = {
@@ -77,13 +78,23 @@ export default function CinematicHero() {
         p: i,
       }));
     };
+    // Two bugs in one: assigning cv.width reallocates the backing store, and
+    // seed() re-randomises every mote. `resize` also fires when a phone's
+    // address bar slides away — mid-scroll — so the motes used to teleport and
+    // the buffer churned. Bail out unless the box really changed, and when it
+    // does, keep the existing motes and just fold them into the new bounds.
     const resize = () => {
-      w = cv.clientWidth;
-      h = cv.clientHeight;
+      const nw = cv.clientWidth;
+      const nh = cv.clientHeight;
+      if (nw === w && nh === h) return;
+      const first = motes.length === 0;
+      w = nw;
+      h = nh;
       cv.width = Math.round(w * dpr);
       cv.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      seed();
+      if (first) seed();
+      else for (const m of motes) { m.x = m.x % (w || 1); m.y = m.y % (h || 1); }
     };
     resize();
     window.addEventListener("resize", resize);
@@ -222,7 +233,7 @@ export default function CinematicHero() {
         // by the time the hero reaches the viewport).
         const doorWillPlay = window.location.pathname === "/";
         let onVis: (() => void) | undefined;
-        let onDoors: (() => void) | undefined;
+        let offDoors: (() => void) | undefined;
 
         // The intro and the scroll cinematic touch the same stage. If the
         // user starts scrolling while the intro is still playing, both animate
@@ -242,11 +253,13 @@ export default function CinematicHero() {
 
         if (doorWillPlay) {
           intro.pause(0);
-          onDoors = () => {
+          // onDoorsOpen fires immediately if the doors are already open (a
+          // reload that restored scroll past them), so the apparition can never
+          // be stranded at opacity 0.
+          offDoors = onDoorsOpen(() => {
             intro.play(0);
             armHurry();
-          };
-          window.addEventListener("pm:doors-open", onDoors, { once: true });
+          });
         } else if (document.hidden) {
           // Opened in a background tab? Hold and play in full once visible.
           intro.pause(0);
@@ -289,7 +302,7 @@ export default function CinematicHero() {
 
         return () => {
           if (onVis) document.removeEventListener("visibilitychange", onVis);
-          if (onDoors) window.removeEventListener("pm:doors-open", onDoors);
+          offDoors?.();
           window.removeEventListener("wheel", hurry);
           window.removeEventListener("touchmove", hurry);
         };
@@ -307,18 +320,19 @@ export default function CinematicHero() {
         // Reduced motion keeps its immediate fade regardless (no event dep).
         const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const doorWillPlay = !reduce && window.location.pathname === "/";
-        let onDoors: (() => void) | undefined;
+        let offDoors: (() => void) | undefined;
         if (doorWillPlay) {
           gsap.set(".hv-stage", { opacity: 0 });
-          onDoors = () => {
+          // Fires synchronously when the doors are already open, so a reload
+          // past the doors cannot leave the whole stage invisible.
+          offDoors = onDoorsOpen(() => {
             gsap.to(".hv-stage", { opacity: 1, duration: 1.2, ease: "power2.out" });
-          };
-          window.addEventListener("pm:doors-open", onDoors, { once: true });
+          });
         } else {
           gsap.from(".hv-stage", { opacity: 0, duration: 1.2, ease: "power2.out" });
         }
         return () => {
-          if (onDoors) window.removeEventListener("pm:doors-open", onDoors);
+          offDoors?.();
         };
       });
     }, el);
@@ -345,17 +359,21 @@ export default function CinematicHero() {
           className="hv-bloom h-[130vmin] w-[130vmin] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, #FFFBEF 0%, #FBF1D2 30%, rgba(226,202,130,0.32) 52%, rgba(138,127,74,0.10) 68%, rgba(138,127,74,0) 78%)",
+              "radial-gradient(circle, #FFFBEF 0%, #FBF1D2 30%, rgb(var(--gold-rgb) / 0.32) 52%, rgba(138,127,74,0.10) 68%, rgba(138,127,74,0) 78%)",
           }}
         />
       </div>
       {/* rotating godrays */}
       <div className="hv-rays-wrap pointer-events-none absolute inset-0 -z-10 grid place-items-center overflow-hidden">
         <div
-          className="hv-rays h-[120vmax] w-[120vmax] will-change-transform"
+          // Only OPACITY is ever animated on this element (gsap.set/.to above);
+          // `will-change: transform` hinted a property that never changes while
+          // still promoting a 120vmax (~1814px, ~50MB at dpr 2) layer. Hint the
+          // property we actually animate.
+          className="hv-rays h-[120vmax] w-[120vmax] will-change-[opacity]"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg at 50% 50%, rgba(226,202,130,0) 0deg, rgba(226,202,130,0.10) 3deg, rgba(226,202,130,0) 8deg, rgba(226,202,130,0) 14deg)",
+              "repeating-conic-gradient(from 0deg at 50% 50%, rgb(var(--gold-rgb) / 0) 0deg, rgb(var(--gold-rgb) / 0.10) 3deg, rgb(var(--gold-rgb) / 0) 8deg, rgb(var(--gold-rgb) / 0) 14deg)",
             maskImage: "radial-gradient(circle, #000 0%, #000 30%, transparent 66%)",
             WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 30%, transparent 66%)",
           }}
@@ -436,7 +454,7 @@ export default function CinematicHero() {
 
             <p className="hv-tag mt-7 font-display text-2xl text-[color:var(--color-heading-brown)] sm:text-4xl">
               Crafting Divine{" "}
-              <span className="font-serif text-olive italic">Elegance</span>
+              <span className="font-body text-olive italic">Elegance</span>
             </p>
           </div>
         </div>

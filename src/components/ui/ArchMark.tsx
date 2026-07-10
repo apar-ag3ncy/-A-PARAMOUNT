@@ -8,7 +8,7 @@ interface Props {
  * ArchMark — the brand's logo mark: a tall pointed (ogee) gothic arch enclosing
  * a small `A`, drawn as a double outline. Stroke-based and rendered in
  * `currentColor`, so tint it with a text-* utility on the parent
- * (e.g. `text-olive/40`, `text-[#E2CA82]/70`).
+ * (e.g. `text-olive/40`, `text-gold/70`).
  *
  * Traced to the deck watermark (p06) + damask column mark (p118): the legs rise
  * vertically, curve inward through an ogee shoulder and meet in a point; an inner

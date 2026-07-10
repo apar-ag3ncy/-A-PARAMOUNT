@@ -73,7 +73,7 @@ export default function CraftsmanshipPage() {
             className="grid gap-10 py-14 lg:grid-cols-2 lg:items-center lg:gap-20"
           >
             <div className={cn(i % 2 === 1 && "lg:order-2")}>
-              <p className="font-serif text-3xl text-olive-muted italic">{s.n}</p>
+              <p className="font-body text-3xl text-olive-muted italic">{s.n}</p>
               <SplitTextReveal
                 as="h2"
                 by="words"

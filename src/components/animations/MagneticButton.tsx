@@ -85,7 +85,7 @@ export default function MagneticButton({
       {/* gold hairline drawing along the bottom */}
       <span
         aria-hidden
-        className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-[#E2CA82] transition-transform delay-150 duration-500 ease-out group-hover:scale-x-100"
+        className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-gold transition-transform delay-150 duration-500 ease-out group-hover:scale-x-100"
       />
       <span className="relative z-10">{children}</span>
       <svg
