@@ -8,15 +8,17 @@ import { FAMILIES } from "@/lib/constants";
 import { categoriesByFamily } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
+/** Cream at FULL opacity: on the olive-deep bar, cream/85 drops to 3.84:1 and
+ *  gold type to 3.58:1, so hover is signalled by the underline, not by tinting. */
 const linkCls =
-  "group/nav relative font-display text-[12px] uppercase tracking-[0.18em] text-olive-deep/85 transition-colors hover:text-olive-deep";
+  "group/nav relative font-display text-[13px] uppercase tracking-[0.18em] text-cream whitespace-nowrap rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold";
 
 /** Elegant hover underline that draws in from the left. */
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link href={href} className={linkCls}>
       {children}
-      <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-olive transition-transform duration-300 ease-out group-hover/nav:scale-x-100" />
+      <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-gold transition-transform duration-300 ease-out group-hover/nav:scale-x-100" />
     </Link>
   );
 }
@@ -57,7 +59,7 @@ export default function MegaMenu() {
   };
 
   return (
-    <nav className="hidden items-center gap-8 lg:flex">
+    <nav className="hidden items-center gap-7 px-4 lg:flex xl:gap-8 xl:px-6">
       <NavLink href="/craftsmanship">Craftsmanship</NavLink>
 
       {/* `flex items-center` matters: the sibling NavLinks are direct children of
@@ -76,7 +78,7 @@ export default function MegaMenu() {
           Collections
           <span
             className={cn(
-              "absolute -bottom-1.5 left-0 h-px w-full origin-left bg-olive transition-transform duration-300 ease-out",
+              "absolute -bottom-1.5 left-0 h-px w-full origin-left bg-gold transition-transform duration-300 ease-out",
               open ? "scale-x-100" : "scale-x-0",
             )}
           />
@@ -86,13 +88,13 @@ export default function MegaMenu() {
           onMouseEnter={enter}
           onMouseLeave={leave}
           className={cn(
-            "fixed inset-x-0 top-[64px] z-40 transition-[opacity,transform] duration-300 ease-out",
+            "fixed inset-x-0 top-[calc(var(--pm-bar-bottom)+0.5rem)] z-40 transition-[opacity,transform] duration-300 ease-out",
             open
               ? "visible translate-y-0 opacity-100"
               : "pointer-events-none invisible -translate-y-2 opacity-0",
           )}
         >
-          <div className="mx-auto max-h-[calc(100svh-64px)] max-w-6xl overflow-y-auto px-6 pt-3">
+          <div className="mx-auto max-h-[calc(100svh-var(--pm-bar-bottom)-1.5rem)] max-w-6xl overflow-y-auto px-6 pt-3">
             <div
               className="relative overflow-hidden rounded-card border border-olive/25 shadow-[0_24px_60px_-24px_rgba(79,26,22,0.35)]"
               style={{
@@ -184,7 +186,6 @@ export default function MegaMenu() {
 
       <NavLink href="/about">About</NavLink>
       <NavLink href="/gallery">Gallery</NavLink>
-      <NavLink href="/contact">Contact</NavLink>
     </nav>
   );
 }
