@@ -5,6 +5,7 @@ import Image from "next/image";
 import Lightbox from "@/components/products/Lightbox";
 import {
   MATERIAL_ICONS,
+  VARIANT_ICONS,
   type GalleryImage,
   type ProductGallery,
 } from "@/lib/galleries";
@@ -22,27 +23,6 @@ import { cn } from "@/lib/utils";
  *    photos, so the selector looks and feels identical everywhere.
  * Tapping a photo opens the fullscreen Lightbox.
  */
-
-/** Map a finish label to one of the coin icon keys (mirror of the build script). */
-function matchIcon(label: string): string | null {
-  const n = label.toLowerCase().replace(/[^a-z0-9]/g, "");
-  if (n.includes("brass") && (n.includes("germansilver") || n.includes("gs")))
-    return "brass-germansilver";
-  if (n.includes("copper") && n.includes("brass")) return "copper-brass";
-  if (n.includes("brass") && (n.includes("jaali") || n.includes("jali")))
-    return "brass-jaali";
-  if (n.includes("minakari")) return "minakari";
-  if (n.includes("diamond")) return "diamond";
-  if ((n.includes("wood") && !n.includes("nowood")) || n.includes("carving"))
-    return "wooden";
-  if (n.includes("silver")) return "silver";
-  if (n.includes("copper")) return "copper";
-  if (n.includes("polish")) return "polish";
-  if (n.includes("inlay") || n.includes("emboss")) return "inlay";
-  if (n.includes("jaali") || n.includes("jali")) return "brass-jaali";
-  if (n.includes("brass")) return "brass";
-  return null;
-}
 
 interface Finish {
   key: string;
@@ -79,7 +59,7 @@ export default function CategoryGallery({
       return variants.map((v) => ({
         key: v,
         label: v,
-        iconKey: matchIcon(v),
+        iconKey: VARIANT_ICONS[v] ?? null,
         images: base,
       }));
     }

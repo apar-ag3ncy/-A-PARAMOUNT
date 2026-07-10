@@ -31,6 +31,32 @@ export const MATERIAL_ICONS: Record<string, string> = {
   "brass-germansilver": "/icons/materials/brass-germansilver.webp"
 };
 
+/** Every catalogue finish label -> its coin icon key (null = no coin).
+  * Resolved HERE by match_icon() so the client never re-implements it. */
+export const VARIANT_ICONS: Record<string, string | null> = {
+  "Acrylic": null,
+  "Brass": "brass",
+  "Brass Jali": "brass-jaali",
+  "Copper": "copper",
+  "Copper + Brass": "copper-brass",
+  "Diamond": "diamond",
+  "GS + Brass": "brass-germansilver",
+  "German Silver": "silver",
+  "Gold": null,
+  "Inlay": "inlay",
+  "Inlay / Embossed": "inlay",
+  "Jadtar (Full)": null,
+  "Jadtar (Half)": null,
+  "Minakari": "minakari",
+  "Moti": null,
+  "No-wood Metal": null,
+  "Painting": null,
+  "Silver": "silver",
+  "Two-tone Polish": "polish",
+  "Wire": null,
+  "Wooden": "wooden"
+};
+
 export const GALLERIES: Record<string, ProductGallery> = {
   "14-swapna-and-parna": {
     "groups": [
