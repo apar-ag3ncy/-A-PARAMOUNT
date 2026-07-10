@@ -60,8 +60,13 @@ export default function MegaMenu() {
     <nav className="hidden items-center gap-8 lg:flex">
       <NavLink href="/craftsmanship">Craftsmanship</NavLink>
 
+      {/* `flex items-center` matters: the sibling NavLinks are direct children of
+          the flex nav, so the browser blockifies them and centres their full
+          line-box. This wrapper would otherwise leave its own link `inline`,
+          measured to the glyph box — so "Collections" and its hover underline
+          sat ~1.5px below the rest of the bar. */}
       <div
-        className="relative"
+        className="relative flex items-center"
         onMouseEnter={enter}
         onMouseLeave={leave}
         onFocus={enter}
