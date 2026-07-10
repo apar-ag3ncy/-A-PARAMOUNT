@@ -23,7 +23,10 @@ export interface CatalogCategory {
   image?: string;
 }
 
-const RATIOS = ["3/4", "4/5", "1/1", "4/3", "2/3"] as const;
+/** Masonry aspect ratios, cycled by index so a grid never repeats a shape twice
+ *  in a row. Exported because the Sanity path (lib/data.ts) must cycle the SAME
+ *  list in the SAME order, or a product changes shape when Sanity comes online. */
+export const RATIOS = ["3/4", "4/5", "1/1", "4/3", "2/3"] as const;
 
 // [order, title, family, variants, blurb?]
 type Row = [number, string, Family, string[], string?];
