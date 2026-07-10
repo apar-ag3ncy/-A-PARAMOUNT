@@ -6,6 +6,7 @@ import { gsap } from "@/lib/gsap";
 import { SITE } from "@/lib/constants";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import Wordmark from "@/components/ui/Wordmark";
+import { onDoorsOpen } from "@/lib/doors";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 const MASK_STYLE: React.CSSProperties = {
@@ -222,7 +223,7 @@ export default function CinematicHero() {
         // by the time the hero reaches the viewport).
         const doorWillPlay = window.location.pathname === "/";
         let onVis: (() => void) | undefined;
-        let onDoors: (() => void) | undefined;
+        let offDoors: (() => void) | undefined;
 
         // The intro and the scroll cinematic touch the same stage. If the
         // user starts scrolling while the intro is still playing, both animate
@@ -242,11 +243,13 @@ export default function CinematicHero() {
 
         if (doorWillPlay) {
           intro.pause(0);
-          onDoors = () => {
+          // onDoorsOpen fires immediately if the doors are already open (a
+          // reload that restored scroll past them), so the apparition can never
+          // be stranded at opacity 0.
+          offDoors = onDoorsOpen(() => {
             intro.play(0);
             armHurry();
-          };
-          window.addEventListener("pm:doors-open", onDoors, { once: true });
+          });
         } else if (document.hidden) {
           // Opened in a background tab? Hold and play in full once visible.
           intro.pause(0);
@@ -289,7 +292,7 @@ export default function CinematicHero() {
 
         return () => {
           if (onVis) document.removeEventListener("visibilitychange", onVis);
-          if (onDoors) window.removeEventListener("pm:doors-open", onDoors);
+          offDoors?.();
           window.removeEventListener("wheel", hurry);
           window.removeEventListener("touchmove", hurry);
         };
@@ -307,18 +310,19 @@ export default function CinematicHero() {
         // Reduced motion keeps its immediate fade regardless (no event dep).
         const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         const doorWillPlay = !reduce && window.location.pathname === "/";
-        let onDoors: (() => void) | undefined;
+        let offDoors: (() => void) | undefined;
         if (doorWillPlay) {
           gsap.set(".hv-stage", { opacity: 0 });
-          onDoors = () => {
+          // Fires synchronously when the doors are already open, so a reload
+          // past the doors cannot leave the whole stage invisible.
+          offDoors = onDoorsOpen(() => {
             gsap.to(".hv-stage", { opacity: 1, duration: 1.2, ease: "power2.out" });
-          };
-          window.addEventListener("pm:doors-open", onDoors, { once: true });
+          });
         } else {
           gsap.from(".hv-stage", { opacity: 0, duration: 1.2, ease: "power2.out" });
         }
         return () => {
-          if (onDoors) window.removeEventListener("pm:doors-open", onDoors);
+          offDoors?.();
         };
       });
     }, el);

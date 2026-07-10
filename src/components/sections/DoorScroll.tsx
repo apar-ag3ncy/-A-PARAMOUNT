@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
+import { openDoors, resetDoors } from "@/lib/doors";
 
 /**
  * DoorScroll — the temple doors, opened BY the visitor's own scroll.
@@ -53,15 +54,27 @@ export default function DoorScroll() {
     const ctx2d = cv.getContext("2d");
     if (!ctx2d) return;
 
+    // A fresh mount means the doors are shut again — reset before anything can
+    // fire, so a client-side return to "/" replays the intro. `fired` must be
+    // cleared with it: the ref survives StrictMode's double-invoked effect, so
+    // leaving it set would make the second pass skip openDoors() and strand the
+    // hero behind the gate this reset just closed.
+    fired.current = false;
+    resetDoors();
+
     const fireDoorsOpen = () => {
       if (fired.current) return;
       fired.current = true;
       try {
         sessionStorage.setItem("pm-loaded", "1");
       } catch {
-        /* storage may be blocked — the event is what matters */
+        /* storage may be blocked — the handoff is what matters */
       }
-      window.dispatchEvent(new CustomEvent("pm:doors-open"));
+      // Records the state as well as dispatching, so the hero can still learn
+      // the doors opened even if it subscribes after this call (reload landing
+      // past the doors fires during DoorScroll's layout effect, which runs
+      // before the hero's).
+      openDoors();
     };
 
     // ---------- frame store (progressive, decode off the main thread) ----------
