@@ -32,7 +32,7 @@ const wing = (
  * (p07).
  *
  * Stroke-based and drawn in `currentColor`, so the parent sets the tint via a
- * text-* utility (e.g. `text-[#E2CA82]/70` gold, `text-olive/50`). Pass `width`
+ * text-* utility (e.g. `text-gold/70` gold, `text-olive/50`). Pass `width`
  * to scale the overall length: "sm" (~w-32) · "md" (~w-48, default) · "lg" (~w-64).
  * `className` still overrides sizing/spacing as before (drop-in compatible).
  */

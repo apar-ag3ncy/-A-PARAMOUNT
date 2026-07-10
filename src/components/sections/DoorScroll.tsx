@@ -29,7 +29,7 @@ const FRAME_COUNT = 241;
 const seqSrc = (w: 1600 | 800) => (i: number) =>
   `/door/seq/${w}/f-${String(i).padStart(3, "0")}.webp`;
 const POSTER = "/door/door-open-poster.jpg";
-const GOLD = "#E2CA82";
+const GOLD = "var(--color-gold)"; // token, not a raw hex
 
 /** Scroll-progress beats (fractions of the pinned span). */
 const P = {
@@ -402,7 +402,7 @@ export default function DoorScroll() {
           style={{
             opacity: 0,
             background:
-              "radial-gradient(closest-side circle at 50% 45%, #FFFDF6 0%, #FCF3D6 30%, rgba(226,202,130,0.34) 50%, rgba(226,202,130,0) 72%)",
+              "radial-gradient(closest-side circle at 50% 45%, #FFFDF6 0%, #FCF3D6 30%, rgb(var(--gold-rgb) / 0.34) 50%, rgb(var(--gold-rgb) / 0) 72%)",
           }}
         />
 
@@ -420,7 +420,7 @@ export default function DoorScroll() {
             above and to the hero's reveal after; here, only the line */}
         <div
           className="ds-text absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-6 text-center"
-          style={{ textShadow: "0 0 26px rgba(226,202,130,0.55)" }}
+          style={{ textShadow: "0 0 26px rgb(var(--gold-rgb) / 0.55)" }}
         >
           <p className="font-body text-2xl text-cream italic sm:text-3xl">
             The doors have been opening since 1968.

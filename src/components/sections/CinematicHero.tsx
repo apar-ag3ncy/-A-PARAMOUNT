@@ -349,7 +349,7 @@ export default function CinematicHero() {
           className="hv-bloom h-[130vmin] w-[130vmin] rounded-full"
           style={{
             background:
-              "radial-gradient(circle, #FFFBEF 0%, #FBF1D2 30%, rgba(226,202,130,0.32) 52%, rgba(138,127,74,0.10) 68%, rgba(138,127,74,0) 78%)",
+              "radial-gradient(circle, #FFFBEF 0%, #FBF1D2 30%, rgb(var(--gold-rgb) / 0.32) 52%, rgba(138,127,74,0.10) 68%, rgba(138,127,74,0) 78%)",
           }}
         />
       </div>
@@ -359,7 +359,7 @@ export default function CinematicHero() {
           className="hv-rays h-[120vmax] w-[120vmax] will-change-transform"
           style={{
             background:
-              "repeating-conic-gradient(from 0deg at 50% 50%, rgba(226,202,130,0) 0deg, rgba(226,202,130,0.10) 3deg, rgba(226,202,130,0) 8deg, rgba(226,202,130,0) 14deg)",
+              "repeating-conic-gradient(from 0deg at 50% 50%, rgb(var(--gold-rgb) / 0) 0deg, rgb(var(--gold-rgb) / 0.10) 3deg, rgb(var(--gold-rgb) / 0) 8deg, rgb(var(--gold-rgb) / 0) 14deg)",
             maskImage: "radial-gradient(circle, #000 0%, #000 30%, transparent 66%)",
             WebkitMaskImage: "radial-gradient(circle, #000 0%, #000 30%, transparent 66%)",
           }}

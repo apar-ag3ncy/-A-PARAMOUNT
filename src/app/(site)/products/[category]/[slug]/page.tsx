@@ -83,7 +83,7 @@ export default async function ProductPage({
                 key={v}
                 className="inline-flex items-center gap-2 rounded-full border border-olive/25 bg-cream-deep/40 px-3.5 py-1.5 font-body text-[13px] text-olive-deep/90 transition-colors duration-300 hover:border-olive/60 hover:bg-cream-deep/70"
               >
-                <span className="size-1.5 rounded-full bg-[#E2CA82]" />
+                <span className="size-1.5 rounded-full bg-gold" />
                 {v}
               </li>
             ))}

@@ -92,7 +92,7 @@ export default function MegaMenu() {
               className="relative overflow-hidden rounded-card border border-olive/25 shadow-[0_24px_60px_-24px_rgba(79,26,22,0.35)]"
               style={{
                 background:
-                  "radial-gradient(circle at 12% 0%, rgba(226,202,130,0.16), transparent 42%), radial-gradient(circle at 88% 100%, rgba(226,202,130,0.13), transparent 42%), linear-gradient(180deg, #FBF0D9, #F3E4C8)",
+                  "radial-gradient(circle at 12% 0%, rgb(var(--gold-rgb) / 0.16), transparent 42%), radial-gradient(circle at 88% 100%, rgb(var(--gold-rgb) / 0.13), transparent 42%), linear-gradient(180deg, #FBF0D9, #F3E4C8)",
               }}
             >
               <Corner className="top-2 left-2" />

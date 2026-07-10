@@ -112,7 +112,7 @@ export default function FeaturedGallery() {
         className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] px-6 py-14 text-cream ring-1 ring-cream/10 sm:px-10 sm:py-16"
         style={{
           background:
-            "radial-gradient(120% 100% at 15% 0%, #4A4428 0%, #332815 55%, #1E1709 100%)",
+            "radial-gradient(120% 100% at 15% 0%, var(--color-velvet-200) 0%, var(--color-velvet-300) 55%, var(--color-velvet-500) 100%)",
         }}
       >
         <div
@@ -120,7 +120,7 @@ export default function FeaturedGallery() {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(50% 60% at 12% 0%, rgba(226,202,130,0.16), transparent 60%)",
+              "radial-gradient(50% 60% at 12% 0%, rgb(var(--gold-rgb) / 0.16), transparent 60%)",
           }}
         />
 
@@ -131,7 +131,7 @@ export default function FeaturedGallery() {
             handcrafted for Jain derasars and Hindu temples.
           </p>
           <div>
-            <p className="mb-2 font-display text-[11px] tracking-[0.34em] text-[#E2CA82] uppercase">
+            <p className="mb-2 font-display text-[11px] tracking-[0.34em] text-gold uppercase">
               Selected Works
             </p>
             <h2 className="font-display text-[clamp(2.6rem,7vw,5.5rem)] leading-[0.9] font-light text-cream">
@@ -157,7 +157,7 @@ export default function FeaturedGallery() {
                 data-fan-card
                 className={cn(
                   "group relative w-auto shrink-0 overflow-hidden rounded-[22px] shadow-[0_24px_50px_-24px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-out hover:z-10",
-                  "focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E2CA82]",
+                  "focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
                   // Hover grows the CARD, not the image inside it. Zooming an
                   // image within a fixed frame would crop it; scaling the frame
                   // and the image together keeps the photo whole.
@@ -202,7 +202,7 @@ export default function FeaturedGallery() {
                 >
                   {c.title}
                 </span>
-                <span className="pointer-events-none absolute inset-0 rounded-[22px] ring-1 ring-cream/10 transition-colors duration-500 group-hover:ring-[#E2CA82]/50" />
+                <span className="pointer-events-none absolute inset-0 rounded-[22px] ring-1 ring-cream/10 transition-colors duration-500 group-hover:ring-gold/50" />
               </Link>
             );
           })}
@@ -221,7 +221,7 @@ export default function FeaturedGallery() {
               key={c.slug}
               href={c.href}
               data-card
-              className="group relative w-[64%] shrink-0 snap-start overflow-hidden rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#E2CA82] sm:w-[38%]"
+              className="group relative w-[64%] shrink-0 snap-start overflow-hidden rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:w-[38%]"
               style={{ aspectRatio: `${c.w} / ${c.h}` }}
             >
               <Image
@@ -262,7 +262,7 @@ export default function FeaturedGallery() {
                   "grid size-12 place-items-center rounded-full transition-all duration-300",
                   dir < 0
                     ? "border border-cream/20 text-cream/70 hover:border-cream/50 hover:text-cream"
-                    : "border border-cream/70 text-cream hover:border-[#E2CA82] hover:text-[#E2CA82]",
+                    : "border border-cream/70 text-cream hover:border-gold hover:text-gold",
                 )}
               >
                 <svg
@@ -282,7 +282,7 @@ export default function FeaturedGallery() {
 
           <Link
             href="/products"
-            className="group inline-flex items-center gap-2 font-display text-[11px] tracking-[0.24em] text-cream/60 uppercase transition-colors hover:text-[#E2CA82]"
+            className="group inline-flex items-center gap-2 font-display text-[11px] tracking-[0.24em] text-cream/60 uppercase transition-colors hover:text-gold"
           >
             View all collections
             <span className="transition-transform duration-300 group-hover:translate-x-1">

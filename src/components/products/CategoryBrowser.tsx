@@ -147,7 +147,7 @@ export default function CategoryBrowser({
               >
                 {/* gold coin marker — matches the deck's variant chips (p13) */}
                 <svg viewBox="0 0 32 32" className="h-4 w-4 shrink-0" aria-hidden>
-                  <circle cx={16} cy={16} r={15} fill="#E2CA82" />
+                  <circle cx={16} cy={16} r={15} fill="var(--color-gold)" />
                   <circle cx={16} cy={16} r={15} fill="none" stroke="#C9A85E" strokeWidth={1} />
                   <circle cx={16} cy={16} r={11.5} fill="none" stroke="#B8933F" strokeWidth={1.4} opacity={0.7} />
                 </svg>

@@ -22,7 +22,7 @@ export default function StatBlock({ value, label }: Props) {
       <span className="mt-2 font-body text-xs font-medium uppercase tracking-[0.24em]">
         {label}
       </span>
-      <OrnamentDivider width="sm" className="mt-3 text-[#E2CA82]/70" />
+      <OrnamentDivider width="sm" className="mt-3 text-gold/70" />
     </div>
   );
 }

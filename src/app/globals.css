@@ -8,7 +8,9 @@
      - CSS custom properties on :root  ->  var(--color-olive), var(--font-display)
      - Tailwind utilities              ->  bg-cream, text-olive-deep, font-display, rounded-card
    Palette = antique olive-brass on warm cream. Do NOT reintroduce the old
-   placeholder tokens (--color-gold / --color-parchment / --color-brass-deep).
+   placeholder tokens (--color-parchment / --color-brass-deep). NOTE: --color-gold
+   below is NOT that placeholder — it is the brand's real pista-gold #E2CA82,
+   which had been pasted as a raw hex into 12 components.
    ============================================================================ */
 @theme {
   /* -- Palette -- */
@@ -21,6 +23,18 @@
   --color-espresso:     #2E2313; /* body text (a11y-safe on cream) */
   --color-taupe:        #A89E8C; /* neutral grey-brown — icon chips */
   --color-heading-brown: #431716; /* dark warm brown — "Crafting Divine" display text */
+
+  /* Accents + the velvet ramp used by every dark panel (footer, DevotionStatement,
+     Selected Works). These were pasted as raw hex in 12 components; they are
+     brand colours, so they live here like every other token. */
+  --color-gold:        #E2CA82; /* pista-gold — rules, eyebrows, hairlines */
+  --color-pista:       #DCCF95; /* soft pista — secondary on velvet */
+  --color-velvet-100:  #57502F; /* lightest — top of the footer bloom */
+  --color-velvet-200:  #4A4428;
+  --color-velvet-250:  #3D3823; /* DevotionStatement core */
+  --color-velvet-300:  #332815;
+  --color-velvet-400:  #2A2011;
+  --color-velvet-500:  #1E1709; /* deepest */
 
   /* -- Semantic aliases -- */
   --color-background:   #FEF4DA;
@@ -46,6 +60,14 @@
   --radius-image:  4px;
   --radius-button: 8px;
   --radius-card:   12px;
+}
+
+/* Channel triplets for alpha washes: rgb(var(--gold-rgb) / 0.16) is exactly
+   rgba(226,202,130,0.16), but sourced from the token instead of a magic literal.
+   Kept out of @theme so Tailwind does not mint a nonsense `text-gold-rgb`. */
+:root {
+  --gold-rgb: 226 202 130;
+  --pista-rgb: 220 207 149;
 }
 
 @layer base {
