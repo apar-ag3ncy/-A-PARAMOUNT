@@ -1,8 +1,8 @@
-import Link from "next/link";
 import AssetFrame from "@/components/ui/AssetFrame";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
 import ImageMaskReveal from "@/components/animations/ImageMaskReveal";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import Button from "@/components/ui/Button";
 
 /**
  * Editorial split — text (SplitText word reveal) beside an image that reveals via
@@ -36,16 +36,15 @@ export default function CraftStory() {
             shastra guiding each proportion.
           </p>
         </div>
-        <Link
-          href="/craftsmanship"
-          className="mt-8 inline-block border-b border-olive pb-1 font-display text-xs tracking-[0.18em] text-olive-deep uppercase transition-colors hover:text-olive"
-        >
-          Discover the process &rarr;
-        </Link>
+        <div className="mt-8">
+          <Button variant="ghost" size="sm" href="/craftsmanship">
+            Discover the process
+          </Button>
+        </div>
       </div>
 
       <ImageMaskReveal className="rounded-card">
-        <AssetFrame image={null} ratio="4/5" showLabel={false} />
+        <AssetFrame src="/products/wooden-carved-murti.webp" image={null} ratio="4/5" fit="cover" crop showLabel={false} sizes="(min-width:1024px) 42vw, 100vw" />
       </ImageMaskReveal>
     </section>
   );

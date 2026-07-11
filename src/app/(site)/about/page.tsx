@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import ScrollReveal from "@/components/animations/ScrollReveal";
-import SplitTextReveal from "@/components/animations/SplitTextReveal";
 import Testimonials from "@/components/sections/Testimonials";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SemicircleField from "@/components/ui/SemicircleField";
 import StatBlock from "@/components/ui/StatBlock";
+import PageHeader from "@/components/ui/PageHeader";
+import EnquiryCTA from "@/components/sections/EnquiryCTA";
 
 export const metadata: Metadata = {
   title: "About",
@@ -64,21 +65,11 @@ const PILLARS: { title: string; body: string; icon: React.ReactNode }[] = [
 export default function AboutPage() {
   return (
     <div className="pt-28">
-      <header className="mx-auto max-w-4xl px-6 text-center">
-        <p className="mb-5 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
-          Since 1968 · Mumbai
-        </p>
-        <SplitTextReveal
-          as="h1"
-          by="words"
-          className="font-display text-4xl leading-[1.08] font-light text-olive-deep sm:text-6xl"
-        >
-          A Paramount Engineering Works
-        </SplitTextReveal>
-        <p className="mt-5 font-body text-xl text-olive italic">
-          Makers of Temple Accessories
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="Since 1968 · Mumbai"
+        title="A Paramount Engineering Works"
+        tagline="Makers of Temple Accessories"
+      />
 
       {/* ABOUT US body beside the olive GENERATION semicircle (deck p07) */}
       <section className="mx-auto mt-20 grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-8">
@@ -184,6 +175,7 @@ export default function AboutPage() {
       </section>
 
       <Testimonials />
+      <EnquiryCTA />
     </div>
   );
 }

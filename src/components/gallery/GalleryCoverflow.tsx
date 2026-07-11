@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import { cn } from "@/lib/utils";
+import Button from "@/components/ui/Button";
 import type { CoverflowCategory } from "@/lib/galleryCoverflow";
 
 /**
@@ -201,12 +201,9 @@ export default function GalleryCoverflow({
               {c.label}
             </button>
           ))}
-          <Link
-            href="/products"
-            className="inline-flex items-center gap-1.5 rounded-full border border-olive-deep px-5 py-2 font-body text-[13px] text-olive-deep transition-colors hover:bg-olive-deep hover:text-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
-          >
-            View all <span aria-hidden>→</span>
-          </Link>
+          <Button variant="outline" size="md" href="/products">
+            View all
+          </Button>
         </div>
 
         {/* ---------- the flow ---------- */}

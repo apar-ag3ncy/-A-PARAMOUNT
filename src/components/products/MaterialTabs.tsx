@@ -1,6 +1,6 @@
 "use client";
 
-import { cn } from "@/lib/utils";
+import Button from "@/components/ui/Button";
 
 interface Props {
   materials: string[];
@@ -17,21 +17,16 @@ export default function MaterialTabs({ materials, active, onSelect }: Props) {
       className="flex flex-wrap gap-2"
     >
       {materials.map((m) => (
-        <button
+        <Button
           key={m}
-          type="button"
+          variant={m === active ? "solid" : "outline"}
+          size="sm"
           role="tab"
           aria-selected={m === active}
           onClick={() => onSelect(m)}
-          className={cn(
-            "rounded-button border px-4 py-1.5 font-display text-[11px] tracking-[0.14em] uppercase transition-colors",
-            m === active
-              ? "border-olive bg-olive text-cream"
-              : "border-olive/30 text-olive-deep hover:border-olive",
-          )}
         >
           {m}
-        </button>
+        </Button>
       ))}
     </div>
   );

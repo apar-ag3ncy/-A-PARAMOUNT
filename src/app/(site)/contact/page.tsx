@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import ContactForm from "@/components/ContactForm";
-import SplitTextReveal from "@/components/animations/SplitTextReveal";
-import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import { CONTACT } from "@/lib/constants";
+import PageHeader from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -13,22 +12,11 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <div className="pt-28 pb-32">
-      <header className="mx-auto max-w-4xl px-6 text-center">
-        <p className="mb-5 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
-          Enquiries
-        </p>
-        <SplitTextReveal
-          as="h1"
-          by="words"
-          className="font-display text-4xl leading-[1.08] font-light text-olive-deep sm:text-6xl"
-        >
-          Begin your enquiry
-        </SplitTextReveal>
-        <p className="mx-auto mt-6 max-w-xl font-body text-espresso/75">
-          Tell us about your temple. Every piece is handcrafted to order.
-        </p>
-        <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
-      </header>
+      <PageHeader
+        eyebrow="Enquiries"
+        title="Begin your enquiry"
+        subtitle="Tell us about your temple. Every piece is handcrafted to order."
+      />
 
       <div className="mx-auto mt-14 grid max-w-6xl gap-14 px-6 lg:grid-cols-[1.1fr_0.9fr]">
         <ContactForm />

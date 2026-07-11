@@ -57,9 +57,9 @@
   --font-devanagari: var(--font-noto-devanagari); /* Devanagari script glyphs only */
 
   /* -- Radii (never fully rounded) -- */
-  --radius-image:  4px;
+  --radius-image:  14px;  /* generous card corners (Pinterest-clean) */
   --radius-button: 8px;
-  --radius-card:   12px;
+  --radius-card:   16px;
 }
 
 /* Channel triplets for alpha washes: rgb(var(--gold-rgb) / 0.16) is exactly
