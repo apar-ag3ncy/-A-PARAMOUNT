@@ -24,10 +24,10 @@ import type { CoverflowCategory } from "@/lib/galleryCoverflow";
  */
 
 const VISIBLE = 2; // cards shown each side of centre (5 on screen at once)
-const STEP = 0.52; // horizontal offset between neighbours, in card-widths
-const DROP = 24; // px each side card sinks
-const SCALE_STEP = 0.13;
-const TURN = 7; // deg of Y-rotation per step
+const STEP = 0.52; // neighbour offset as a fraction of card WIDTH (→ ~48% overlap)
+const DROP = 22; // px each side card sinks
+const SCALE_STEP = 0.12;
+const TURN = 6; // deg of Y-rotation per step
 
 export default function GalleryCoverflow({
   categories,
@@ -107,10 +107,17 @@ export default function GalleryCoverflow({
         </Link>
       </div>
 
-      {/* ---------- the flow ---------- */}
+      {/* ---------- the flow ----------
+          Cards are sized by a shared HEIGHT (`--ch`) and the category's own
+          aspect `ratio`, so width = height × ratio and the photo fills the frame
+          with nothing cropped. `--cw` (the card width) is derived from those two,
+          and the horizontal step is a fraction of it, so spacing stays even. */}
       <div
-        className="relative flex h-[clamp(20rem,52vw,30rem)] touch-pan-y items-center justify-center overflow-hidden [perspective:1400px]"
-        style={{ ["--cw" as string]: "clamp(11rem,26vw,18.5rem)" }}
+        className="relative flex h-[calc(var(--ch)+4.5rem)] touch-pan-y items-center justify-center overflow-hidden [perspective:1600px]"
+        style={{
+          ["--ch" as string]: "clamp(17rem,42vw,30rem)",
+          ["--cw" as string]: `calc(var(--ch) * ${active.ratio.toFixed(4)})`,
+        }}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
@@ -130,7 +137,7 @@ export default function GalleryCoverflow({
               onClick={() => {
                 if (!drag.current?.moved) setCenter(i);
               }}
-              className="absolute w-[var(--cw)] cursor-pointer overflow-hidden rounded-[20px] shadow-[0_28px_60px_-28px_rgba(46,35,19,0.6)] ring-1 ring-black/5 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] aspect-[3/4] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+              className="absolute h-[var(--ch)] w-[var(--cw)] cursor-pointer overflow-hidden rounded-[20px] shadow-[0_28px_60px_-28px_rgba(46,35,19,0.6)] ring-1 ring-black/5 transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
               style={{
                 transform: `translateX(calc(var(--cw) * ${STEP} * ${o})) translateY(${mag * DROP}px) scale(${1 - mag * SCALE_STEP}) rotateY(${o * -TURN}deg)`,
                 zIndex: 40 - mag,
@@ -143,7 +150,7 @@ export default function GalleryCoverflow({
                 alt=""
                 fill
                 draggable={false}
-                sizes="(min-width: 1024px) 20vw, 60vw"
+                sizes="(min-width: 1024px) 46vw, 88vw"
                 className="object-cover select-none"
               />
               {/* the centre card gets a faint bottom scrim for depth */}

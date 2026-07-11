@@ -8,8 +8,11 @@ import { getCategory } from "@/lib/catalog";
  * follows. Runs in the Server Component (`/gallery`), which passes only the
  * chosen photos to the client carousel — never the whole manifest.
  *
- * Cards are a uniform 3:4 (0.75) portrait frame, as in the reference, so photos
- * nearest that ratio are chosen first to keep `object-cover` crop minimal.
+ * Each category exposes ONE `ratio`, and the card frame adopts it, so the photo
+ * fills the frame with nothing cropped. To make that hold, a category shows only
+ * photos of a single shape: the images are bucketed by aspect ratio and the
+ * largest bucket wins (temple photos cluster tightly — a category is usually all
+ * portrait, all square or all landscape anyway).
  */
 
 /** Pill label → catalog slug. Order is the pill order. */
@@ -26,7 +29,6 @@ const PICKS: { label: string; slug: string }[] = [
   { label: "Dhwajadand", slug: "dhwajadand" },
 ];
 
-const CARD_RATIO = 3 / 4; // 0.75
 const PER_CATEGORY = 6;
 
 export interface CoverflowPhoto {
@@ -38,7 +40,27 @@ export interface CoverflowCategory {
   label: string;
   /** Deep-link target for this category's full set. */
   href: string;
+  /** Frame aspect ratio (w / h) — matches the photos so nothing is cropped. */
+  ratio: number;
   photos: CoverflowPhoto[];
+}
+
+/** Largest single-shape set of up to PER_CATEGORY photos, + its mean ratio. */
+function uniformSet(images: CoverflowPhoto[]): {
+  photos: CoverflowPhoto[];
+  ratio: number;
+} {
+  const buckets = new Map<string, CoverflowPhoto[]>();
+  for (const im of images) {
+    const key = (Math.round((im.w / im.h) * 8) / 8).toFixed(3); // eighth-buckets
+    const arr = buckets.get(key) ?? [];
+    arr.push(im);
+    buckets.set(key, arr);
+  }
+  const best = [...buckets.values()].sort((a, b) => b.length - a.length)[0];
+  const photos = best.slice(0, PER_CATEGORY);
+  const ratio = photos.reduce((s, p) => s + p.w / p.h, 0) / photos.length;
+  return { photos, ratio };
 }
 
 export function getCoverflowCategories(): CoverflowCategory[] {
@@ -48,18 +70,18 @@ export function getCoverflowCategories(): CoverflowCategory[] {
     const category = getCategory(slug);
     if (!gallery || !category) continue;
 
-    const photos = gallery.groups
+    const images = gallery.groups
       .flatMap((g) => g.images)
-      .map((im) => ({ src: im.src, w: im.w, h: im.h }))
-      // closest to the card ratio first → least cropping in the frame
-      .sort(
-        (a, b) =>
-          Math.abs(a.w / a.h - CARD_RATIO) - Math.abs(b.w / b.h - CARD_RATIO),
-      )
-      .slice(0, PER_CATEGORY);
+      .map((im) => ({ src: im.src, w: im.w, h: im.h }));
+    const { photos, ratio } = uniformSet(images);
 
     if (photos.length) {
-      out.push({ label, href: `/products/${category.family}/${slug}`, photos });
+      out.push({
+        label,
+        href: `/products/${category.family}/${slug}`,
+        ratio,
+        photos,
+      });
     }
   }
   return out;
