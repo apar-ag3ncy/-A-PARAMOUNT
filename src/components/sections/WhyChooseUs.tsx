@@ -82,7 +82,12 @@ export default function WhyChooseUs() {
                       <Icon className="h-6 w-6" />
                     </span>
                     <div>
-                      <h3 className="font-display text-base leading-snug font-medium text-heading-brown">
+                      {/* Reserve 3 lines of title (line-height 22px → 4.25rem
+                          with slack) once the items sit in a multi-column ROW,
+                          so a 2-line title like "Authentic Craftsmanship" no
+                          longer pulls its body 22px above the 3-line neighbours.
+                          The single-column mobile stack keeps titles natural. */}
+                      <h3 className="font-display text-base leading-snug font-medium text-heading-brown sm:flex sm:min-h-[4.25rem] sm:items-start">
                         {title}
                       </h3>
                       <p className="mt-1.5 font-body text-sm leading-relaxed text-espresso/75">
