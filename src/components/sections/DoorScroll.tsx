@@ -485,7 +485,7 @@ export default function DoorScroll() {
           className="ds-text absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-6 text-center"
           style={{ textShadow: "0 0 26px rgb(var(--gold-rgb) / 0.55)" }}
         >
-          <p className="font-body text-2xl text-cream italic sm:text-3xl">
+          <p className="font-display text-2xl tracking-[0.06em] text-cream sm:text-3xl">
             The doors have been opening since 1968.
           </p>
           <div
@@ -497,7 +497,7 @@ export default function DoorScroll() {
             <span className="h-px w-12 bg-current" />
           </div>
           <p
-            className="mt-[2.5vh] font-display text-[11px] tracking-[0.28em] uppercase"
+            className="mt-[2.5vh] font-display text-[13px] tracking-[0.24em] uppercase sm:text-sm"
             style={{ color: GOLD }}
           >
             Temple Artefacts · Crafted in Mumbai
