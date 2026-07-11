@@ -1,9 +1,9 @@
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
 /**
- * The masonry staggered-reveal, shared by `MasonryGrid` and `CategoryBrowser`.
- * Both had pasted the same ScrollTrigger.batch dance; it lives here once so the
- * two can't drift.
+ * The masonry staggered-reveal used by `CategoryBrowser`'s product grid (and any
+ * future grid): the ScrollTrigger.batch dance lives here once, out of the
+ * component, rather than pasted inline.
  *
  * Cards start hidden (opacity 0 + an offset, set by the caller's CSS/markup) and
  * this reveals them in staggered waves. `ScrollTrigger.batch` uses ONE trigger
