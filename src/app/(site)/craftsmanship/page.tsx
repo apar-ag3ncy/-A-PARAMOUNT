@@ -3,9 +3,9 @@ import AssetFrame from "@/components/ui/AssetFrame";
 import ImageMaskReveal from "@/components/animations/ImageMaskReveal";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
-import { cn } from "@/lib/utils";
 import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 export const metadata: Metadata = {
   title: "Craftsmanship",
@@ -60,25 +60,34 @@ export default function CraftsmanshipPage() {
         <WhyChooseUs />
       </div>
 
-      <div className="mx-auto max-w-7xl px-6 py-16">
-        {STEPS.map((s, i) => (
+      <div className="mx-auto max-w-3xl px-6 py-12 sm:py-16">
+        {STEPS.map((s) => (
           <section
             key={s.n}
-            className="grid gap-10 py-14 lg:grid-cols-2 lg:items-center lg:gap-20"
+            className="flex flex-col items-center py-12 text-center sm:py-16"
           >
-            <div className={cn(i % 2 === 1 && "lg:order-2")}>
-              <p className="font-body text-3xl text-olive-muted italic">{s.n}</p>
-              <SplitTextReveal
-                as="h2"
-                by="words"
-                className="mt-2 font-display text-3xl font-light text-olive-deep sm:text-4xl"
-              >
-                {s.title}
-              </SplitTextReveal>
-              <p className="mt-5 max-w-md font-body text-espresso/80">{s.body}</p>
-            </div>
-            <ImageMaskReveal className="rounded-card">
-              <AssetFrame src={s.img} image={null} ratio="4/3" fit="cover" crop showLabel={false} sizes="(min-width:1024px) 46vw, 100vw" />
+            <p className="font-body text-3xl text-olive-muted italic">{s.n}</p>
+            <SplitTextReveal
+              as="h2"
+              by="words"
+              className="mt-2 font-display text-3xl leading-tight font-light text-[color:var(--color-heading-brown)] sm:text-4xl"
+            >
+              {s.title}
+            </SplitTextReveal>
+            <OrnamentDivider className="mx-auto mt-4 text-olive/45" />
+            <p className="mx-auto mt-5 max-w-xl font-body text-espresso/80">
+              {s.body}
+            </p>
+            <ImageMaskReveal className="mt-9 w-full overflow-hidden rounded-card">
+              <AssetFrame
+                src={s.img}
+                image={null}
+                ratio="16/10"
+                fit="cover"
+                crop
+                showLabel={false}
+                sizes="(min-width:768px) 48rem, 100vw"
+              />
             </ImageMaskReveal>
           </section>
         ))}
