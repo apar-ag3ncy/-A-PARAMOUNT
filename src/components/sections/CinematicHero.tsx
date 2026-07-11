@@ -206,7 +206,7 @@ export default function CinematicHero() {
         gsap.set([".hv-eyebrow", ".hv-word", ".hv-div", ".hv-tag"], { opacity: 0, y: 26 });
         gsap.set(".hv-bloom", { scale: 0.55, opacity: 0, transformOrigin: "50% 50%" });
         gsap.set(".hv-rays", { opacity: 0 });
-        gsap.set([".hv-frame", ".hv-cue"], { opacity: 0 });
+        gsap.set(".hv-cue", { opacity: 0 });
 
         // ---- 1. the intro apparition (slow-mo, plays once on load) ----
         const intro = gsap
@@ -224,7 +224,6 @@ export default function CinematicHero() {
           .to(".hv-word", { opacity: 1, y: 0, duration: 1.2 }, 2.9)
           .to(".hv-div", { opacity: 1, y: 0, duration: 1 }, 3.3)
           .to(".hv-tag", { opacity: 1, y: 0, duration: 1.2 }, 3.5)
-          .to(".hv-frame", { opacity: 1, duration: 1.6 }, 3.3)
           .to(".hv-cue", { opacity: 1, duration: 1 }, 4.0);
 
         // On the home page the DoorScroll section above owns the arrival: the
@@ -297,7 +296,6 @@ export default function CinematicHero() {
           .to(".hv-lift-b", { y: -52, duration: 2.4, ease: "power1.in" }, 2.7)
           .to(".hv-temple-wrap", { y: -44, opacity: 0, duration: 1.9 }, 2.7)
           .to(".hv-rays-wrap", { opacity: 0.15, duration: 1.7 }, 3.1)
-          .to(".hv-frame", { opacity: 0, duration: 1.3, overwrite: "auto" }, 3.1)
           .to(".hv-stage", { opacity: 0, duration: 1.5 }, 4.3);
 
         return () => {
@@ -408,9 +406,6 @@ export default function CinematicHero() {
           </g>
         </svg>
       </div>
-
-      {/* deck-style hairline frame */}
-      <div className="hv-frame pointer-events-none absolute inset-4 rounded-[2px] border border-olive/25 sm:inset-6" />
 
       {/* stage */}
       <div className="hv-zoom relative z-10 will-change-transform">
