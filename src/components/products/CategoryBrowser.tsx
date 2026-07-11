@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { gsap, ScrollTrigger, Flip } from "@/lib/gsap";
+import { batchReveal, showInstantly } from "@/lib/reveal";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import MasonryItem from "@/components/products/MasonryItem";
 import type { CatalogCategory } from "@/lib/catalog";
@@ -42,28 +43,10 @@ export default function CategoryBrowser({
       const items = grid.querySelectorAll<HTMLElement>(".masonry-item");
       const mm = gsap.matchMedia();
 
-      mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set(items, { opacity: 1, y: 0, scale: 1 });
-      });
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        ScrollTrigger.batch(items, {
-          start: "top 90%",
-          onEnter: (batch) => {
-            gsap.set(batch, { willChange: "transform, opacity" });
-            gsap.to(batch, {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 1.1,
-              ease: "power3.out",
-              stagger: 0.06,
-              overwrite: true,
-              onComplete: () => gsap.set(batch, { willChange: "auto" }),
-            });
-          },
-          once: true,
-        });
-      });
+      mm.add("(prefers-reduced-motion: reduce)", () => showInstantly(items));
+      mm.add("(prefers-reduced-motion: no-preference)", () =>
+        batchReveal(items, { start: "top 90%", stagger: 0.06 }),
+      );
 
       mm.add("(min-width: 1024px)", () => {
         if (!railRef.current) return;

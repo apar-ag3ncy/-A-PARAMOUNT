@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { batchReveal, showInstantly } from "@/lib/reveal";
 
 const useIso = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
@@ -22,29 +23,11 @@ export default function MasonryGrid({ children }: { children: ReactNode }) {
       const mm = gsap.matchMedia();
 
       // reduced motion — show instantly
-      mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set(items, { opacity: 1, y: 0, scale: 1, clearProps: "willChange" });
-      });
+      mm.add("(prefers-reduced-motion: reduce)", () => showInstantly(items));
 
       // full — rise, fade and settle in staggered waves
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        ScrollTrigger.batch(items, {
-          start: "top 88%",
-          onEnter: (batch) => {
-            gsap.set(batch, { willChange: "transform, opacity" });
-            gsap.to(batch, {
-              opacity: 1,
-              y: 0,
-              scale: 1,
-              duration: 1.1,
-              ease: "power3.out",
-              stagger: 0.08,
-              overwrite: true,
-              onComplete: () => gsap.set(batch, { willChange: "auto" }),
-            });
-          },
-          once: true,
-        });
+        batchReveal(items, { start: "top 88%", stagger: 0.08 });
         ScrollTrigger.refresh();
       });
     }, el);
