@@ -6,6 +6,7 @@ import { type CSSProperties, useCallback, useRef, useState } from "react";
 import { CATEGORIES } from "@/lib/catalog";
 import { FAMILIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import Button from "@/components/ui/Button";
 
 /**
  * "Selected Works" — the reference layout: a warm near-black panel, a huge
@@ -313,15 +314,9 @@ export default function FeaturedGallery() {
             ))}
           </div>
 
-          <Link
-            href="/products"
-            className="group inline-flex items-center gap-2 font-display text-[11px] tracking-[0.24em] text-cream/60 uppercase transition-colors hover:text-gold"
-          >
+          <Button variant="ghost" tone="dark" size="sm" href="/products">
             View all collections
-            <span className="transition-transform duration-300 group-hover:translate-x-1">
-              →
-            </span>
-          </Link>
+          </Button>
         </div>
       </div>
     </section>

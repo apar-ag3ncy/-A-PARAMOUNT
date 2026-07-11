@@ -4,6 +4,7 @@ import Image from "next/image";
 import MegaMenu from "@/components/layout/MegaMenu";
 import MobileNav from "@/components/layout/MobileNav";
 import Wordmark from "@/components/ui/Wordmark";
+import Button from "@/components/ui/Button";
 
 /**
  * Site header — a floating pill that rides above the page rather than a bar ruled
@@ -58,12 +59,14 @@ export default function Header() {
         <MobileNav />
 
         {/* the one solid action, inverted out of the bar — as in the reference */}
-        <Link
+        <Button
+          variant="cream"
+          size="md"
           href="/contact"
-          className="hidden h-10 shrink-0 items-center rounded-full bg-cream px-5 font-display text-[12px] tracking-[0.18em] text-espresso uppercase transition-colors duration-300 hover:bg-gold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold lg:inline-flex"
+          className="hidden shrink-0 lg:inline-flex"
         >
           Enquire
-        </Link>
+        </Button>
       </div>
     </header>
   );

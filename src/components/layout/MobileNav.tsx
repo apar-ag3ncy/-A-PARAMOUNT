@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { NAV } from "@/lib/constants";
+import Button from "@/components/ui/Button";
 
 /**
  * Mobile navigation — the hamburger lives inside the header's olive pill (hence
@@ -51,13 +52,15 @@ export default function MobileNav() {
                 {n.label}
               </Link>
             ))}
-            <Link
+            <Button
+              variant="cream"
+              size="md"
               href="/contact"
               onClick={() => setOpen(false)}
-              className="mt-3 inline-flex h-11 items-center justify-center rounded-full bg-cream px-5 font-display text-[12px] tracking-[0.18em] text-espresso uppercase transition-colors hover:bg-gold"
+              className="mt-3 w-full"
             >
               Enquire
-            </Link>
+            </Button>
           </nav>
         </div>
       )}

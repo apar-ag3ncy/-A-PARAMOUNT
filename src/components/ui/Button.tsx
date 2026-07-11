@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ComponentPropsWithoutRef, ReactNode } from "react";
+import type { MouseEventHandler, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,8 +18,10 @@ import { cn } from "@/lib/utils";
  *   outline — hairline olive that fills olive-deep on hover (secondary)
  *   ghost   — tracked-caps text link with a drawing underline (tertiary / inline)
  */
-type Variant = "solid" | "outline" | "ghost";
+type Variant = "solid" | "outline" | "ghost" | "cream";
 type Size = "sm" | "md" | "lg";
+/** Ground the button sits on. "dark" recolours outline/ghost to cream. */
+type Tone = "light" | "dark";
 
 const BASE =
   "group relative inline-flex items-center justify-center gap-2 font-display tracking-[0.16em] uppercase transition-[color,background-color,border-color,box-shadow,transform] duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:pointer-events-none disabled:opacity-50";
@@ -30,6 +32,16 @@ const VARIANT: Record<Variant, string> = {
   outline:
     "rounded-full border border-olive/35 text-olive-deep hover:border-olive-deep hover:bg-olive-deep hover:text-cream hover:-translate-y-0.5",
   ghost: "rounded-full text-olive-deep hover:text-olive",
+  // cream pill for dark grounds (the header/nav on olive) — warms to gold
+  cream:
+    "rounded-full bg-cream text-espresso hover:bg-gold hover:-translate-y-0.5 shadow-[0_10px_26px_-14px_rgba(46,35,19,0.5)]",
+};
+
+/** On a dark ground, outline/ghost recolour to cream so they stay legible. */
+const VARIANT_DARK: Partial<Record<Variant, string>> = {
+  outline:
+    "rounded-full border border-cream/40 text-cream hover:border-gold hover:bg-cream/10 hover:-translate-y-0.5",
+  ghost: "rounded-full text-cream/80 hover:text-gold",
 };
 
 const SIZE: Record<Size, string> = {
@@ -42,9 +54,14 @@ interface CommonProps {
   children: ReactNode;
   variant?: Variant;
   size?: Size;
+  tone?: Tone;
   /** Show the sliding → arrow. Defaults on for `ghost`, off otherwise. */
   arrow?: boolean;
   className?: string;
+}
+
+function variantClass(variant: Variant, tone: Tone): string {
+  return (tone === "dark" && VARIANT_DARK[variant]) || VARIANT[variant];
 }
 
 function Inner({
@@ -82,36 +99,64 @@ function Inner({
   );
 }
 
-type LinkProps = CommonProps & { href: string } & Omit<
-    ComponentPropsWithoutRef<typeof Link>,
-    "href" | "className" | "children"
-  >;
-type ButtonProps = CommonProps & { href?: undefined } & Omit<
-    ComponentPropsWithoutRef<"button">,
-    "className" | "children"
-  >;
+/** The DOM/interaction props a call-site may pass through, explicitly (rather
+ *  than spreading arbitrary attributes) so a design-system button stays tidy. */
+interface PassThrough {
+  onClick?: MouseEventHandler<HTMLElement>;
+  disabled?: boolean;
+  type?: "button" | "submit" | "reset";
+  role?: string;
+  "aria-label"?: string;
+  "aria-selected"?: boolean;
+  "aria-pressed"?: boolean;
+  "aria-expanded"?: boolean;
+}
+
+type LinkProps = CommonProps & PassThrough & { href: string };
+type ButtonProps = CommonProps & PassThrough & { href?: undefined };
 
 export default function Button(props: LinkProps | ButtonProps) {
-  const { children, variant = "solid", size = "md", arrow, className } = props;
-  const classes = cn(BASE, VARIANT[variant], SIZE[size], className);
+  const {
+    children,
+    variant = "solid",
+    size = "md",
+    tone = "light",
+    arrow,
+    className,
+    onClick,
+    disabled,
+    role,
+  } = props;
+  const classes = cn(BASE, variantClass(variant, tone), SIZE[size], className);
+  const aria = {
+    role,
+    "aria-label": props["aria-label"],
+    "aria-selected": props["aria-selected"],
+    "aria-pressed": props["aria-pressed"],
+    "aria-expanded": props["aria-expanded"],
+  };
+  const inner = (
+    <Inner variant={variant} arrow={arrow}>
+      {children}
+    </Inner>
+  );
 
   if (props.href !== undefined) {
-    const { href, ...rest } = props as LinkProps;
     return (
-      <Link href={href} className={classes} {...rest}>
-        <Inner variant={variant} arrow={arrow}>
-          {children}
-        </Inner>
+      <Link href={props.href} className={classes} onClick={onClick} {...aria}>
+        {inner}
       </Link>
     );
   }
-
-  const { type = "button", ...rest } = props as ButtonProps;
   return (
-    <button type={type} className={classes} {...rest}>
-      <Inner variant={variant} arrow={arrow}>
-        {children}
-      </Inner>
+    <button
+      type={props.type ?? "button"}
+      className={classes}
+      onClick={onClick}
+      disabled={disabled}
+      {...aria}
+    >
+      {inner}
     </button>
   );
 }
