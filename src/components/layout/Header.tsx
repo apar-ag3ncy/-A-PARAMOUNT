@@ -7,66 +7,82 @@ import Wordmark from "@/components/ui/Wordmark";
 import Button from "@/components/ui/Button";
 
 /**
- * Site header — a floating pill that rides above the page rather than a bar ruled
- * off from it. Olive-deep ground, cream type: the brand's own inversion of the
- * usual light-bar-with-dark-text.
+ * Site header — a wide glass bar that floats over the page (inspiration: premium
+ * jewelry-store headers). Three zones on one line: navigation LEFT, the brand
+ * lockup CENTRED, a circular gallery icon + the Enquire pill RIGHT. The
+ * `grid-cols-[1fr_auto_1fr]` keeps the logo optically centred whatever the side
+ * zones weigh.
  *
- * Colour is constrained by contrast, not taste: cream on `--color-olive-deep` is
- * 5.27:1 (AA), but cream at 85% falls to 3.84 and gold type falls to 3.58 — so
- * the links stay FULL cream and hover is expressed by the gold underline, never
- * by dimming or tinting the text. The call-to-action inverts to a cream pill with
- * espresso type (14:1), warming to gold on hover (9.5:1).
+ * The bar is frosted cream (`backdrop-blur`) with an olive hairline, so it reads
+ * as a light, elegant sheet rather than the old solid slab. On the olive/photo
+ * sections it scrolls over, the blur does the work; on cream, the ring + shadow
+ * define it. Olive type throughout (dark-on-light).
  *
- * `--pm-bar-bottom` is the single source of truth for where the bar ends. The
- * MegaMenu panel and the MobileNav sheet are `position: fixed` and used to guess
- * it with hard-coded (and disagreeing) `top-[64px]` / `top-[75px]`; both now hang
- * off this variable, which they inherit as DOM descendants of the header.
- *
- * The header still sits OUTSIDE `#smooth-content` (ScrollSmoother transforms that
- * subtree, which would break `sticky`), and `html.pm-intro .pm-header` still lifts
- * the whole thing away while the temple doors own the screen.
+ * `--pm-bar-bottom` is the single source of truth for where the bar ends — the
+ * MegaMenu panel and MobileNav sheet offset from it. The header stays OUTSIDE
+ * `#smooth-content` (ScrollSmoother transforms that subtree, which breaks
+ * `sticky`), and `html.pm-intro .pm-header` still lifts it away while the temple
+ * doors own the screen.
  */
 export default function Header() {
   return (
     <header
-      className="pm-header sticky top-0 z-50 px-4 pt-3 sm:px-6"
+      className="pm-header sticky top-0 z-50 px-3 pt-3 sm:px-6"
       style={{ "--pm-bar-bottom": "4.25rem" } as CSSProperties}
     >
-      <div className="mx-auto flex h-14 w-fit max-w-full items-center gap-2 rounded-full bg-olive-deep pr-2 pl-3 shadow-[0_14px_36px_-14px_rgba(46,35,19,0.55)] ring-1 ring-cream/10 sm:gap-4">
-        {/* brand lockup — the white monogram, since the ground is now olive */}
+      <div className="relative mx-auto flex h-14 max-w-6xl items-center justify-between rounded-full bg-cream/75 px-2.5 shadow-[0_16px_40px_-18px_rgba(46,35,19,0.32)] ring-1 ring-olive/20 backdrop-blur-xl sm:px-3">
+        {/* LEFT — navigation (desktop links / mobile hamburger) */}
+        <div className="flex items-center">
+          <MegaMenu />
+          <MobileNav />
+        </div>
+
+        {/* CENTRE — the brand lockup, absolutely centred so nav/actions weight
+            can't shift it off the middle */}
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2.5 rounded-full pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+          className="absolute top-1/2 left-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center gap-2.5 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
           aria-label="A Paramount — home"
         >
           <Image
-            src="/brand/a-mark-white.png"
+            src="/brand/a-mark-olive.png"
             alt=""
             width={269}
             height={234}
             priority
             className="h-7 w-auto"
           />
-          {/* no tagline here: the pill is slim, and the sub-line only reads as
-              noise at this size. It still sits under the mark in the footer. */}
           <Wordmark
             tagline={false}
-            className="text-[13px] text-cream sm:text-[15px]"
+            className="hidden text-[15px] text-olive-deep sm:inline-flex"
           />
         </Link>
 
-        <MegaMenu />
-        <MobileNav />
-
-        {/* the one solid action, inverted out of the bar — as in the reference */}
-        <Button
-          variant="cream"
-          size="md"
-          href="/contact"
-          className="hidden shrink-0 lg:inline-flex"
-        >
-          Enquire
-        </Button>
+        {/* RIGHT — a circular gallery icon + the one solid action */}
+        <div className="flex items-center gap-2">
+          <Link
+            href="/gallery"
+            aria-label="Gallery"
+            className="hidden size-10 place-items-center rounded-full text-olive-deep ring-1 ring-olive/25 transition-colors hover:bg-olive-deep hover:text-cream focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:grid"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="size-[18px]"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.6}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="3" />
+              <circle cx="8.5" cy="8.5" r="1.5" />
+              <path d="M21 15l-5-5L5 21" />
+            </svg>
+          </Link>
+          <Button variant="solid" size="md" href="/contact" className="shrink-0">
+            Enquire
+          </Button>
+        </div>
       </div>
     </header>
   );

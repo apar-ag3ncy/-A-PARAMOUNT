@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import AssetFrame from "@/components/ui/AssetFrame";
-import ImageMaskReveal from "@/components/animations/ImageMaskReveal";
-import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import SlideReveal from "@/components/animations/SlideReveal";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
@@ -60,37 +59,49 @@ export default function CraftsmanshipPage() {
         <WhyChooseUs />
       </div>
 
-      <div className="mx-auto max-w-3xl px-6 py-12 sm:py-16">
-        {STEPS.map((s) => (
-          <section
-            key={s.n}
-            className="flex flex-col items-center py-12 text-center sm:py-16"
-          >
-            <p className="font-body text-3xl text-olive-muted italic">{s.n}</p>
-            <SplitTextReveal
-              as="h2"
-              by="words"
-              className="mt-2 font-display text-3xl leading-tight font-light text-[color:var(--color-heading-brown)] sm:text-4xl"
+      {/* The process, restored to the alternating left/right editorial — but now
+          it ASSEMBLES on scroll: the text rolls in from one side, the image from
+          the other (SlideReveal), so each step arrives with motion. */}
+      <div className="mx-auto max-w-7xl overflow-x-hidden px-6 py-12 sm:py-16">
+        {STEPS.map((s, i) => {
+          const textLeft = i % 2 === 0;
+          return (
+            <section
+              key={s.n}
+              className="grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-20 lg:py-16"
             >
-              {s.title}
-            </SplitTextReveal>
-            <OrnamentDivider className="mx-auto mt-4 text-olive/45" />
-            <p className="mx-auto mt-5 max-w-xl font-body text-espresso/80">
-              {s.body}
-            </p>
-            <ImageMaskReveal className="mt-9 w-full overflow-hidden rounded-card">
-              <AssetFrame
-                src={s.img}
-                image={null}
-                ratio="16/10"
-                fit="cover"
-                crop
-                showLabel={false}
-                sizes="(min-width:768px) 48rem, 100vw"
-              />
-            </ImageMaskReveal>
-          </section>
-        ))}
+              <SlideReveal
+                from={textLeft ? "left" : "right"}
+                className={textLeft ? "" : "lg:order-2"}
+              >
+                <p className="font-body text-3xl text-olive-muted italic">
+                  {s.n}
+                </p>
+                <h2 className="mt-2 font-display text-3xl leading-tight font-light text-[color:var(--color-heading-brown)] sm:text-4xl">
+                  {s.title}
+                </h2>
+                <OrnamentDivider className="mt-4 text-olive/45" />
+                <p className="mt-5 max-w-md font-body text-espresso/80">
+                  {s.body}
+                </p>
+              </SlideReveal>
+              <SlideReveal
+                from={textLeft ? "right" : "left"}
+                className="overflow-hidden rounded-card"
+              >
+                <AssetFrame
+                  src={s.img}
+                  image={null}
+                  ratio="4/3"
+                  fit="cover"
+                  crop
+                  showLabel={false}
+                  sizes="(min-width:1024px) 46vw, 100vw"
+                />
+              </SlideReveal>
+            </section>
+          );
+        })}
       </div>
       <EnquiryCTA />
     </div>

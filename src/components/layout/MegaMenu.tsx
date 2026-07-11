@@ -8,17 +8,17 @@ import { FAMILIES } from "@/lib/constants";
 import { categoriesByFamily } from "@/lib/catalog";
 import { cn } from "@/lib/utils";
 
-/** Cream at FULL opacity: on the olive-deep bar, cream/85 drops to 3.84:1 and
- *  gold type to 3.58:1, so hover is signalled by the underline, not by tinting. */
+/** Dark-on-light now: the header is a frosted cream bar, so links are
+ *  olive-deep and hover deepens + draws the underline. */
 const linkCls =
-  "group/nav relative font-display text-[13px] uppercase tracking-[0.18em] text-cream whitespace-nowrap rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold";
+  "group/nav relative font-display text-[12px] uppercase tracking-[0.12em] text-olive-deep/85 whitespace-nowrap rounded-sm transition-colors hover:text-olive-deep focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold";
 
 /** Elegant hover underline that draws in from the left. */
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <Link href={href} className={linkCls}>
       {children}
-      <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-gold transition-transform duration-300 ease-out group-hover/nav:scale-x-100" />
+      <span className="absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-0 bg-olive transition-transform duration-300 ease-out group-hover/nav:scale-x-100" />
     </Link>
   );
 }
@@ -59,7 +59,7 @@ export default function MegaMenu() {
   };
 
   return (
-    <nav className="hidden items-center gap-7 px-4 lg:flex xl:gap-8 xl:px-6">
+    <nav className="hidden items-center gap-6 pr-4 xl:flex">
       <NavLink href="/craftsmanship">Craftsmanship</NavLink>
 
       {/* `flex items-center` matters: the sibling NavLinks are direct children of
@@ -78,7 +78,7 @@ export default function MegaMenu() {
           Collections
           <span
             className={cn(
-              "absolute -bottom-1.5 left-0 h-px w-full origin-left bg-gold transition-transform duration-300 ease-out",
+              "absolute -bottom-1.5 left-0 h-px w-full origin-left bg-olive transition-transform duration-300 ease-out",
               open ? "scale-x-100" : "scale-x-0",
             )}
           />

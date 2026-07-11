@@ -13,13 +13,13 @@ import Button from "@/components/ui/Button";
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
   return (
-    <div className="lg:hidden">
+    <div className="xl:hidden">
       <button
         type="button"
         aria-label={open ? "Close menu" : "Open menu"}
         aria-expanded={open}
         onClick={() => setOpen((o) => !o)}
-        className="flex size-11 items-center justify-center rounded-full text-cream transition-colors hover:bg-cream/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+        className="flex size-11 items-center justify-center rounded-full text-olive-deep transition-colors hover:bg-olive/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
       >
         <svg
           width="22"
