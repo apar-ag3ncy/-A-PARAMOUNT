@@ -59,7 +59,7 @@ export default function MegaMenu() {
   };
 
   return (
-    <nav className="hidden items-center gap-6 pr-4 xl:flex">
+    <nav className="hidden items-center gap-7 lg:flex">
       <NavLink href="/craftsmanship">Craftsmanship</NavLink>
 
       {/* `flex items-center` matters: the sibling NavLinks are direct children of

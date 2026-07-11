@@ -6,14 +6,14 @@ import { NAV } from "@/lib/constants";
 import Button from "@/components/ui/Button";
 
 /**
- * Mobile navigation — the hamburger lives inside the header's olive pill (hence
- * cream, not olive), and the sheet it opens is a rounded card that hangs off the
- * header's `--pm-bar-bottom` rather than the old hard-coded `top-[75px]`.
+ * Mobile navigation — the hamburger lives on the right of the header's cream bar
+ * (hence olive-deep type), and the sheet it opens is a rounded card that hangs
+ * off the header's `--pm-bar-bottom` rather than the old hard-coded `top-[75px]`.
  */
 export default function MobileNav() {
   const [open, setOpen] = useState(false);
   return (
-    <div className="xl:hidden">
+    <div className="lg:hidden">
       <button
         type="button"
         aria-label={open ? "Close menu" : "Open menu"}
