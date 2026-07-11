@@ -9,18 +9,16 @@ import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
 
 /**
- * "Selected Works" — the reference layout: a warm near-black panel, a huge
- * "OUR WORKS" title with a small note beside it, and five product cards
- * arranged as a SYMMETRIC FAN.
+ * "Selected Works" — a warm near-black panel, a huge "OUR WORKS" title with a
+ * small note beside it, and five product cards in a gentle upright arc.
  *
- * Fan geometry, measured off the reference:
- *  • card tops are ~level, and cards grow taller toward the centre, so their
- *    bottoms sweep down in an arc;
- *  • the outer cards tilt away from centre (left CCW, right CW — confirmed
- *    from the slope of each card's label);
- *  • the centre card is upright, largest, "featured": it carries a tag pill and
- *    a bigger, sentence-case name (Inter — Storica is caps-only), while the
- *    outer cards use small tracked caps.
+ * Geometry:
+ *  • all cards stand UPRIGHT (no tilt) — the arc comes purely from the heights
+ *    growing toward the centre, so their bottoms sweep down while the tops stay
+ *    near-level;
+ *  • the centre card is largest, "featured": it carries a tag pill and a bigger,
+ *    sentence-case name (Inter — Storica is caps-only), while the outer cards use
+ *    small tracked caps.
  *
  * NOTHING IS CROPPED. Each slot fixes only the card's HEIGHT (that is what
  * draws the arc); the width is derived by the browser from the photo's own
@@ -32,11 +30,11 @@ import Button from "@/components/ui/Button";
  * divistand, dhwajadand) therefore live on their category pages, not here.
  *
  * Because width follows height, the row height is stepped per breakpoint so the
- * five widths + gaps + the rotation bulge always fit the panel's inner width
- * (min(1280, vw - 48) - 80). A single fixed height would clip at lg.
+ * five widths + gaps always fit the panel's inner width (min(1280, vw - 48) -
+ * 80). A single fixed height would clip at lg.
  *
- * Below `lg` the fan collapses to a plain snap-scroll rail (a rotated fan is
- * unreadable on a phone); the same arrows then scroll that rail. Those cards are
+ * Below `lg` the arc collapses to a plain snap-scroll rail; the same arrows then
+ * scroll that rail. Those cards are
  * ratio-matched too.
  */
 
@@ -76,11 +74,11 @@ const VISIBLE = 5;
  *  row); width follows the photo's aspect-ratio. Tops sit near-level, so the
  *  growing heights are what sweep the bottoms into an arc. */
 const FAN = [
-  { h: "68%", rot: -9, lift: -8 },
-  { h: "82%", rot: -5, lift: -3 },
+  { h: "68%", rot: 0, lift: -8 },
+  { h: "82%", rot: 0, lift: -3 },
   { h: "100%", rot: 0, lift: 0 }, // featured
-  { h: "82%", rot: 5, lift: -3 },
-  { h: "68%", rot: 9, lift: -8 },
+  { h: "82%", rot: 0, lift: -3 },
+  { h: "68%", rot: 0, lift: -8 },
 ];
 
 export default function FeaturedGallery() {
@@ -167,12 +165,12 @@ export default function FeaturedGallery() {
           </div>
         </div>
 
-        {/* ---------- desktop: the fan ----------
+        {/* ---------- desktop: the upright arc ----------
             The row HEIGHT drives the card widths (width = height x photo ratio),
-            so the height must shrink with the viewport or the fan overflows the
+            so the height must shrink with the viewport or the row overflows the
             panel and overflow-hidden clips the outer cards. Panel inner width is
-            min(1280, vw - 48) - 80; the row needs ~2.24*H + gaps + the rotation
-            bulge. These three steps keep >=40px of slack at 1024/1280/1536. */}
+            min(1280, vw - 48) - 80; the row needs ~2.24*H + gaps. These three
+            steps keep >=40px of slack at 1024/1280/1536. */}
         <div
           className="relative z-10 hidden h-[21rem] cursor-grab items-start justify-center gap-4 select-none active:cursor-grabbing lg:flex xl:h-[26rem] xl:gap-6 2xl:h-[28rem]"
           onPointerDown={onDown}
