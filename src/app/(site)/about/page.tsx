@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import ScrollReveal from "@/components/animations/ScrollReveal";
+import SlideReveal from "@/components/animations/SlideReveal";
 import Testimonials from "@/components/sections/Testimonials";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SemicircleField from "@/components/ui/SemicircleField";
@@ -72,8 +73,8 @@ export default function AboutPage() {
       />
 
       {/* ABOUT US body beside the olive GENERATION semicircle (deck p07) */}
-      <section className="mx-auto mt-20 grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2 lg:gap-8">
-        <ScrollReveal>
+      <section className="mx-auto mt-20 grid max-w-7xl items-center gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-8">
+        <SlideReveal from="left">
           <SectionHeading eyebrow="Since 1968" title="ABOUT US" align="left" />
           <div className="mt-8 max-w-xl space-y-5 font-body text-espresso/85">
             <p>
@@ -93,7 +94,7 @@ export default function AboutPage() {
               a commitment to craftsmanship, customer satisfaction and innovation.
             </p>
           </div>
-        </ScrollReveal>
+        </SlideReveal>
 
         {/* min-h, not h: the stack needs ~742px at the sm/md widths, and a hard
             560px box with overflow-hidden was clipping 182px of it (the last
@@ -117,8 +118,8 @@ export default function AboutPage() {
         </SemicircleField>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 px-6 pb-24 lg:grid-cols-2">
-        <div className="rounded-card border border-olive/15 bg-cream-deep/50 p-10">
+      <section className="mx-auto grid max-w-7xl gap-6 overflow-x-clip px-6 pb-24 lg:grid-cols-2">
+        <SlideReveal from="left" className="rounded-card border border-olive/15 bg-cream-deep/50 p-10">
           <h2 className="font-display text-sm tracking-[0.16em] text-olive uppercase">
             Our Mission
           </h2>
@@ -128,8 +129,8 @@ export default function AboutPage() {
             exceeding expectations through continuous improvement, ethical practices
             and devotion to serving religious communities globally.
           </p>
-        </div>
-        <div className="rounded-card border border-olive/15 bg-cream-deep/50 p-10">
+        </SlideReveal>
+        <SlideReveal from="right" className="rounded-card border border-olive/15 bg-cream-deep/50 p-10">
           <h2 className="font-display text-sm tracking-[0.16em] text-olive uppercase">
             Our Vision
           </h2>
@@ -138,7 +139,7 @@ export default function AboutPage() {
             legacy of excellence and integrity — setting new benchmarks in quality
             and design, and enhancing the sacredness of temples across the world.
           </p>
-        </div>
+        </SlideReveal>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-24">
