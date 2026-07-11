@@ -3,9 +3,10 @@ import ScrollReveal from "@/components/animations/ScrollReveal";
 
 /**
  * QuoteInterlude — the deck's serene p30 spread: on a cream ground, the quote
- * sits left — the opening phrase in Cormorant italic olive, the continuation
- * upright in Spectral heading-brown — while a huge damask-textured olive circle
- * bleeds off the right edge (the p30 composition, via SemicircleField).
+ * sits left — the opening phrase in Inter italic olive, the continuation upright
+ * in heading-brown — while a huge damask-textured olive circle bleeds off the
+ * right edge (the p30 composition, via SemicircleField). Both lines are Inter
+ * (`font-body`): Storica is caps-only, and this line must read sentence-case.
  *
  * Server component; the only motion is the existing ScrollReveal fade-up the
  * home page already uses.

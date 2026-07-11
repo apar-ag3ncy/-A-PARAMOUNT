@@ -8,6 +8,7 @@ import QuoteInterlude from "@/components/sections/QuoteInterlude";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
 import Showcase3D from "@/components/products/Showcase3D";
 import ScrollReveal from "@/components/animations/ScrollReveal";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 export default function Home() {
   return (
@@ -25,13 +26,8 @@ export default function Home() {
       <QuoteInterlude />
 
       <section className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-24">
-        <ScrollReveal className="mb-12">
-          <p className="mb-4 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
-            Interactive
-          </p>
-          <h2 className="font-display text-4xl leading-tight font-light text-olive-deep sm:text-5xl">
-            Turn it in your hands
-          </h2>
+        <ScrollReveal className="mb-12 flex justify-center">
+          <SectionHeading eyebrow="Interactive" title="Turn it in your hands" />
         </ScrollReveal>
         <Showcase3D label="Silver Kalash" />
       </section>

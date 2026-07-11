@@ -1,8 +1,7 @@
-import Link from "next/link";
 import AssetFrame from "@/components/ui/AssetFrame";
-import SplitTextReveal from "@/components/animations/SplitTextReveal";
-import ImageMaskReveal from "@/components/animations/ImageMaskReveal";
+import SlideReveal from "@/components/animations/SlideReveal";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import Button from "@/components/ui/Button";
 
 /**
  * Editorial split — text (SplitText word reveal) beside an image that reveals via
@@ -10,18 +9,14 @@ import OrnamentDivider from "@/components/ui/OrnamentDivider";
  */
 export default function CraftStory() {
   return (
-    <section className="mx-auto grid max-w-7xl gap-12 px-6 py-16 sm:py-24 lg:grid-cols-2 lg:items-center lg:gap-20">
-      <div>
+    <section className="mx-auto grid max-w-7xl gap-12 overflow-x-clip px-6 py-16 sm:py-24 lg:grid-cols-2 lg:items-center lg:gap-20">
+      <SlideReveal from="left">
         <p className="mb-4 font-body text-xs font-medium tracking-[0.32em] text-olive/80 uppercase">
           The Craft
         </p>
-        <SplitTextReveal
-          as="h2"
-          by="words"
-          className="font-display text-4xl leading-tight font-light text-[color:var(--color-heading-brown)] sm:text-5xl"
-        >
+        <h2 className="font-display text-4xl leading-tight font-light text-[color:var(--color-heading-brown)] sm:text-5xl">
           Engineering expertise, met with artistic skill
-        </SplitTextReveal>
+        </h2>
         <OrnamentDivider className="mt-5 text-olive/50" />
         <div className="mt-7 space-y-4 font-body text-espresso/80">
           <p>
@@ -36,17 +31,24 @@ export default function CraftStory() {
             shastra guiding each proportion.
           </p>
         </div>
-        <Link
-          href="/craftsmanship"
-          className="mt-8 inline-block border-b border-olive pb-1 font-display text-xs tracking-[0.18em] text-olive-deep uppercase transition-colors hover:text-olive"
-        >
-          Discover the process &rarr;
-        </Link>
-      </div>
+        <div className="mt-8">
+          <Button variant="ghost" size="sm" href="/craftsmanship">
+            Discover the process
+          </Button>
+        </div>
+      </SlideReveal>
 
-      <ImageMaskReveal className="rounded-card">
-        <AssetFrame image={null} ratio="4/5" showLabel={false} />
-      </ImageMaskReveal>
+      <SlideReveal from="right" className="overflow-hidden rounded-card">
+        <AssetFrame
+          src="/products/wooden-carved-murti.webp"
+          image={null}
+          ratio="4/5"
+          fit="cover"
+          crop
+          showLabel={false}
+          sizes="(min-width:1024px) 42vw, 100vw"
+        />
+      </SlideReveal>
     </section>
   );
 }

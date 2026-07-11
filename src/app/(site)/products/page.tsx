@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { FAMILIES } from "@/lib/constants";
 import { getProductsByFamily } from "@/lib/data";
 import FamilyShowcase from "@/components/products/FamilyShowcase";
-import SplitTextReveal from "@/components/animations/SplitTextReveal";
-import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import PageHeader from "@/components/ui/PageHeader";
 
 export const metadata: Metadata = {
   title: "Collections",
@@ -22,23 +21,13 @@ export default async function ProductsPage() {
   );
   return (
     <div className="pt-24">
-      <header className="mx-auto max-w-4xl px-6 pb-10 text-center">
-        <p className="mb-5 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
-          The Catalogue
-        </p>
-        <SplitTextReveal
-          as="h1"
-          by="words"
-          className="font-display text-5xl leading-[1.05] font-light text-[color:var(--color-heading-brown)] sm:text-7xl"
-        >
-          Our Collections
-        </SplitTextReveal>
-        <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
-        <p className="mx-auto mt-6 max-w-xl font-body text-base text-espresso/75">
-          Four families of temple artifacts. Scroll through each — every piece is
-          handcrafted to order in your choice of material.
-        </p>
-      </header>
+      <PageHeader
+        eyebrow="The Catalogue"
+        title="Our Collections"
+        size="lg"
+        subtitle="Four families of temple artifacts. Scroll through each — every piece is handcrafted to order in your choice of material."
+        className="pb-10"
+      />
 
       {families.map((f) => (
         <FamilyShowcase

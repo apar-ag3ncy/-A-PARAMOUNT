@@ -1,6 +1,7 @@
 import Link from "next/link";
 import AssetFrame from "@/components/ui/AssetFrame";
 import type { CatalogCategory } from "@/lib/catalog";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 interface Props {
   items: CatalogCategory[];
@@ -12,9 +13,7 @@ export default function RelatedProducts({ items, familySlug }: Props) {
   if (!items.length) return null;
   return (
     <section className="mt-16 border-t border-olive/15 pt-10 sm:mt-28 sm:pt-16">
-      <h2 className="mb-10 text-center font-display text-2xl font-light text-olive-deep">
-        More from this collection
-      </h2>
+      <SectionHeading title="More from this collection" className="mb-10" />
       <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
         {items.map((p) => (
           <Link key={p.slug} href={`/products/${familySlug}/${p.slug}`} className="group">

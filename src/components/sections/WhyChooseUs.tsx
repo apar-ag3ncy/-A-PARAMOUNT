@@ -35,8 +35,8 @@ const ITEMS: Item[] = [
  * WhyChooseUs — the deck's p11–p12 spread: an olive band carrying a giant faint
  * arch-A watermark, with a rounded cream pill card floating on it. Inside the
  * pill: a filled-olive circular badge + "WHY CHOOSE US", then the four promise
- * items — each a small brand mark in an olive circle beside a title and one
- * line of copy, separated by hairline dividers.
+ * items — each a small brand mark in a taupe circle ABOVE a centred title and
+ * a line of copy, separated by hairline dividers.
  *
  * Server component; the only motion is the existing ScrollReveal fade-up.
  */
@@ -76,19 +76,27 @@ export default function WhyChooseUs() {
               {/* The four promises, hairline-divided on wide screens */}
               <div className="grid gap-10 sm:grid-cols-2 xl:flex-1 xl:grid-cols-4 xl:gap-0 xl:divide-x xl:divide-olive/20">
                 {ITEMS.map(({ Icon, title, body }) => (
-                  <div key={title} className="flex items-start gap-4 xl:px-7">
+                  // Icon ON TOP of the title (not beside it): in a narrow 4-up
+                  // band the chip-beside-title layout squeezed the title so
+                  // "Authentic Craftsmanship" collided with the next item's chip.
+                  // Stacked + centred, each title gets the full column width.
+                  <div
+                    key={title}
+                    className="flex flex-col items-center gap-3 text-center xl:px-6"
+                  >
                     {/* Deck p11 fills these chips taupe — the token exists for exactly this. */}
                     <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-taupe/85 text-cream ring-1 ring-taupe">
                       <Icon className="h-6 w-6" />
                     </span>
-                    <div>
-                      <h3 className="font-display text-base leading-snug font-medium text-heading-brown">
-                        {title}
-                      </h3>
-                      <p className="mt-1.5 font-body text-sm leading-relaxed text-espresso/75">
-                        {body}
-                      </p>
-                    </div>
+                    {/* Reserve three lines of title so the tallest one does not
+                        push its body below the others' — bodies stay level
+                        across the row. Mobile stack is natural, no reserve. */}
+                    <h3 className="font-display text-sm leading-snug font-medium text-heading-brown uppercase tracking-[0.06em] sm:min-h-[3.75rem]">
+                      {title}
+                    </h3>
+                    <p className="max-w-[24ch] font-body text-sm leading-relaxed text-espresso/75">
+                      {body}
+                    </p>
                   </div>
                 ))}
               </div>

@@ -1,4 +1,5 @@
 import MarqueeRow from "@/components/animations/MarqueeRow";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 // A sample of the 242-institution roster (PARAMOUNT_CONTENT.md §8).
 const CLIENTS = [
@@ -16,13 +17,12 @@ const CLIENTS = [
 export default function Testimonials() {
   return (
     <section className="border-y border-olive/15 py-20 text-center">
-      <p className="font-display text-[11px] tracking-[0.28em] text-olive uppercase">
-        Trusted across the world
-      </p>
-      <h2 className="mx-auto mt-3 max-w-2xl px-6 font-display text-3xl leading-tight font-light text-olive-deep sm:text-4xl">
-        242 temples &amp; trusts served since 1968
-      </h2>
-      <p className="mt-3 px-6 font-body text-espresso/70">
+      <SectionHeading
+        eyebrow="Trusted across the world"
+        title="242 temples & trusts served since 1968"
+        className="mx-auto max-w-2xl px-6"
+      />
+      <p className="mt-4 px-6 font-body text-espresso/70">
         Across India — and Nepal, the USA, Japan and Belgium.
       </p>
       <div className="mt-12">

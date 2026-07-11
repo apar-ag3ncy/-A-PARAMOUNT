@@ -3,10 +3,11 @@ import { Noto_Serif_Devanagari } from "next/font/google";
 
 /*
  * BRAND FONTS — the real client-supplied faces (../../FONTS), wired via
- * next/font/local. Storica-Medium is the display/logo face; Inter is the body
- * face. These are the ONLY two families the brand uses. The previous Google
- * stand-ins (Spectral for Storica, Cormorant Garamond for the italic accent)
- * are gone.
+ * next/font/local. These are the ONLY two families the brand uses:
+ *   Storica-Medium — display / headings / the "PARAMOUNT" logotype
+ *   Inter          — body, UI, and the sole italic (a real italic file)
+ * No other Latin face is loaded, and none is drawn as a synthesized fallback
+ * (globals.css sets `font-synthesis: none`).
  *
  * Noto Serif Devanagari stays: it is NOT a brand face but the only way to draw
  * the Devanagari mantra/product names (LoadingScreen, marquee) — neither Storica
@@ -24,8 +25,8 @@ export const storica = localFont({
   display: "swap",
 });
 
-// Body / UI — Inter, the real variable font (one file covers every weight; the
-// italic axis is a second file). Replaces the Google Inter import.
+// Body / UI — Inter, the real variable font: one file covers every weight, the
+// italic axis is a second file. Both are local, not fetched from a CDN.
 export const inter = localFont({
   src: [
     { path: "../fonts/Inter-Variable.ttf", weight: "100 900", style: "normal" },

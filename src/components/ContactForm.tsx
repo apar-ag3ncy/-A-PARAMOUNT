@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { CONTACT } from "@/lib/constants";
 import { CATEGORIES } from "@/lib/catalog";
+import Button from "@/components/ui/Button";
 
 const schema = z.object({
   name: z.string().min(1, "Required"),
@@ -17,7 +18,7 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 const field =
-  "w-full rounded-button border border-olive/30 bg-cream px-4 py-3 font-body text-espresso placeholder:text-espresso/40 focus:border-olive focus:outline-none";
+  "w-full rounded-xl border border-olive/30 bg-cream px-4 py-3 font-body text-espresso transition-colors placeholder:text-espresso/40 focus:border-olive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold";
 const errCls = "mt-1 font-body text-xs text-[color:var(--color-heading-brown)]";
 
 /**
@@ -99,13 +100,9 @@ export default function ContactForm() {
         />
         {errors.message && <p className={errCls}>{errors.message.message}</p>}
       </div>
-      <button
-        type="submit"
-        disabled={isSubmitting}
-        className="rounded-button bg-olive px-8 py-3.5 font-display text-sm tracking-[0.18em] text-cream uppercase transition-colors hover:bg-olive-deep disabled:opacity-60"
-      >
+      <Button type="submit" variant="solid" size="lg" disabled={isSubmitting}>
         {isSubmitting ? "Sending…" : "Send enquiry"}
-      </button>
+      </Button>
       {failed && (
         <p className="font-body text-sm text-[color:var(--color-heading-brown)]">
           The enquiry service isn’t connected yet — please email us directly at{" "}

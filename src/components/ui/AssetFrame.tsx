@@ -151,7 +151,7 @@ export default function AssetFrame({
       <div
         ref={frameRef}
         className={cn(
-          "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0] [contain:content]",
+          "relative overflow-hidden rounded-image border border-olive/40 bg-gradient-to-b from-cream-deep to-[#E9DBC0] shadow-[0_12px_34px_-18px_rgba(46,35,19,0.34)] [contain:content]",
           fill && "h-full w-full",
           // height-driven derives width from height × ratio; cap it so a wide
           // photo can never push past the viewport on a small screen.

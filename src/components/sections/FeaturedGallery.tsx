@@ -6,20 +6,19 @@ import { type CSSProperties, useCallback, useRef, useState } from "react";
 import { CATEGORIES } from "@/lib/catalog";
 import { FAMILIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import Button from "@/components/ui/Button";
 
 /**
- * "Selected Works" — the reference layout: a warm near-black panel, a huge
- * "OUR WORKS" title with a small note beside it, and five product cards
- * arranged as a SYMMETRIC FAN.
+ * "Selected Works" — a warm near-black panel, a huge "OUR WORKS" title with a
+ * small note beside it, and five product cards in a gentle upright arc.
  *
- * Fan geometry, measured off the reference:
- *  • card tops are ~level, and cards grow taller toward the centre, so their
- *    bottoms sweep down in an arc;
- *  • the outer cards tilt away from centre (left CCW, right CW — confirmed
- *    from the slope of each card's label);
- *  • the centre card is upright, largest, "featured": it carries a tag pill and
- *    a bigger, sentence-case name (Inter — Storica is caps-only), while the
- *    outer cards use small tracked caps.
+ * Geometry:
+ *  • all cards stand UPRIGHT (no tilt) — the arc comes purely from the heights
+ *    growing toward the centre, so their bottoms sweep down while the tops stay
+ *    near-level;
+ *  • the centre card is largest, "featured": it carries a tag pill and a bigger,
+ *    sentence-case name (Inter — Storica is caps-only), while the outer cards use
+ *    small tracked caps.
  *
  * NOTHING IS CROPPED. Each slot fixes only the card's HEIGHT (that is what
  * draws the arc); the width is derived by the browser from the photo's own
@@ -31,11 +30,11 @@ import { cn } from "@/lib/utils";
  * divistand, dhwajadand) therefore live on their category pages, not here.
  *
  * Because width follows height, the row height is stepped per breakpoint so the
- * five widths + gaps + the rotation bulge always fit the panel's inner width
- * (min(1280, vw - 48) - 80). A single fixed height would clip at lg.
+ * five widths + gaps always fit the panel's inner width (min(1280, vw - 48) -
+ * 80). A single fixed height would clip at lg.
  *
- * Below `lg` the fan collapses to a plain snap-scroll rail (a rotated fan is
- * unreadable on a phone); the same arrows then scroll that rail. Those cards are
+ * Below `lg` the arc collapses to a plain snap-scroll rail; the same arrows then
+ * scroll that rail. Those cards are
  * ratio-matched too.
  */
 
@@ -75,15 +74,16 @@ const VISIBLE = 5;
  *  row); width follows the photo's aspect-ratio. Tops sit near-level, so the
  *  growing heights are what sweep the bottoms into an arc. */
 const FAN = [
-  { h: "68%", rot: -9, lift: -8 },
-  { h: "82%", rot: -5, lift: -3 },
+  { h: "68%", rot: 0, lift: -8 },
+  { h: "82%", rot: 0, lift: -3 },
   { h: "100%", rot: 0, lift: 0 }, // featured
-  { h: "82%", rot: 5, lift: -3 },
-  { h: "68%", rot: 9, lift: -8 },
+  { h: "82%", rot: 0, lift: -3 },
+  { h: "68%", rot: 0, lift: -8 },
 ];
 
 export default function FeaturedGallery() {
   const railRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ x: number; moved: boolean } | null>(null);
   const [start, setStart] = useState(0);
 
   const step = useCallback((dir: number) => {
@@ -98,6 +98,31 @@ export default function FeaturedGallery() {
     const by = card ? card.offsetWidth + 20 : rail.clientWidth * 0.8;
     rail.scrollBy({ left: dir * by, behavior: "smooth" });
   }, []);
+
+  // Horizontal drag/swipe advances the fan (desktop) — so it responds to the
+  // hand, not only the arrows. A drag past the threshold also suppresses the
+  // card's navigation on release, so a swipe never opens a product by accident.
+  const onDown = (e: React.PointerEvent) => {
+    drag.current = { x: e.clientX, moved: false };
+  };
+  const onMove = (e: React.PointerEvent) => {
+    if (drag.current && Math.abs(e.clientX - drag.current.x) > 8)
+      drag.current.moved = true;
+  };
+  const onUp = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); // drag left → next
+  };
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (drag.current?.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    drag.current = null;
+  };
+
 
   if (ITEMS.length < VISIBLE) return null;
 
@@ -140,13 +165,20 @@ export default function FeaturedGallery() {
           </div>
         </div>
 
-        {/* ---------- desktop: the fan ----------
+        {/* ---------- desktop: the upright arc ----------
             The row HEIGHT drives the card widths (width = height x photo ratio),
-            so the height must shrink with the viewport or the fan overflows the
+            so the height must shrink with the viewport or the row overflows the
             panel and overflow-hidden clips the outer cards. Panel inner width is
-            min(1280, vw - 48) - 80; the row needs ~2.24*H + gaps + the rotation
-            bulge. These three steps keep >=40px of slack at 1024/1280/1536. */}
-        <div className="relative z-10 hidden h-[21rem] items-start justify-center gap-4 lg:flex xl:h-[26rem] xl:gap-6 2xl:h-[28rem]">
+            min(1280, vw - 48) - 80; the row needs ~2.24*H + gaps. These three
+            steps keep >=40px of slack at 1024/1280/1536. */}
+        <div
+          className="relative z-10 hidden h-[21rem] cursor-grab items-start justify-center gap-4 select-none active:cursor-grabbing lg:flex xl:h-[26rem] xl:gap-6 2xl:h-[28rem]"
+          onPointerDown={onDown}
+          onPointerMove={onMove}
+          onPointerUp={onUp}
+          onPointerLeave={() => (drag.current = null)}
+          onClickCapture={onClickCapture}
+        >
           {fanned.map((c, slot) => {
             const g = FAN[slot];
             const featured = slot === 2;
@@ -280,15 +312,9 @@ export default function FeaturedGallery() {
             ))}
           </div>
 
-          <Link
-            href="/products"
-            className="group inline-flex items-center gap-2 font-display text-[11px] tracking-[0.24em] text-cream/60 uppercase transition-colors hover:text-gold"
-          >
+          <Button variant="ghost" tone="dark" size="sm" href="/products">
             View all collections
-            <span className="transition-transform duration-300 group-hover:translate-x-1">
-              →
-            </span>
-          </Link>
+          </Button>
         </div>
       </div>
     </section>

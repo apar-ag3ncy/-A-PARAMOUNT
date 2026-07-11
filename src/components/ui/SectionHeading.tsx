@@ -3,7 +3,7 @@ import OrnamentDivider from "./OrnamentDivider";
 interface Props {
   /** Optional tracked-caps kicker above the title (e.g. "OUR STORY"). */
   eyebrow?: string;
-  /** The heading text — rendered in font-display (Spectral). */
+  /** The heading text — rendered in font-display (Storica). */
   title: string;
   /** Horizontal alignment of the block. Defaults to "center". */
   align?: "left" | "center";
@@ -14,7 +14,7 @@ interface Props {
 
 /**
  * SectionHeading — the deck's universal section-header pattern (p07): an optional
- * tracked-caps eyebrow, the `title` in `font-display` (Spectral), and an
+ * tracked-caps eyebrow, the `title` in `font-display` (Storica), and an
  * `OrnamentDivider` beneath. Use tracked caps for short section labels ("ABOUT US")
  * or title-case for headings.
  *
