@@ -33,30 +33,29 @@ High-res deck references (read these images directly):
 **NO maroon/oxblood anywhere.** `#431716` is a dark *brown* used only as heading text color
 (as in the deck) — it is NOT a maroon panel fill. Keep velvet/interlude panels olive.
 
-## 2. Typography — the deck's fonts
+## 2. Typography — the brand fonts (SHIPPED)
 
-The deck's real fonts are **Storica** (display) + **Juana** (italic accent), both commercial
-and only present as incomplete PDF subsets — they cannot be legally/completely reproduced.
-Use the closest properly-licensed Google fonts (verified by specimen against the deck):
+The client supplied the real brand faces, so there are no stand-ins: the site loads
+**Storica-Medium** (display) and **Inter** (body + italic), wired via `next/font/local`
+from `src/fonts`. Nothing else is drawn — `body { font-synthesis: none }` blocks any
+faked oblique or weight.
 
-- **Display / headings / section titles / product names → `Spectral`** (serif). Replaces
-  Poppins. Weights 400/500/600, plus italic available. Warm even-contrast serif matching
-  the deck's "Crafting Divine".
-- **Italic editorial accent → `Cormorant_Garamond`** (use *italic*). Replaces Playfair.
-  Weights 500/600. Flowing calligraphic italic matching the deck's "*Elegance*".
-- **Body / UI → `Inter`** (unchanged — the deck's body font).
-- **Devanagari product names → `Noto_Serif_Devanagari`** (unchanged).
+- **Display / headings / section titles / product names → Storica-Medium** (`--font-display`).
+  One Medium cut; its lowercase are cap-height letterforms, so it is effectively all-caps.
+- **Every italic accent → Inter italic** (`--font-body` + the `italic` class). Storica has
+  no italic file, so the accent uses the real `Inter-Italic-Variable.ttf`. There is
+  deliberately **no `--font-serif`** — it used to alias Storica and made the browser fake a
+  slant on a face with `italicAngle 0`.
+- **Body / UI → Inter** (`--font-body`).
+- **Devanagari product names/mantra → `Noto_Serif_Devanagari`** — script glyphs only, never
+  Latin text (Storica/Inter carry no Devanagari).
 
-### Wiring (edit `src/styles/fonts.ts` + `src/app/globals.css`)
-- `fonts.ts`: replace the `Poppins` import/export with `Spectral` (var `--font-spectral`),
-  and `Playfair_Display` with `Cormorant_Garamond` (var `--font-cormorant`, styles
-  normal+italic). Keep the exported `fontVariables` join updated. Keep Inter + Noto.
-- `globals.css`: remap `--font-display: var(--font-spectral)` and
-  `--font-serif: var(--font-cormorant)`. Leave `--font-body`/`--font-sans` on Inter.
-- Add a one-line comment block in fonts.ts: "To use the exact brand fonts, drop
-  Storica/Juana `.woff2` into src/fonts and swap these `next/font/google` calls for
-  `next/font/local` — the CSS variables downstream stay identical." (documentation only.)
-- The **wordmark/logo stays the real PNG** — do not re-typeset "A PARAMOUNT".
+### Wiring (`src/styles/fonts.ts` + `src/app/globals.css`)
+- `fonts.ts`: `localFont` for Storica (weight 500) + Inter (normal & italic axes); the
+  Google `Noto_Serif_Devanagari` stays for script. Export `fontVariables` (applied to `<html>`).
+- `globals.css` `@theme`: `--font-display: var(--font-storica)`, `--font-body`/`--font-sans:
+  var(--font-inter)`, `--font-devanagari: var(--font-noto-devanagari)`. No `--font-serif`.
+- The **wordmark/logo is live text** (`Wordmark.tsx`, set in Storica) — do not re-typeset.
 
 ## 3. Motif catalog (rebuild as crisp SVG — tintable via currentColor)
 
@@ -91,7 +90,7 @@ Exact APIs — the application agents depend on these signatures:
   width?: "sm" | "md" | "lg" })`. Hairline + diamonds + ArchMark medallion, `currentColor`;
   color set by parent text color (e.g. `text-[#E2CA82]/70` gold, or `text-olive/50`).
 - `SectionHeading.tsx` — `({ eyebrow?, title, align?, tone?, className? })`. Renders an
-  optional tracked-caps eyebrow, the `title` in `font-display` (Spectral) — tracked caps for
+  optional tracked-caps eyebrow, the `title` in `font-display` (Storica) — tracked caps for
   short section labels ("ABOUT US") or title-case for headings — and an `OrnamentDivider`
   beneath. `tone`: "olive" (default) | "cream" (for use on olive grounds). This is the
   deck's universal section-header pattern (`p07`). Reuse it everywhere a section opens.
@@ -113,10 +112,10 @@ Exact APIs — the application agents depend on these signatures:
 ## 5. Application map (Phase 2) — where each goes, without breaking approved work
 
 - **globals.css / layout**: fonts swapped (§2). Every existing `font-display` heading now
-  renders in Spectral serif automatically; every `font-serif italic` accent now Cormorant.
+  renders in Storica automatically; every italic accent is `font-body italic` (Inter).
   Sanity-check that nothing set an explicit `font-family` that bypasses the vars.
 - **CinematicHero** (`sections/CinematicHero.tsx`): the eyebrow/tagline + "Crafting Divine
-  Elegance" wordplay — ensure the italic accent word uses `font-serif` (Cormorant) and the
+  Elegance" wordplay — ensure the italic accent word uses `font-body italic` (Inter) and the
   divider under it is the refined `OrnamentDivider`. Do NOT touch the logo image, the scroll
   scrub, the door handoff, or the ambient tweens.
 - **DevotionStatement** (`sections/DevotionStatement.tsx`): already a full-screen olive
@@ -129,7 +128,7 @@ Exact APIs — the application agents depend on these signatures:
 - **Product family + detail pages** (`products/*`, `CategoryBrowser`, `FamilyShowcase`):
   swap material chips → `VariantChip`; where the deck frames a hero product in a circle,
   offer a circular framing option (keep the existing masonry otherwise).
-- **Footer / contact**: match the deck's centered contact treatment (`p117`) — Spectral,
+- **Footer / contact**: match the deck's centered contact treatment (`p117`) — Storica,
   tracked caps, ornament divider, cream ground.
 
 ## 6. Guardrails
