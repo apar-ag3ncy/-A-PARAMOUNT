@@ -84,6 +84,7 @@ const FAN = [
 
 export default function FeaturedGallery() {
   const railRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ x: number; moved: boolean } | null>(null);
   const [start, setStart] = useState(0);
 
   const step = useCallback((dir: number) => {
@@ -98,6 +99,31 @@ export default function FeaturedGallery() {
     const by = card ? card.offsetWidth + 20 : rail.clientWidth * 0.8;
     rail.scrollBy({ left: dir * by, behavior: "smooth" });
   }, []);
+
+  // Horizontal drag/swipe advances the fan (desktop) — so it responds to the
+  // hand, not only the arrows. A drag past the threshold also suppresses the
+  // card's navigation on release, so a swipe never opens a product by accident.
+  const onDown = (e: React.PointerEvent) => {
+    drag.current = { x: e.clientX, moved: false };
+  };
+  const onMove = (e: React.PointerEvent) => {
+    if (drag.current && Math.abs(e.clientX - drag.current.x) > 8)
+      drag.current.moved = true;
+  };
+  const onUp = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    const dx = e.clientX - d.x;
+    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); // drag left → next
+  };
+  const onClickCapture = (e: React.MouseEvent) => {
+    if (drag.current?.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    drag.current = null;
+  };
+
 
   if (ITEMS.length < VISIBLE) return null;
 
@@ -146,7 +172,14 @@ export default function FeaturedGallery() {
             panel and overflow-hidden clips the outer cards. Panel inner width is
             min(1280, vw - 48) - 80; the row needs ~2.24*H + gaps + the rotation
             bulge. These three steps keep >=40px of slack at 1024/1280/1536. */}
-        <div className="relative z-10 hidden h-[21rem] items-start justify-center gap-4 lg:flex xl:h-[26rem] xl:gap-6 2xl:h-[28rem]">
+        <div
+          className="relative z-10 hidden h-[21rem] cursor-grab items-start justify-center gap-4 select-none active:cursor-grabbing lg:flex xl:h-[26rem] xl:gap-6 2xl:h-[28rem]"
+          onPointerDown={onDown}
+          onPointerMove={onMove}
+          onPointerUp={onUp}
+          onPointerLeave={() => (drag.current = null)}
+          onClickCapture={onClickCapture}
+        >
           {fanned.map((c, slot) => {
             const g = FAN[slot];
             const featured = slot === 2;
