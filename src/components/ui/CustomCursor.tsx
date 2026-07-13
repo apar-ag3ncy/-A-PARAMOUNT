@@ -5,14 +5,13 @@ import { gsap } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 /**
- * Desktop custom cursor: the brand arch-"A" monogram IS the pointer, tilted a
- * touch to the left like a real arrow cursor. Its hotspot is the arch tip (top
- * centre), so the mark sits with its point exactly where you're pointing, and it
- * scales up a touch over interactive elements. Skipped on touch; the native
- * cursor is hidden only while this is active.
+ * Desktop custom cursor: the brand arch-"A" monogram IS the pointer, standing
+ * perfectly upright (no tilt). Its hotspot is the arch tip (top centre), so the
+ * mark sits with its point exactly where you're pointing, and it scales up a
+ * touch over interactive elements. It eases toward the pointer for a smooth
+ * glide rather than snapping. Skipped on touch; the native cursor is hidden only
+ * while this is active.
  */
-const TILT = -15; // degrees — the slight leftward lean of a normal cursor
-
 export default function CustomCursor() {
   const markRef = useRef<HTMLDivElement>(null);
 
@@ -21,17 +20,17 @@ export default function CustomCursor() {
     const mark = markRef.current;
     if (!mark) return;
 
-    // Anchor the mark by its top-centre (the arch tip) and lean it left.
+    // Anchor the mark by its top-centre (the arch tip), standing upright.
     gsap.set(mark, {
       xPercent: -50,
       yPercent: 0,
-      rotation: TILT,
+      rotation: 0,
       transformOrigin: "50% 0%",
     });
 
-    // Tracks nearly 1:1 so it stays crisp with the pointer.
-    const xMark = gsap.quickTo(mark, "x", { duration: 0.09, ease: "power2" });
-    const yMark = gsap.quickTo(mark, "y", { duration: 0.09, ease: "power2" });
+    // Eases toward the pointer for a smooth glide — a gentle follow, not a snap.
+    const xMark = gsap.quickTo(mark, "x", { duration: 0.2, ease: "power3" });
+    const yMark = gsap.quickTo(mark, "y", { duration: 0.2, ease: "power3" });
 
     const move = (e: MouseEvent) => {
       xMark(e.clientX);

@@ -2,7 +2,6 @@ import CinematicHero from "@/components/sections/CinematicHero";
 import DoorScroll from "@/components/sections/DoorScroll";
 import FeaturedFamilies from "@/components/sections/FeaturedFamilies";
 import FeaturedGallery from "@/components/sections/FeaturedGallery";
-import DevotionStatement from "@/components/sections/DevotionStatement";
 import CraftStory from "@/components/sections/CraftStory";
 import QuoteInterlude from "@/components/sections/QuoteInterlude";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
@@ -19,7 +18,6 @@ export default function Home() {
       <CinematicHero />
       <FeaturedFamilies />
       <FeaturedGallery />
-      <DevotionStatement />
       <CraftStory />
 
       {/* Deck p30 interlude — "Shaped by devotion," + olive damask circle */}

@@ -2,45 +2,27 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { type CSSProperties, useCallback, useRef, useState } from "react";
+import { type CSSProperties, useRef } from "react";
+import { gsap } from "@/lib/gsap";
 import { CATEGORIES } from "@/lib/catalog";
-import { FAMILIES } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import Button from "@/components/ui/Button";
+import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 /**
- * "Selected Works" — a warm near-black panel, a huge "OUR WORKS" title with a
- * small note beside it, and five product cards in a gentle upright arc.
+ * "Our Works" — a light, airy hero (reference video): a soft cream-gradient
+ * panel with a centred pill eyebrow, heading and line, then an endlessly
+ * drifting ribbon of portrait works and a centred call to action. The cards ride
+ * a CONVEX ARC — the one nearest the centre stands upright, tallest and largest,
+ * while cards fan outward (rotating away, dropping and shrinking a touch) toward
+ * both edges; each straightens as it passes the middle and leans as it exits, so
+ * the ribbon reads like a slow carousel. Hover pauses the drift and reveals a
+ * card's title while its photo slow-zooms. Reduced-motion stops the drift and
+ * lets the strip be scrolled by hand.
  *
- * Geometry:
- *  • all cards stand UPRIGHT (no tilt) — the arc comes purely from the heights
- *    growing toward the centre, so their bottoms sweep down while the tops stay
- *    near-level;
- *  • the centre card is largest, "featured": it carries a tag pill and a bigger,
- *    sentence-case name (Inter — Storica is caps-only), while the outer cards use
- *    small tracked caps.
- *
- * NOTHING IS CROPPED. Each slot fixes only the card's HEIGHT (that is what
- * draws the arc); the width is derived by the browser from the photo's own
- * intrinsic `aspect-ratio`, so the frame always matches the image exactly and
- * `object-cover` has no overflow to discard. This is why every WORK below is a
- * portrait photo of the same ~0.56 ratio: mixing a 1.34 landscape into this fan
- * would either crop it or blow the card's width out past its neighbours. Pieces
- * that own only landscape/square photography (kalash, mandir, chattar,
- * divistand, dhwajadand) therefore live on their category pages, not here.
- *
- * Because width follows height, the row height is stepped per breakpoint so the
- * five widths + gaps always fit the panel's inner width (min(1280, vw - 48) -
- * 80). A single fixed height would clip at lg.
- *
- * Below `lg` the arc collapses to a plain snap-scroll rail; the same arrows then
- * scroll that rail. Those cards are
- * ratio-matched too.
+ * NOTHING IS CROPPED: each card fixes only its HEIGHT and derives its width from
+ * the photo's own aspect-ratio. Every WORK is therefore a ~0.56 portrait.
  */
-
-/** Curated: the strongest portrait photo of each piece, chosen by eye. Ordered
- *  so tones alternate gold/silver and adjacent silhouettes differ; the piece at
- *  index 2 lands in the upright centre slot on first paint. */
 const WORKS = [
   { slug: "brass-gate", src: "/gallery/brass-gate/all/00.webp", w: 900, h: 1600 },
   { slug: "rath", src: "/gallery/rath/all/03.webp", w: 900, h: 1600 },
@@ -52,8 +34,6 @@ const WORKS = [
   { slug: "vyaakhyan-paat", src: "/gallery/vyaakhyan-paat/all/04.webp", w: 893, h: 1600 },
 ] as const;
 
-const FAMILY_TITLE = new Map(FAMILIES.map((f) => [f.slug, f.title]));
-
 // Derived from module constants — resolve once, outside render.
 const ITEMS = WORKS.map((work) => {
   const category = CATEGORIES.find((c) => c.slug === work.slug);
@@ -62,257 +42,194 @@ const ITEMS = WORKS.map((work) => {
     ...work,
     title: category.title,
     href: `/products/${category.family}/${category.slug}`,
-    // The photo's own group label is "All" for most pieces, so the pill names
-    // the family rather than inventing a material the photo may not show.
-    tag: FAMILY_TITLE.get(category.family) ?? "",
   };
 }).filter((x): x is NonNullable<typeof x> => x !== null);
 
-const VISIBLE = 5;
-
-/** Per-slot fan geometry, centre = slot 2. Only the HEIGHT is set (as a % of the
- *  row); width follows the photo's aspect-ratio. Tops sit near-level, so the
- *  growing heights are what sweep the bottoms into an arc. */
-const FAN = [
-  { h: "68%", rot: 0, lift: -8 },
-  { h: "82%", rot: 0, lift: -3 },
-  { h: "100%", rot: 0, lift: 0 }, // featured
-  { h: "82%", rot: 0, lift: -3 },
-  { h: "68%", rot: 0, lift: -8 },
-];
+// Arc shape: p is a card's centre distance from the strip centre, normalised so
+// the viewport edges are ~±1. Centre card → upright/tall/large; edges fan out.
+const ROT = 8; // deg of lean at the edge
+const DROP = 46; // px the edge cards sink below the centre one
+const SHRINK = 0.07; // edge cards scale down by this much
 
 export default function FeaturedGallery() {
-  const railRef = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ x: number; moved: boolean } | null>(null);
-  const [start, setStart] = useState(0);
+  const sectionRef = useRef<HTMLElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const drift = useRef<gsap.core.Tween | null>(null);
 
-  const step = useCallback((dir: number) => {
-    // Desktop: advance the fan window. Mobile: scroll the rail.
-    if (window.matchMedia("(min-width: 1024px)").matches) {
-      setStart((s) => (s + dir + ITEMS.length) % ITEMS.length);
-      return;
-    }
-    const rail = railRef.current;
-    if (!rail) return;
-    const card = rail.querySelector<HTMLElement>("[data-card]");
-    const by = card ? card.offsetWidth + 20 : rail.clientWidth * 0.8;
-    rail.scrollBy({ left: dir * by, behavior: "smooth" });
+  useIsomorphicLayoutEffect(() => {
+    const section = sectionRef.current;
+    const scroller = scrollRef.current;
+    const row = rowRef.current;
+    if (!section || !scroller || !row) return;
+    const cards = Array.from(row.children) as HTMLElement[];
+
+    // Lay each card on the arc from its live on-screen position (read-all then
+    // write-all, so 16 cards never thrash layout).
+    const layout = () => {
+      const box = scroller.getBoundingClientRect();
+      const mid = box.left + box.width / 2;
+      const half = box.width / 2 || 1;
+      const ps = cards.map((c) => {
+        const r = c.getBoundingClientRect();
+        return (r.left + r.width / 2 - mid) / half;
+      });
+      cards.forEach((c, i) => {
+        const p = Math.max(-1.4, Math.min(1.4, ps[i]));
+        const a = Math.min(Math.abs(p), 1);
+        c.style.transform = `translateY(${p * p * DROP}px) rotate(${p * ROT}deg) scale(${1 - a * SHRINK})`;
+        c.style.zIndex = String(Math.round(50 - a * 40));
+      });
+    };
+
+    const ctx = gsap.context(() => {
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // row = [set][duplicate]; drifting exactly one set (-50%) loops seamlessly.
+        drift.current = gsap.to(row, {
+          xPercent: -50,
+          duration: 46,
+          ease: "none",
+          repeat: -1,
+        });
+        layout();
+        let ticking = false;
+        const start = () => {
+          if (ticking) return;
+          gsap.ticker.add(layout);
+          ticking = true;
+        };
+        const stop = () => {
+          if (!ticking) return;
+          gsap.ticker.remove(layout);
+          ticking = false;
+        };
+        const io = new IntersectionObserver(
+          ([e]) => {
+            if (e.isIntersecting) {
+              drift.current?.play();
+              start();
+            } else {
+              drift.current?.pause();
+              stop();
+            }
+          },
+          { threshold: 0 },
+        );
+        io.observe(section);
+        return () => {
+          stop();
+          io.disconnect();
+        };
+      });
+
+      // Reduced motion: no drift — a static arc, scrollable by hand.
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        scroller.style.overflowX = "auto";
+        layout();
+      });
+    }, section);
+    return () => ctx.revert();
   }, []);
 
-  // Horizontal drag/swipe advances the fan (desktop) — so it responds to the
-  // hand, not only the arrows. A drag past the threshold also suppresses the
-  // card's navigation on release, so a swipe never opens a product by accident.
-  const onDown = (e: React.PointerEvent) => {
-    drag.current = { x: e.clientX, moved: false };
-  };
-  const onMove = (e: React.PointerEvent) => {
-    if (drag.current && Math.abs(e.clientX - drag.current.x) > 8)
-      drag.current.moved = true;
-  };
-  const onUp = (e: React.PointerEvent) => {
-    const d = drag.current;
-    if (!d) return;
-    const dx = e.clientX - d.x;
-    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1); // drag left → next
-  };
-  const onClickCapture = (e: React.MouseEvent) => {
-    if (drag.current?.moved) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    drag.current = null;
+  if (ITEMS.length < 5) return null;
+
+  // Ease the drift to a stop on hover (and back) for a considered pause.
+  const setPaused = (paused: boolean) => {
+    if (drift.current)
+      gsap.to(drift.current, { timeScale: paused ? 0 : 1, duration: 0.5, overwrite: true });
   };
 
-
-  if (ITEMS.length < VISIBLE) return null;
-
-  const fanned = Array.from(
-    { length: VISIBLE },
-    (_, i) => ITEMS[(start + i) % ITEMS.length],
-  );
+  const loop = [...ITEMS, ...ITEMS];
 
   return (
-    <section className="bg-cream px-4 py-16 sm:px-6 sm:py-24">
+    <section
+      ref={sectionRef}
+      aria-label="Our works"
+      className="bg-cream px-4 py-16 sm:px-6 sm:py-24"
+    >
       <div
-        className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] px-6 py-14 text-cream ring-1 ring-cream/10 sm:px-10 sm:py-16"
+        className="relative mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] px-6 py-16 text-center ring-1 ring-olive/12 shadow-[0_44px_100px_-56px_rgba(46,35,19,0.45)] sm:px-10 sm:py-20"
         style={{
           background:
-            "radial-gradient(120% 100% at 15% 0%, var(--color-velvet-200) 0%, var(--color-velvet-300) 55%, var(--color-velvet-500) 100%)",
+            "radial-gradient(125% 120% at 50% 0%, #FFFDF6 0%, #FEF4DA 46%, #FAEAC6 100%)",
         }}
       >
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0"
-          style={{
-            background:
-              "radial-gradient(50% 60% at 12% 0%, rgb(var(--gold-rgb) / 0.16), transparent 60%)",
-          }}
-        />
-
-        {/* header — small note beside the huge title, as in the reference */}
-        <div className="relative z-10 mb-12 flex flex-col items-start gap-5 sm:flex-row sm:items-end sm:gap-10">
-          <p className="max-w-[15rem] font-body text-[13px] leading-relaxed text-cream/55">
-            Three generations of engineering and artistry — each piece
-            handcrafted for Jain derasars and Hindu temples.
-          </p>
-          <div>
-            <p className="mb-2 font-display text-[11px] tracking-[0.34em] text-gold uppercase">
-              Selected Works
-            </p>
-            <h2 className="font-display text-[clamp(2.6rem,7vw,5.5rem)] leading-[0.9] font-light text-cream">
-              Our Works
-            </h2>
-          </div>
-        </div>
-
-        {/* ---------- desktop: the upright arc ----------
-            The row HEIGHT drives the card widths (width = height x photo ratio),
-            so the height must shrink with the viewport or the row overflows the
-            panel and overflow-hidden clips the outer cards. Panel inner width is
-            min(1280, vw - 48) - 80; the row needs ~2.24*H + gaps. These three
-            steps keep >=40px of slack at 1024/1280/1536. */}
-        <div
-          className="relative z-10 hidden h-[21rem] cursor-grab items-start justify-center gap-4 select-none active:cursor-grabbing lg:flex xl:h-[26rem] xl:gap-6 2xl:h-[28rem]"
-          onPointerDown={onDown}
-          onPointerMove={onMove}
-          onPointerUp={onUp}
-          onPointerLeave={() => (drag.current = null)}
-          onClickCapture={onClickCapture}
-        >
-          {fanned.map((c, slot) => {
-            const g = FAN[slot];
-            const featured = slot === 2;
-            return (
-              <Link
-                key={`${c.slug}-${slot}`}
-                href={c.href}
-                data-fan-card
-                className={cn(
-                  "group relative w-auto shrink-0 overflow-hidden rounded-[22px] shadow-[0_24px_50px_-24px_rgba(0,0,0,0.85)] transition-transform duration-500 ease-out hover:z-10",
-                  "focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
-                  // Hover grows the CARD, not the image inside it. Zooming an
-                  // image within a fixed frame would crop it; scaling the frame
-                  // and the image together keeps the photo whole.
-                  "[transform:translateY(var(--lift))_rotate(var(--rot))]",
-                  "hover:[transform:translateY(calc(var(--lift)_-_10px))_rotate(var(--rot))_scale(1.04)]",
-                )}
-                style={
-                  {
-                    height: g.h,
-                    aspectRatio: `${c.w} / ${c.h}`,
-                    "--lift": `${g.lift}px`,
-                    "--rot": `${g.rot}deg`,
-                  } as CSSProperties
-                }
-              >
-                <Image
-                  src={c.src}
-                  alt=""
-                  fill
-                  sizes="(min-width: 1024px) 22vw, 1px"
-                  className="object-cover"
-                />
-                {/* scrim for label legibility */}
-                <span
-                  aria-hidden
-                  className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 via-black/25 to-transparent"
-                />
-
-                {featured && c.tag && (
-                  <span className="absolute top-4 left-4 rounded-full bg-cream/20 px-3 py-1.5 font-body text-[11px] text-cream backdrop-blur-md">
-                    {c.tag}
-                  </span>
-                )}
-
-                <span
-                  className={cn(
-                    "absolute inset-x-0 bottom-0 block px-4 pb-4 text-cream",
-                    featured
-                      ? "px-6 pb-6 font-body text-lg"
-                      : "font-display text-[11px] tracking-[0.14em] uppercase",
-                  )}
-                >
-                  {c.title}
-                </span>
-                <span className="pointer-events-none absolute inset-0 rounded-[22px] ring-1 ring-cream/10 transition-colors duration-500 group-hover:ring-gold/50" />
-              </Link>
-            );
-          })}
-        </div>
-
-        {/* ---------- mobile/tablet: plain snap rail ---------- */}
-        {/* items-start matters: flex's default `stretch` would equalise the card
-            heights, overriding aspect-ratio and cropping the photos whose ratio
-            differs slightly (900/1600 vs 893/1600). */}
-        <div
-          ref={railRef}
-          className="relative z-10 flex snap-x snap-mandatory items-start gap-5 overflow-x-auto pb-2 lg:hidden [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {ITEMS.map((c) => (
-            <Link
-              key={c.slug}
-              href={c.href}
-              data-card
-              className="group relative w-[64%] shrink-0 snap-start overflow-hidden rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold sm:w-[38%]"
-              style={{ aspectRatio: `${c.w} / ${c.h}` }}
-            >
-              <Image
-                src={c.src}
-                alt=""
-                fill
-                sizes="(min-width: 1024px) 1px, (min-width: 640px) 38vw, 64vw"
-                className="object-cover"
-              />
-              <span
-                aria-hidden
-                className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/70 to-transparent"
-              />
-              <span className="absolute inset-x-0 bottom-0 block px-4 pb-4 font-display text-[11px] tracking-[0.14em] text-cream uppercase">
-                {c.title}
-              </span>
-              <span className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-cream/10" />
-            </Link>
-          ))}
-        </div>
-
-        {/* The fan swaps its five cards in place, which a screen reader would
-            otherwise never hear. Announce the window after each step. */}
-        <p aria-live="polite" className="sr-only">
-          {`Showing ${fanned.map((c) => c.title).join(", ")}. ${ITEMS.length} works in total.`}
+        {/* centred header — pill eyebrow, heading, line (reference layout) */}
+        <span className="pm-label inline-flex items-center rounded-full bg-olive/10 px-4 py-1.5 font-display text-olive-deep ring-1 ring-olive/15">
+          Selected Works · Since 1968
+        </span>
+        <h2 className="pm-display-lg font-display mt-6 text-[color:var(--color-heading-brown)]">
+          Our Works
+        </h2>
+        <p className="pm-body mx-auto mt-5 max-w-xl font-body text-espresso/70">
+          Three generations of engineering and artistry — each piece handcrafted
+          for Jain derasars and Hindu temples.
         </p>
 
-        {/* ---------- controls: circular arrows, centred ---------- */}
-        <div className="relative z-10 mt-12 flex flex-col items-center gap-6">
-          <div className="flex items-center gap-4">
-            {[-1, 1].map((dir) => (
-              <button
-                key={dir}
-                type="button"
-                onClick={() => step(dir)}
-                aria-label={dir < 0 ? "Previous works" : "Next works"}
-                className={cn(
-                  "grid size-12 place-items-center rounded-full transition-all duration-300",
-                  dir < 0
-                    ? "border border-cream/20 text-cream/70 hover:border-cream/50 hover:text-cream"
-                    : "border border-cream/70 text-cream hover:border-gold hover:text-gold",
-                )}
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="size-5"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+        {/* ---------- the endless arc ribbon ----------
+            Edge mask fades cards off both sides; GSAP drifts the (duplicated)
+            row left forever while each card is re-laid on the arc every frame. */}
+        <div
+          ref={scrollRef}
+          className="relative mt-14 -mx-6 overflow-hidden [scrollbar-width:none] sm:-mx-10 [&::-webkit-scrollbar]:hidden"
+          style={{
+            maskImage:
+              "linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0, #000 7%, #000 93%, transparent 100%)",
+          }}
+          onPointerEnter={() => setPaused(true)}
+          onPointerLeave={() => setPaused(false)}
+        >
+          <div
+            ref={rowRef}
+            className="flex w-max items-center gap-4 px-[14vw] py-8 sm:gap-5"
+          >
+            {loop.map((c, i) => {
+              const clone = i >= ITEMS.length;
+              return (
+                <Link
+                  key={`${c.slug}-${i}`}
+                  href={c.href}
+                  aria-label={c.title}
+                  aria-hidden={clone || undefined}
+                  tabIndex={clone ? -1 : undefined}
+                  className={cn(
+                    "group relative block h-[16rem] shrink-0 overflow-hidden rounded-[22px] bg-cream-deep shadow-[0_30px_55px_-26px_rgba(46,35,19,0.5)] ring-1 ring-olive/12 will-change-transform sm:h-[21rem] lg:h-[24rem]",
+                    "hover:ring-olive/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
+                  )}
+                  style={
+                    {
+                      aspectRatio: `${c.w} / ${c.h}`,
+                      transformOrigin: "50% 100%",
+                    } as CSSProperties
+                  }
                 >
-                  {dir < 0 ? <path d="M15 5l-7 7 7 7" /> : <path d="M9 5l7 7-7 7" />}
-                </svg>
-              </button>
-            ))}
+                  <Image
+                    src={c.src}
+                    alt=""
+                    fill
+                    sizes="(min-width: 1024px) 20vw, (min-width: 640px) 30vw, 45vw"
+                    className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06] motion-reduce:group-hover:scale-100"
+                  />
+                  {/* title reveals on hover — clean photo at rest, like the ref */}
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                  />
+                  <span className="pm-label absolute inset-x-0 bottom-0 block translate-y-1 px-4 pb-4 font-display text-cream opacity-0 transition-[opacity,transform] duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+                    {c.title}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
+        </div>
 
-          <Button variant="ghost" tone="dark" size="sm" href="/products">
+        <div className="mt-12 flex justify-center">
+          <Button variant="solid" size="lg" href="/products">
             View all collections
           </Button>
         </div>

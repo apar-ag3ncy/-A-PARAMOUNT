@@ -6,6 +6,7 @@ import AssetFrame from "@/components/ui/AssetFrame";
 import ArchMark from "@/components/ui/ArchMark";
 import { FAMILIES } from "@/lib/constants";
 import { categoriesByFamily } from "@/lib/catalog";
+import { galleryFor } from "@/lib/galleries";
 import { cn } from "@/lib/utils";
 
 /** Dark-on-light now: the header is a frosted cream bar, so links are
@@ -41,21 +42,45 @@ function Corner({ className }: { className?: string }) {
   );
 }
 
+/** The photo shown in the mega-panel's left frame while a category is hovered:
+ *  the first image of that category's gallery, else its catalogue photo, else
+ *  null (the frame stays empty). */
+function categoryPreview(slug: string, image?: string): string | null {
+  return galleryFor(slug)?.groups[0]?.images[0]?.src ?? image ?? null;
+}
+
 /**
  * Desktop navigation + the Collections mega-panel — an ornamental, deck-faithful
  * dropdown: damask-washed cream, hairline gold rules, corner flourishes, serif-
- * italic family headings, staggered link entrance, and an arch-framed feature.
+ * italic family headings, staggered link entrance, and an arch-framed feature
+ * that previews whichever category is hovered.
  */
 export default function MegaMenu() {
   const [open, setOpen] = useState(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
+  // The left frame previews the hovered category's photo. A tiny clear-delay
+  // bridges the gap between leaving one link and entering the next, so moving
+  // across categories swaps cleanly instead of flashing empty between them.
+  const [preview, setPreview] = useState<string | null>(null);
+  const previewTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const enter = () => {
     clearTimeout(timer.current);
     setOpen(true);
   };
   const leave = () => {
-    timer.current = setTimeout(() => setOpen(false), 160);
+    timer.current = setTimeout(() => {
+      setOpen(false);
+      setPreview(null);
+    }, 160);
+  };
+  const showPreview = (src: string | null) => {
+    clearTimeout(previewTimer.current);
+    setPreview(src);
+  };
+  const clearPreview = () => {
+    previewTimer.current = setTimeout(() => setPreview(null), 90);
   };
 
   return (
@@ -107,7 +132,7 @@ export default function MegaMenu() {
               <Corner className="bottom-2 left-2 -scale-y-100" />
               <Corner className="right-2 bottom-2 -scale-100" />
 
-              <div className="grid gap-8 p-9 pt-8 lg:grid-cols-[1.1fr_repeat(4,1fr)]">
+              <div className="grid items-start gap-8 p-9 pt-8 lg:grid-cols-[1.1fr_repeat(4,1fr)]">
                 {/* arch-framed feature */}
                 <Link
                   href="/products"
@@ -119,8 +144,12 @@ export default function MegaMenu() {
                 >
                   <AssetFrame
                     image={null}
+                    src={preview ?? undefined}
                     ratio="4/5"
+                    fit="cover"
+                    crop
                     showLabel={false}
+                    sizes="(min-width:1024px) 240px, 0px"
                     frameClassName="rounded-t-full transition-colors duration-[400ms] group-hover:border-olive"
                   />
                   <p className="mt-3 text-center font-body text-sm text-olive italic">
@@ -140,19 +169,23 @@ export default function MegaMenu() {
                     )}
                     style={{ transitionDelay: open ? `${70 + col * 60}ms` : "0ms" }}
                   >
+                    {/* Reserve two lines for the title so 1-line ("Sacred
+                        Symbols") and 2-line ("Temple Architecture") headings end
+                        at the same baseline — the dividers and every item row
+                        below then align across all four columns. */}
                     <Link
                       href={`/products/${f.slug}`}
                       onClick={() => setOpen(false)}
-                      className="font-display text-[13px] tracking-[0.14em] text-olive-deep uppercase transition-colors hover:text-olive"
+                      className="flex min-h-[2.4rem] items-end font-display text-[13px] leading-[1.2] tracking-[0.14em] text-olive-deep uppercase transition-colors hover:text-olive"
                     >
                       {f.title}
                     </Link>
-                    <div className="mt-2 mb-3 flex items-center gap-2 text-olive/45" aria-hidden>
+                    <div className="mt-2.5 mb-4 flex items-center gap-2 text-olive/45" aria-hidden>
                       <span className="h-px w-8 bg-current" />
                       <ArchMark className="h-4 w-3 shrink-0" />
                       <span className="h-px flex-1 bg-current opacity-40" />
                     </div>
-                    <ul className="space-y-2">
+                    <ul className="space-y-2.5">
                       {categoriesByFamily(f.slug)
                         .slice(0, 6)
                         .map((p) => (
@@ -160,22 +193,24 @@ export default function MegaMenu() {
                             <Link
                               href={`/products/${f.slug}/${p.slug}`}
                               onClick={() => setOpen(false)}
+                              onMouseEnter={() =>
+                                showPreview(categoryPreview(p.slug, p.image))
+                              }
+                              onMouseLeave={clearPreview}
                               className="font-body text-[12.5px] text-espresso/70 transition-colors hover:text-olive"
                             >
                               {p.title}
                             </Link>
                           </li>
                         ))}
-                      <li>
-                        <Link
-                          href={`/products/${f.slug}`}
-                          onClick={() => setOpen(false)}
-                          className="font-display text-[10px] tracking-[0.18em] text-olive uppercase hover:text-olive-deep"
-                        >
-                          View all →
-                        </Link>
-                      </li>
                     </ul>
+                    <Link
+                      href={`/products/${f.slug}`}
+                      onClick={() => setOpen(false)}
+                      className="mt-5 inline-block font-display text-[10px] tracking-[0.18em] text-olive uppercase hover:text-olive-deep"
+                    >
+                      View all →
+                    </Link>
                   </div>
                 ))}
               </div>
