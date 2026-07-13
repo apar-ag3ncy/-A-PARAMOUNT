@@ -18,16 +18,17 @@ interface Props {
 /**
  * SplitText line/word/char reveal (PARAMOUNT_SCROLL_UI_PROMPT.md §4.2). Lines are
  * wrapped in overflow:hidden (.split-line) so words rise from behind a mask.
- * House motion system: duration 1s, ease power3.out, word stagger 0.08
- * (char reveals pass a finer explicit stagger). Reduced-motion: plain text.
+ * House motion system: an unhurried duration 1.5s, ease power2.out, word stagger
+ * 0.12 — text drifts up gently as you scroll rather than snapping in (char
+ * reveals pass a finer explicit stagger). Reduced-motion: plain text.
  */
 export default function SplitTextReveal({
   children,
   as = "div",
   by = "words",
   className,
-  stagger = 0.08,
-  start = "top 82%",
+  stagger = 0.12,
+  start = "top 85%",
   delay = 0,
 }: Props) {
   const elRef = useRef<HTMLElement | null>(null);
@@ -47,8 +48,8 @@ export default function SplitTextReveal({
         gsap.from(targets, {
           yPercent: 100,
           opacity: 0,
-          duration: 1,
-          ease: "power3.out",
+          duration: 1.5,
+          ease: "power2.out",
           stagger,
           delay,
           scrollTrigger: { trigger: el, start, once: true },

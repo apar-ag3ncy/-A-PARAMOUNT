@@ -91,7 +91,7 @@ export default function FamilyShowcase({ family, products }: Props) {
                   arch && "rounded-t-full",
                 )}
               />
-              <span className="max-w-[16rem] text-center font-display text-xs tracking-[0.18em] text-olive-deep uppercase">
+              <span className="pm-label max-w-[16rem] text-center font-display text-olive-deep">
                 {p.title}
               </span>
             </Link>

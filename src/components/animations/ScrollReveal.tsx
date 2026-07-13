@@ -17,8 +17,8 @@ export default function ScrollReveal({
   children,
   className,
   delay = 0,
-  y = 40,
-  start = "top 85%",
+  y = 44,
+  start = "top 88%",
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   useIsomorphicLayoutEffect(() => {
@@ -30,8 +30,8 @@ export default function ScrollReveal({
         gsap.from(el, {
           opacity: 0,
           y,
-          duration: 0.8,
-          ease: "power3.out",
+          duration: 1.5,
+          ease: "power2.out",
           delay,
           scrollTrigger: { trigger: el, start, once: true },
         });

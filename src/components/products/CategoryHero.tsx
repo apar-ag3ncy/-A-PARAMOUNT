@@ -17,7 +17,7 @@ interface Props {
 /** Category landing hero with a SplitText title reveal. */
 export default function CategoryHero({ title, subtitle, count, image }: Props) {
   const eyebrow = (
-    <p className="mb-5 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
+    <p className="mb-5 pm-eyebrow font-display text-olive">
       {count} {count === 1 ? "piece" : "pieces"}
     </p>
   );
@@ -27,7 +27,7 @@ export default function CategoryHero({ title, subtitle, count, image }: Props) {
       as="h1"
       by="chars"
       stagger={0.02}
-      className="font-display text-5xl leading-[1.05] font-light text-[color:var(--color-heading-brown)] sm:text-7xl"
+      className="pm-display font-display font-light text-[color:var(--color-heading-brown)]"
     >
       {title}
     </SplitTextReveal>
@@ -41,7 +41,7 @@ export default function CategoryHero({ title, subtitle, count, image }: Props) {
         {heading}
         <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
         {subtitle && (
-          <p className="mx-auto mt-6 max-w-xl font-body text-base text-espresso/75">
+          <p className="mx-auto mt-6 max-w-xl pm-body font-body text-espresso/75">
             {subtitle}
           </p>
         )}
@@ -58,7 +58,7 @@ export default function CategoryHero({ title, subtitle, count, image }: Props) {
           {heading}
           <OrnamentDivider className="mx-auto mt-6 text-olive/50 lg:mx-0" />
           {subtitle && (
-            <p className="mx-auto mt-6 max-w-xl font-body text-base text-espresso/75 lg:mx-0">
+            <p className="mx-auto mt-6 max-w-xl pm-body font-body text-espresso/75 lg:mx-0">
               {subtitle}
             </p>
           )}

@@ -108,6 +108,35 @@
   }
 }
 
+/* ============================================================================
+   TYPE SCALE — one restrained, Cartier-disciplined ramp (see DESIGN_SYNC_SPEC).
+   These classes fix SIZE / LINE-HEIGHT / TRACKING / WEIGHT / CASE only — they do
+   NOT set font-family, so every element keeps its own brand face (Storica via
+   `font-display`, Inter via `font-body`). Before this the site used 6 different
+   sizes for small caps labels and 8 heading sizes; every text role now snaps to
+   ONE step, so a heading is always a heading's size, a body is always body.
+   Change a role's size here and it changes everywhere. They are UNLAYERED
+   (plain CSS, not @layer) so they always emit and reliably win over the Tailwind
+   size utilities they replace. Colour + margins stay on the element as utilities.
+   ============================================================================ */
+/* Display — Storica, reserved for hero / page H1 */
+  .pm-display    { font-size: clamp(2.25rem, 5vw, 3.75rem); line-height: 1.03; letter-spacing: 0.01em; }
+  .pm-display-lg { font-size: clamp(2.75rem, 6vw, 4.5rem);  line-height: 1.0;  letter-spacing: 0.01em; }
+  /* Section title (H2) and card / sub title (H3) */
+  .pm-h2 { font-size: clamp(1.875rem, 3.2vw, 2.5rem); line-height: 1.12; letter-spacing: 0.01em; }
+  .pm-h3 { font-size: 1.25rem; line-height: 1.3; letter-spacing: 0.01em; }
+  /* Body ramp — lead / default / small. Pair with .pm-measure to cap the column. */
+  .pm-lead  { font-size: 1.125rem; line-height: 1.75; }
+  .pm-body  { font-size: 1rem;     line-height: 1.7; }
+  .pm-small { font-size: 0.875rem; line-height: 1.6; }
+  /* Tracked-caps labels — the ONLY three: section eyebrow, UI label, tiny caption */
+  .pm-eyebrow { font-size: 0.75rem;  font-weight: 500; line-height: 1;   letter-spacing: 0.28em; text-transform: uppercase; }
+  .pm-label   { font-size: 0.75rem;  font-weight: 500; line-height: 1.1; letter-spacing: 0.16em; text-transform: uppercase; }
+  .pm-micro   { font-size: 0.625rem; font-weight: 500; line-height: 1;   letter-spacing: 0.2em;  text-transform: uppercase; }
+  /* Structure helpers — cap prose measure, and one vertical section rhythm */
+  .pm-measure { max-width: 62ch; }
+  .pm-section { padding-block: clamp(4rem, 9vh, 7rem); }
+
 /* AssetFrame empty-state shimmer — one soft diagonal band, ~5s sweep.
    Auto-disabled by the reduced-motion rule above. */
 @keyframes pm-shimmer {
@@ -142,25 +171,6 @@
    mask would instead let the rising word's ascenders peek out below the line. */
 .split-line {
   overflow: hidden;
-}
-
-/* DoorScroll invitation line — once-only CSS entrance (fill:backwards keeps
-   it hidden through the delay). DoorScroll cancels the animation the moment
-   scrubbing starts, so it never competes with the scroll-driven writer. */
-@keyframes ds-rise {
-  from {
-    opacity: 0;
-    transform: translateY(22px);
-  }
-}
-.ds-text > * {
-  animation: ds-rise 1.1s cubic-bezier(0.22, 1, 0.36, 1) 0.25s backwards;
-}
-.ds-text > *:nth-child(2) {
-  animation-delay: 0.4s;
-}
-.ds-text > *:nth-child(3) {
-  animation-delay: 0.55s;
 }
 
 /* The DoorScroll intro owns the screen — lift the site header away while the

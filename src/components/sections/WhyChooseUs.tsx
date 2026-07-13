@@ -64,7 +64,7 @@ export default function WhyChooseUs() {
                 <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-olive text-cream">
                   <LotusFlourish className="h-8 w-8" />
                 </span>
-                <span className="font-display text-sm font-medium tracking-[0.22em] text-olive uppercase">
+                <span className="pm-label font-display text-olive">
                   Why
                   <br />
                   Choose
@@ -94,7 +94,7 @@ export default function WhyChooseUs() {
                     <h3 className="font-display text-sm leading-snug font-medium text-heading-brown uppercase tracking-[0.06em] sm:min-h-[3.75rem]">
                       {title}
                     </h3>
-                    <p className="max-w-[24ch] font-body text-sm leading-relaxed text-espresso/75">
+                    <p className="pm-small max-w-[24ch] font-body text-espresso/75">
                       {body}
                     </p>
                   </div>

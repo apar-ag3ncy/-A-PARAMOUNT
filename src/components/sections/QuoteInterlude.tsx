@@ -25,10 +25,10 @@ export default function QuoteInterlude() {
               {/* Inter, not Storica: Storica is caps-only, and this line must
                   read sentence-case. Light italic olive opening, upright
                   heading-brown continuation — the deck p30 rhythm. */}
-              <p className="font-body text-4xl leading-tight font-light text-olive italic sm:text-5xl">
+              <p className="pm-display font-body text-olive italic">
                 Shaped by devotion,
               </p>
-              <p className="mt-3 font-body text-4xl leading-tight font-medium tracking-tight text-heading-brown sm:text-5xl">
+              <p className="pm-display mt-3 font-body font-medium text-heading-brown">
                 Destined to inspire generations.
               </p>
             </blockquote>

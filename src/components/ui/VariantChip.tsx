@@ -67,7 +67,7 @@ export default function VariantChip({ label }: Props) {
         </g>
       </svg>
 
-      <span className="font-body text-xs font-medium uppercase tracking-[0.22em] text-espresso">
+      <span className="font-body pm-label text-espresso">
         {label}
       </span>
     </span>

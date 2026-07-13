@@ -129,7 +129,7 @@ export default function CategoryGallery({
                 </span>
                 <span
                   className={cn(
-                    "text-center font-display text-[10px] leading-tight tracking-[0.12em] uppercase transition-colors sm:text-[11px]",
+                    "pm-micro text-center font-display transition-colors",
                     on
                       ? "text-olive-deep"
                       : "text-olive-deep/60 group-hover:text-olive-deep",

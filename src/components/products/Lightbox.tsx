@@ -90,7 +90,7 @@ export default function Lightbox({
         className="flex items-center justify-between px-5 py-4 sm:px-8"
         onClick={(e) => e.stopPropagation()}
       >
-        <span className="font-display text-[11px] tracking-[0.24em] text-cream/70 uppercase">
+        <span className="pm-label font-display text-cream/70">
           {caption ? `${caption} · ` : ""}
           {index + 1} / {images.length}
         </span>

@@ -77,11 +77,11 @@ export default function CraftsmanshipPage() {
                 <p className="font-body text-3xl text-olive-muted italic">
                   {s.n}
                 </p>
-                <h2 className="mt-2 font-display text-3xl leading-tight font-light text-[color:var(--color-heading-brown)] sm:text-4xl">
+                <h2 className="pm-h2 mt-2 font-display text-[color:var(--color-heading-brown)]">
                   {s.title}
                 </h2>
                 <OrnamentDivider className="mt-4 text-olive/45" />
-                <p className="mt-5 max-w-md font-body text-espresso/80">
+                <p className="pm-body mt-5 max-w-md font-body text-espresso/80">
                   {s.body}
                 </p>
               </SlideReveal>

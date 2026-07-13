@@ -186,7 +186,7 @@ export default function AssetFrame({
             </svg>
 
             {showLabel && (
-              <span className="absolute right-0 bottom-4 left-0 text-center font-display text-[10px] tracking-[0.24em] text-olive/45 uppercase">
+              <span className="pm-micro absolute right-0 bottom-4 left-0 text-center font-display text-olive/45">
                 Image coming soon
               </span>
             )}
@@ -223,12 +223,17 @@ export default function AssetFrame({
             }}
             onLoad={() => setLoaded(true)}
             className={cn(
-              "transition-opacity duration-[600ms] ease-out",
+              "ease-out",
               // Frame already matches the photo's ratio -> object-cover fills
               // it completely without cropping a single pixel. Otherwise fall
               // back: "contain" floats the shot with breathing room; "cover"
               // fills a mismatched frame (Sanity images of unknown ratio).
-              fitToPhoto || fit === "cover" ? "object-cover" : "object-contain p-[6%]",
+              // Cover frames also slow-zoom on hover (~0.7s) — the frame clips it
+              // (overflow-hidden), giving the Cartier "image breathes" reveal.
+              // "contain" product floats stay perfectly still (client mandate).
+              fitToPhoto || fit === "cover"
+                ? "object-cover transition-[opacity,transform] duration-700 will-change-transform group-hover:scale-[1.05] motion-reduce:group-hover:scale-100"
+                : "object-contain p-[6%] transition-opacity duration-[600ms]",
               loaded ? "opacity-100" : "opacity-0",
             )}
             style={fitToPhoto || fit === "cover" ? { objectPosition } : undefined}
@@ -237,7 +242,7 @@ export default function AssetFrame({
       </div>
 
       {caption && (
-        <figcaption className="mt-3 text-center font-display text-xs tracking-[0.18em] text-olive-deep uppercase">
+        <figcaption className="pm-label mt-3 text-center font-display text-olive-deep">
           {caption}
         </figcaption>
       )}

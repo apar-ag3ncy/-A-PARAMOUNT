@@ -192,7 +192,7 @@ export default function GalleryCoverflow({
               onClick={() => setCat(i)}
               aria-pressed={i === cat}
               className={cn(
-                "rounded-full px-5 py-2 font-body text-[13px] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
+                "rounded-full px-5 py-2 font-body pm-small transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
                 i === cat
                   ? "bg-olive-deep text-cream"
                   : "border border-olive/25 text-olive-deep hover:border-olive/60",
@@ -247,7 +247,7 @@ export default function GalleryCoverflow({
         <div
           ref={cueRef}
           aria-hidden
-          className="flex flex-col items-center gap-2 font-display text-[10px] tracking-[0.3em] text-olive/60 uppercase"
+          className="flex flex-col items-center gap-2 font-display pm-micro text-olive/60"
         >
           Scroll to explore
           <svg

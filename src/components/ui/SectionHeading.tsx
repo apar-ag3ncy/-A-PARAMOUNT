@@ -40,17 +40,11 @@ export default function SectionHeading({
   return (
     <div className={`flex flex-col ${alignBox} ${className ?? ""}`}>
       {eyebrow ? (
-        <span
-          className={`font-body text-xs font-medium uppercase tracking-[0.32em] ${eyebrowColor}`}
-        >
-          {eyebrow}
-        </span>
+        <span className={`pm-eyebrow font-body ${eyebrowColor}`}>{eyebrow}</span>
       ) : null}
 
       <h2
-        className={`font-display text-3xl leading-tight sm:text-4xl ${titleColor} ${
-          eyebrow ? "mt-3" : ""
-        }`}
+        className={`pm-h2 font-display ${titleColor} ${eyebrow ? "mt-3" : ""}`}
       >
         {title}
       </h2>

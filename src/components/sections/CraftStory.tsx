@@ -11,14 +11,12 @@ export default function CraftStory() {
   return (
     <section className="mx-auto grid max-w-7xl gap-12 overflow-x-clip px-6 py-16 sm:py-24 lg:grid-cols-2 lg:items-center lg:gap-20">
       <SlideReveal from="left">
-        <p className="mb-4 font-body text-xs font-medium tracking-[0.32em] text-olive/80 uppercase">
-          The Craft
-        </p>
-        <h2 className="font-display text-4xl leading-tight font-light text-[color:var(--color-heading-brown)] sm:text-5xl">
+        <p className="pm-eyebrow font-body mb-4 text-olive/80">The Craft</p>
+        <h2 className="pm-h2 font-display text-[color:var(--color-heading-brown)]">
           Engineering expertise, met with artistic skill
         </h2>
         <OrnamentDivider className="mt-5 text-olive/50" />
-        <div className="mt-7 space-y-4 font-body text-espresso/80">
+        <div className="pm-body mt-7 space-y-4 font-body text-espresso/80">
           <p>
             For three generations and over fifty years, every piece has been
             handcrafted to order — premium wood carved to depth, then clad in

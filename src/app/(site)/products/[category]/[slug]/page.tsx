@@ -57,31 +57,31 @@ export default async function ProductPage({
   // branch shows them (its layout has no coins).
   const renderIntro = (showVariants: boolean) => (
     <>
-      <p className="font-display text-[11px] tracking-[0.24em] text-olive uppercase">
+      <p className="pm-eyebrow font-display text-olive">
         {family?.title}
       </p>
       <SplitTextReveal
         as="h1"
         by="words"
-        className="mt-3 font-display text-4xl leading-[1.08] font-light text-olive-deep sm:text-6xl"
+        className="pm-h2 mt-3 font-display font-light text-olive-deep"
       >
         {product.title}
       </SplitTextReveal>
       {product.blurb && (
-        <p className="mt-6 max-w-xl font-body text-lg leading-relaxed text-espresso/80">
+        <p className="pm-lead mt-6 max-w-xl font-body text-espresso/80">
           {product.blurb}
         </p>
       )}
       {showVariants && product.variants.length > 0 && (
         <div className="mt-8">
-          <p className="font-display text-[11px] tracking-[0.2em] text-olive uppercase">
+          <p className="pm-label font-display text-olive">
             Available in
           </p>
           <ul className="mt-3 flex flex-wrap gap-2.5">
             {product.variants.map((v) => (
               <li
                 key={v}
-                className="inline-flex items-center gap-2 rounded-full border border-olive/25 bg-cream-deep/40 px-3.5 py-1.5 font-body text-[13px] text-olive-deep/90 transition-colors duration-300 hover:border-olive/60 hover:bg-cream-deep/70"
+                className="pm-small inline-flex items-center gap-2 rounded-full border border-olive/25 bg-cream-deep/40 px-3.5 py-1.5 font-body text-olive-deep/90 transition-colors duration-300 hover:border-olive/60 hover:bg-cream-deep/70"
               >
                 <span className="size-1.5 rounded-full bg-gold" />
                 {v}
@@ -99,7 +99,7 @@ export default async function ProductPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <nav className="mb-10 font-display text-[11px] tracking-[0.16em] text-olive/70 uppercase">
+      <nav className="pm-label mb-10 font-display text-olive/70">
         <Link href="/products" className="hover:text-olive">
           Collections
         </Link>
@@ -123,7 +123,7 @@ export default async function ProductPage({
             <MagneticButton href="/contact">
               Enquire about {product.title}
             </MagneticButton>
-            <p className="mt-6 max-w-md font-body text-sm text-espresso/60">
+            <p className="pm-small mt-6 max-w-md font-body text-espresso/60">
               Every piece is handcrafted to order — sized to your derasar and to
               religious norms.
             </p>
@@ -146,7 +146,7 @@ export default async function ProductPage({
                 Enquire about {product.title}
               </MagneticButton>
             </div>
-            <p className="mt-6 max-w-md font-body text-sm text-espresso/60">
+            <p className="pm-small mt-6 max-w-md font-body text-espresso/60">
               Every piece is handcrafted to order — sized to your derasar and to
               religious norms.
             </p>

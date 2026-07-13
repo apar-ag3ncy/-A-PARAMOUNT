@@ -66,11 +66,11 @@ export default function FeaturedFamilies() {
               />
             </div>
             <div className="mt-5 text-center">
-              <p className="font-body text-base text-olive italic">{f.title}</p>
-              <p className="mx-auto mt-1 max-w-[24ch] font-body text-xs text-espresso/60">
+              <p className="pm-h3 font-body text-olive italic">{f.title}</p>
+              <p className="pm-small mx-auto mt-1 max-w-[26ch] font-body text-espresso/60">
                 {f.blurb}
               </p>
-              <span className="mt-3 inline-block bg-gradient-to-r from-olive-deep to-olive-deep bg-[length:0_1px] bg-[position:left_bottom] bg-no-repeat pb-1 font-display text-[10px] tracking-[0.22em] text-olive-deep uppercase transition-[background-size] duration-500 group-hover:bg-[length:100%_1px]">
+              <span className="pm-label mt-3 inline-block bg-gradient-to-r from-olive-deep to-olive-deep bg-[length:0_1px] bg-[position:left_bottom] bg-no-repeat pb-1 font-display text-olive-deep transition-[background-size] duration-500 group-hover:bg-[length:100%_1px]">
                 Explore →
               </span>
             </div>

@@ -23,10 +23,10 @@ export default function ContactPage() {
 
         <aside className="space-y-9">
           <div>
-            <h2 className="font-display text-[11px] tracking-[0.18em] text-olive uppercase">
+            <h2 className="pm-label font-display text-olive">
               Workshops
             </h2>
-            <div className="mt-3 space-y-3 font-body text-espresso/80">
+            <div className="pm-body mt-3 space-y-3 font-body text-espresso/80">
               {CONTACT.addresses.map((a) => (
                 <p key={a}>{a}</p>
               ))}
@@ -34,22 +34,22 @@ export default function ContactPage() {
           </div>
 
           <div>
-            <h2 className="font-display text-[11px] tracking-[0.18em] text-olive uppercase">
+            <h2 className="pm-label font-display text-olive">
               Email &amp; Social
             </h2>
             <a
               href={`mailto:${CONTACT.email}`}
-              className="mt-3 block font-body text-espresso/80 hover:text-olive"
+              className="pm-body mt-3 block font-body text-espresso/80 hover:text-olive"
             >
               {CONTACT.email}
             </a>
-            <p className="mt-1 font-body text-espresso/60">
+            <p className="pm-body mt-1 font-body text-espresso/60">
               Facebook / Instagram — {CONTACT.social}
             </p>
           </div>
 
           <div>
-            <h2 className="font-display text-[11px] tracking-[0.18em] text-olive uppercase">
+            <h2 className="pm-label font-display text-olive">
               Speak with
             </h2>
             <ul className="mt-3 space-y-1.5 font-body text-espresso/80">

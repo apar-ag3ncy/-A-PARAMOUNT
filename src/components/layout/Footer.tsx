@@ -53,14 +53,14 @@ export default function Footer() {
 
       {/* ---- centre: the closing line + brand lockup ---- */}
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center px-6 pt-24 pb-16 text-center sm:pt-28">
-        <p className="mb-9 font-display text-[11px] tracking-[0.4em] text-pista uppercase">
+        <p className="pm-eyebrow mb-9 font-display text-pista">
           {SITE.name} · Est. {SITE.since}
         </p>
 
         {/* deck p30 — the emotional centre. Set in Inter (the brand's only
             lowercase face; Storica is caps-only), light italic, so it reads as a
             soft sentence-case murmur rather than a shout. */}
-        <p className="max-w-3xl font-body text-[clamp(1.6rem,4vw,2.9rem)] leading-[1.28] font-light text-cream/95 italic">
+        <p className="pm-h2 max-w-3xl font-body font-light text-cream/95 italic">
           Shaped by devotion, destined to inspire generations.
         </p>
 
@@ -78,9 +78,9 @@ export default function Footer() {
           />
           <Wordmark
             ariaLabel={SITE.name}
-            className="mt-5 text-[clamp(24px,4.5vw,36px)] text-cream opacity-95"
+            className="pm-h3 mt-5 text-cream opacity-95"
           />
-          <p className="mt-4 font-body text-base text-cream/75 italic">
+          <p className="pm-body mt-4 font-body text-cream/75 italic">
             {SITE.tagline}
           </p>
         </div>
@@ -91,7 +91,7 @@ export default function Footer() {
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-8 lg:flex-row lg:items-start">
           {/* collections */}
           <nav aria-label="Collections" className="text-center lg:text-left">
-            <h3 className="mb-3 font-display text-[10px] tracking-[0.3em] text-gold uppercase">
+            <h3 className="pm-label mb-3 font-display text-gold">
               Collections
             </h3>
             <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 lg:justify-start">
@@ -99,7 +99,7 @@ export default function Footer() {
                 <li key={f.slug}>
                   <Link
                     href={`/products/${f.slug}`}
-                    className="font-body text-[13px] text-cream/70 transition-colors hover:text-gold"
+                    className="pm-small font-body text-cream/70 transition-colors hover:text-gold"
                   >
                     {f.title}
                   </Link>
@@ -110,10 +110,10 @@ export default function Footer() {
 
           {/* contact essentials — full directory on /contact */}
           <div className="text-center lg:text-right">
-            <h3 className="mb-3 font-display text-[10px] tracking-[0.3em] text-gold uppercase">
+            <h3 className="pm-label mb-3 font-display text-gold">
               Enquiries
             </h3>
-            <div className="space-y-1.5 font-body text-[13px] text-cream/70">
+            <div className="pm-small space-y-1.5 font-body text-cream/70">
               <p>
                 <a
                   href={`mailto:${CONTACT.email}`}
@@ -143,11 +143,11 @@ export default function Footer() {
       {/* ---- baseline ---- */}
       <div className="relative z-10 border-t border-cream/10 px-6 py-5">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-1.5 text-center sm:flex-row">
-          <p className="font-display text-[10px] tracking-[0.24em] text-cream/45 uppercase">
+          <p className="pm-micro font-display text-cream/45">
             © {year} {SITE.name}
           </p>
           <p
-            className="font-display text-[10px] tracking-[0.24em] uppercase"
+            className="pm-micro font-display"
             style={{ color: "color-mix(in srgb, var(--color-pista) 60%, transparent)" }}
           >
             Crafted in Mumbai · Since {SITE.since}

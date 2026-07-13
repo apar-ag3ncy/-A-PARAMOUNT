@@ -33,7 +33,7 @@ export default function SlideReveal({
   distance = 80,
   rotate = 3,
   delay = 0,
-  start = "top 82%",
+  start = "top 90%",
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   useIsomorphicLayoutEffect(() => {
@@ -49,13 +49,13 @@ export default function SlideReveal({
           rotation: dir * rotate,
           transformOrigin: from === "left" ? "left center" : "right center",
           duration: 1,
-          ease: "power3.out",
+          ease: "power2.out",
           delay,
           scrollTrigger: {
             trigger: el,
             start,
-            end: "top 55%",
-            scrub: 1, // roll tracks the scroll
+            end: "top 45%",
+            scrub: 1.5, // roll tracks the scroll, smoothed so it eases in slowly
           },
         });
       });

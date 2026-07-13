@@ -122,7 +122,7 @@ export default function CategoryBrowser({
                 onClick={() => pick(m)}
                 aria-pressed={active}
                 className={cn(
-                  "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-1.5 font-body text-[11px] font-medium tracking-[0.22em] whitespace-nowrap uppercase transition-colors",
+                  "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-1.5 font-body pm-label whitespace-nowrap transition-colors",
                   active
                     ? "bg-olive text-cream"
                     : "text-espresso hover:text-olive-deep",

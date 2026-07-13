@@ -76,7 +76,7 @@ export default function AboutPage() {
       <section className="mx-auto mt-20 grid max-w-7xl items-center gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-8">
         <SlideReveal from="left">
           <SectionHeading eyebrow="Since 1968" title="ABOUT US" align="left" />
-          <div className="mt-8 max-w-xl space-y-5 font-body text-espresso/85">
+          <div className="pm-body mt-8 max-w-xl space-y-5 font-body text-espresso/85">
             <p>
               Established in 1968, A Paramount Engineering Works is a manufacturing
               company based in Mumbai, India which deals in all kinds of Jain Derasar
@@ -106,7 +106,7 @@ export default function AboutPage() {
           className="min-h-[560px] lg:-mr-6"
         >
           <div className="flex min-h-[560px] flex-col items-center justify-center gap-10 px-6 py-14 text-center">
-            <p className="font-display text-3xl tracking-[0.12em] text-cream uppercase sm:text-4xl">
+            <p className="pm-h2 font-display tracking-[0.12em] text-cream uppercase">
               Generation
             </p>
             <div className="flex flex-col items-center gap-8">
@@ -120,10 +120,10 @@ export default function AboutPage() {
 
       <section className="mx-auto grid max-w-7xl gap-6 overflow-x-clip px-6 pb-24 lg:grid-cols-2">
         <SlideReveal from="left" className="rounded-card border border-olive/15 bg-cream-deep/50 p-10">
-          <h2 className="font-display text-sm tracking-[0.16em] text-olive uppercase">
+          <h2 className="pm-label font-display text-olive">
             Our Mission
           </h2>
-          <p className="mt-5 font-body text-espresso/85">
+          <p className="pm-body mt-5 font-body text-espresso/85">
             To uphold the sanctity of these products by ensuring unparalleled
             quality, timeless design and utmost respect for religious traditions —
             exceeding expectations through continuous improvement, ethical practices
@@ -131,10 +131,10 @@ export default function AboutPage() {
           </p>
         </SlideReveal>
         <SlideReveal from="right" className="rounded-card border border-olive/15 bg-cream-deep/50 p-10">
-          <h2 className="font-display text-sm tracking-[0.16em] text-olive uppercase">
+          <h2 className="pm-label font-display text-olive">
             Our Vision
           </h2>
-          <p className="mt-5 font-body text-espresso/85">
+          <p className="pm-body mt-5 font-body text-espresso/85">
             As a leading manufacturer of temple products, we envision expanding our
             legacy of excellence and integrity — setting new benchmarks in quality
             and design, and enhancing the sacredness of temples across the world.
@@ -166,10 +166,8 @@ export default function AboutPage() {
                   {p.icon}
                 </svg>
               </span>
-              <h3 className="font-display text-base font-medium text-olive-deep">
-                {p.title}
-              </h3>
-              <p className="mt-2 font-body text-sm text-espresso/70">{p.body}</p>
+              <h3 className="pm-h3 font-display text-olive-deep">{p.title}</h3>
+              <p className="pm-small mt-2 font-body text-espresso/70">{p.body}</p>
             </div>
           ))}
         </div>

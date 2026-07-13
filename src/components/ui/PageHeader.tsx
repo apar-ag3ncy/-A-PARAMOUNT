@@ -35,27 +35,23 @@ export default function PageHeader({
 }: Props) {
   return (
     <header className={cn("mx-auto max-w-4xl px-6 text-center", className)}>
-      <p className="mb-5 font-display text-[11px] tracking-[0.28em] text-olive uppercase">
-        {eyebrow}
-      </p>
+      <p className="pm-eyebrow font-display mb-5 text-olive">{eyebrow}</p>
       <SplitTextReveal
         as="h1"
         by="words"
         className={cn(
-          "font-display font-light text-[color:var(--color-heading-brown)]",
-          size === "lg"
-            ? "text-5xl leading-[1.05] sm:text-7xl"
-            : "text-4xl leading-[1.08] sm:text-6xl",
+          "font-display text-[color:var(--color-heading-brown)]",
+          size === "lg" ? "pm-display-lg" : "pm-display",
         )}
       >
         {title}
       </SplitTextReveal>
       {divider && <OrnamentDivider className="mx-auto mt-6 text-olive/50" />}
       {tagline && (
-        <p className="mt-5 font-body text-xl text-olive italic">{tagline}</p>
+        <p className="pm-lead font-body mt-5 text-olive italic">{tagline}</p>
       )}
       {subtitle && (
-        <p className="mx-auto mt-6 max-w-xl font-body text-espresso/75">
+        <p className="pm-body font-body mx-auto mt-6 max-w-xl text-espresso/75">
           {subtitle}
         </p>
       )}
