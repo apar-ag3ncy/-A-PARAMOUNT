@@ -18,27 +18,37 @@ import { createFrameSequence, frameSize } from "@/lib/frameSequence";
  *
  * The section ends enveloped in the same cream as the landing hero behind it,
  * and fires `pm:doors-open` near the end so the hero's apparition is already
- * mid-flight when the doors give way to it. The brand lockup lives in the
- * header (always visible) and in the hero's reveal — this section carries only
- * the serif invitation line, so the brand is revealed once, not three times.
+ * mid-flight when the doors give way to it. NO text sits over the doors — the
+ * film speaks for itself; only the "scroll to open" cue at the bottom survives,
+ * and the brand is revealed once, in the hero.
  */
 
-/** Frames extracted from the film at 30fps (public/door/seq/<w>/f-###.webp).
- *  30fps keeps the slow, long scrub smooth — no visible frame-stepping. */
-const FRAME_COUNT = 241;
+/** Frames extracted from the film at 15fps (public/door/seq/<w>/f-###.webp).
+ *  The film is the marble Swaminarayan-style gate (Kling 2.5 i2v, 1080p 10s):
+ *  the doors part and REAL golden sunrays burst through the widening gap and
+ *  fall toward the camera, ending in a full-frame sunburst — no interior is
+ *  ever revealed (client dropped the earlier interior-courtyard film), and the
+ *  door hardware stays exactly the source image's (the prompt forbids invented
+ *  handles — an earlier take hallucinated extras). Master film at
+ *  assets/door/door-open.mp4. */
+const FRAME_COUNT = 151;
 const seqSrc = (w: 1600 | 800) => (i: number) =>
   `/door/seq/${w}/f-${String(i).padStart(3, "0")}.webp`;
 const POSTER = "/door/door-open-poster.jpg";
 const GOLD = "var(--color-gold)"; // token, not a raw hex
 
-/** Scroll-progress beats (fractions of the pinned span). */
+/** Scroll-progress beats (fractions of the pinned span). The film itself now
+ *  carries the sunrays (they burst through the gap as the doors part) and ends
+ *  on a full-frame sunburst — so the film plays over most of the scroll, and
+ *  the last quarter is the light passage: the CSS ray layer joins the baked
+ *  rays, the bloom swells to a veil, and the cream flood delivers the hero. */
 const P = {
-  textOut: 0.05, // invitation line lifts away as the doors begin to part
   cueOut: 0.03,
-  bloomIn: 0.58, // warm centre bloom as the camera pushes into the light
-  floodIn: 0.8, // cream wash → identical to the hero ground → seamless unpin
-  doorsOpen: 0.85, // hand the hero its cue
-  filmEnd: 0.9, // last frame; the final 10% is pure light
+  raysIn: 0.45, // CSS rays join the film's own sunrays late, bridging the veil
+  bloomIn: 0.55, // warm centre bloom swells over the sunburst
+  floodIn: 0.78, // cream wash → identical to the hero ground → seamless unpin
+  doorsOpen: 0.85, // hand the hero its cue (mid-flood, logo already mid-flight)
+  filmEnd: 0.75, // last drawn frame — the full sunburst
 };
 
 export default function DoorScroll() {
@@ -204,18 +214,6 @@ export default function DoorScroll() {
           // Motion (re-)enabled: safe to call repeatedly, start() is idempotent.
           seq.start();
 
-          // The invitation line's entrance is pure CSS (`ds-rise` keyframes in
-          // globals.css) — it plays once on load. The moment real scrubbing
-          // starts, the animation is cancelled so the deterministic writer
-          // below owns the elements outright (CSS animations beat inline
-          // styles while they run — the two must never coexist).
-          let entranceDone = false;
-          const textEls = gsap.utils.toArray<HTMLElement>(".ds-text > *", rootEl);
-          const settleEntrance = () => {
-            if (entranceDone) return;
-            entranceDone = true;
-            for (const el of textEls) el.style.animation = "none";
-          };
           const cuePulse = gsap.fromTo(
             ".ds-cueline",
             { scaleY: 0.35, transformOrigin: "top center", opacity: 0.4 },
@@ -242,18 +240,24 @@ export default function DoorScroll() {
           // tick of the scrub — that was 3 DOM queries per frame, ~180 per
           // second, for the whole length of the door.
           const cueEl = rootEl.querySelector<HTMLElement>(".ds-cue");
+          const raysEl = rootEl.querySelector<HTMLElement>(".ds-rays");
           const bloomEl = rootEl.querySelector<HTMLElement>(".ds-bloom");
           const floodEl = rootEl.querySelector<HTMLElement>(".ds-flood");
 
           const apply = (p: number) => {
             current = seg(p, 0, P.filmEnd) * (FRAME_COUNT - 1);
             draw(current);
-            const t = easeIn(seg(p, P.textOut, 0.13));
-            gsap.set(textEls, { opacity: 1 - t, y: -30 * t });
             if (cueEl)
               gsap.set(cueEl, { opacity: 1 - easeIn(seg(p, P.cueOut, 0.05)) });
-            const b = easeIn(seg(p, P.bloomIn, 0.32));
-            if (bloomEl) gsap.set(bloomEl, { opacity: 0.85 * b, scale: 1 + 0.12 * b });
+            // The film carries the real sunrays; this softer CSS layer joins
+            // them late — brightening AND drifting downward — so the held
+            // sunburst frame keeps breathing until the flood takes over.
+            const r = easeIn(seg(p, P.raysIn, 0.3));
+            if (raysEl) gsap.set(raysEl, { opacity: 0.7 * r, y: 70 * r });
+            // Bloom to FULL — it must veil the doorway completely before the
+            // cream flood arrives, so only light remains on screen.
+            const b = easeIn(seg(p, P.bloomIn, 0.28));
+            if (bloomEl) gsap.set(bloomEl, { opacity: b, scale: 1 + 0.18 * b });
             if (floodEl) gsap.set(floodEl, { opacity: seg(p, P.floodIn, 0.16) });
           };
 
@@ -356,7 +360,6 @@ export default function DoorScroll() {
                 1,
                 -rootEl.getBoundingClientRect().top / spanPx,
               );
-              if (p > 0.03) settleEntrance();
               if (p >= P.doorsOpen) fireDoorsOpen();
               setIntro(p < 0.999);
               targetP = p;
@@ -387,7 +390,6 @@ export default function DoorScroll() {
               anticipatePin: 1,
               onToggle: (self) => setIntro(self.isActive),
               onUpdate(self) {
-                if (self.progress > 0.03) settleEntrance();
                 if (self.progress >= P.doorsOpen) fireDoorsOpen();
                 targetP = self.progress;
                 kick();
@@ -469,6 +471,26 @@ export default function DoorScroll() {
           }}
         />
 
+        {/* golden god-rays — soft crossing beams falling from above the doorway,
+            brightening + drifting down under the scroll writer (opacity/transform
+            only). Extended past the edges so the drift never reveals a seam. */}
+        <div
+          className="ds-rays pointer-events-none absolute will-change-[opacity,transform]"
+          style={{
+            inset: "-14% 0",
+            opacity: 0,
+            background: [
+              "repeating-linear-gradient(112deg, rgb(var(--gold-rgb) / 0) 0px, rgb(var(--gold-rgb) / 0.16) 2px, rgb(var(--gold-rgb) / 0) 10px, rgb(var(--gold-rgb) / 0) 28px)",
+              "repeating-linear-gradient(68deg, rgb(var(--gold-rgb) / 0) 0px, rgb(var(--gold-rgb) / 0.11) 2px, rgb(var(--gold-rgb) / 0) 13px, rgb(var(--gold-rgb) / 0) 36px)",
+              "radial-gradient(95% 75% at 50% 32%, rgba(255,250,235,0.55), transparent 68%)",
+            ].join(", "),
+            maskImage:
+              "radial-gradient(120% 95% at 50% 40%, #000 32%, transparent 80%)",
+            WebkitMaskImage:
+              "radial-gradient(120% 95% at 50% 40%, #000 32%, transparent 80%)",
+          }}
+        />
+
         {/* cream wash — the exact hero ground, so the unpin is invisible */}
         <div
           className="ds-flood pointer-events-none absolute inset-0"
@@ -479,32 +501,8 @@ export default function DoorScroll() {
           }}
         />
 
-        {/* the invitation — the brand lockup itself belongs to the header
-            above and to the hero's reveal after; here, only the line */}
-        <div
-          className="ds-text absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-center px-6 text-center"
-          style={{ textShadow: "0 0 26px rgb(var(--gold-rgb) / 0.55)" }}
-        >
-          <p className="font-display text-2xl tracking-[0.06em] text-cream sm:text-3xl">
-            The doors have been opening since 1968.
-          </p>
-          <div
-            className="mt-[2.5vh] flex items-center gap-3"
-            style={{ color: GOLD }}
-          >
-            <span className="h-px w-12 bg-current" />
-            <span className="text-[12px]">✦</span>
-            <span className="h-px w-12 bg-current" />
-          </div>
-          <p
-            className="mt-[2.5vh] font-display text-[13px] tracking-[0.24em] uppercase sm:text-sm"
-            style={{ color: GOLD }}
-          >
-            Temple Artefacts · Crafted in Mumbai
-          </p>
-        </div>
-
-        {/* scroll cue — scrolling is the door handle now */}
+        {/* No text over the doors — the film speaks for itself. Only the
+            scroll cue below survives; scrolling is the door handle. */}
         <div className="ds-cue pointer-events-none absolute bottom-8 left-1/2 flex -translate-x-1/2 flex-col items-center gap-3">
           <span className="font-display text-[10px] tracking-[0.3em] text-cream/70 uppercase">
             Scroll to open
