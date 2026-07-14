@@ -325,7 +325,18 @@ export default function CinematicHero() {
           if (el) gsap.set(el, { opacity: v, y: from * (1 - v) });
         };
 
-        let held = true; // the header starts withheld — the film owns the screen
+        // REGISTER THE HOLD NOW — not on the first change. `held` used to start at
+        // `true` while holdHeader was only called when the value CHANGED, so
+        // holdHeader("hero", true) was never actually called and the "hero" key
+        // never entered the holder set. The bar was being kept away purely by
+        // DoorScroll's OWN hold — so the instant the doors' trigger went inactive
+        // at the seam, the set emptied and the header slid straight in, on top of
+        // acts 2, 3 and 4. (Shipped that way; the client caught it on Vercel. The
+        // earlier test missed it because calling apply() out of order flipped
+        // `held` and registered the hold as a side effect — a state no real
+        // visitor ever reaches.)
+        holdHeader("hero", true);
+        let held = true;
 
         const apply = (p: number) => {
           // -- ACT 2 : we are indoors. The cream becomes the colonnade. --
@@ -512,7 +523,13 @@ export default function CinematicHero() {
             onNativeScroll!();
           };
           window.addEventListener("resize", onNativeResize, { passive: true });
+          // Paint the correct frame SYNCHRONOUSLY on mount. onNativeScroll only
+          // sets targetP and kicks the rAF glide, so a reload that restores the
+          // scroll past the film would hold the header for a frame before the
+          // glide caught up and released it.
           onNativeScroll();
+          renderedP = targetP;
+          apply(renderedP);
         } else {
           st = ScrollTrigger.create({
             trigger: rootEl,
