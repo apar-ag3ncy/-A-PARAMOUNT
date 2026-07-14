@@ -29,11 +29,12 @@ export default async function ProductsPage() {
         className="pb-10"
       />
 
-      {families.map((f) => (
+      {families.map((f, i) => (
         <FamilyShowcase
           key={f.slug}
           family={{ slug: f.slug, title: f.title, blurb: f.blurb }}
           products={f.products}
+          first={i === 0}
         />
       ))}
     </div>

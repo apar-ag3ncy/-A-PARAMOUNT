@@ -17,8 +17,8 @@ interface Props {
 /** Category landing hero with a SplitText title reveal. */
 export default function CategoryHero({ title, subtitle, count, image }: Props) {
   const eyebrow = (
-    <p className="mb-5 pm-eyebrow font-display text-olive">
-      {count} {count === 1 ? "piece" : "pieces"}
+    <p className="mb-5 pm-eyebrow font-body text-olive">
+      Collection · {count} {count === 1 ? "piece" : "pieces"}
     </p>
   );
 
@@ -27,7 +27,7 @@ export default function CategoryHero({ title, subtitle, count, image }: Props) {
       as="h1"
       by="chars"
       stagger={0.02}
-      className="pm-display font-display font-light text-[color:var(--color-heading-brown)]"
+      className="pm-display-lg font-display font-light text-[color:var(--color-heading-brown)]"
     >
       {title}
     </SplitTextReveal>
@@ -52,7 +52,7 @@ export default function CategoryHero({ title, subtitle, count, image }: Props) {
   // Deck p13 template: text block left, big photo circle bleeding off the right.
   return (
     <header className="relative overflow-x-clip pt-20 pb-10 sm:pt-28 sm:pb-12">
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-6">
+      <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-16">
         <div className="text-center lg:max-w-xl lg:text-left">
           {eyebrow}
           {heading}

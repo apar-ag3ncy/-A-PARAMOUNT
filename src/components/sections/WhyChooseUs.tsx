@@ -91,7 +91,7 @@ export default function WhyChooseUs() {
                     {/* Reserve three lines of title so the tallest one does not
                         push its body below the others' — bodies stay level
                         across the row. Mobile stack is natural, no reserve. */}
-                    <h3 className="font-display text-sm leading-snug font-medium text-heading-brown uppercase tracking-[0.06em] sm:min-h-[3.75rem]">
+                    <h3 className="pm-label font-display text-heading-brown sm:min-h-[3.75rem]">
                       {title}
                     </h3>
                     <p className="pm-small max-w-[24ch] font-body text-espresso/75">

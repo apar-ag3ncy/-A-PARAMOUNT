@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import { openDoors, resetDoors } from "@/lib/doors";
+import { holdHeader } from "@/lib/cinema";
 import { createFrameSequence, frameSize } from "@/lib/frameSequence";
 
 /**
@@ -37,16 +38,19 @@ const seqSrc = (w: 1600 | 800) => (i: number) =>
 const POSTER = "/door/door-open-poster.jpg";
 const GOLD = "var(--color-gold)"; // token, not a raw hex
 
-/** Scroll-progress beats (fractions of the pinned span). The film itself now
- *  carries the sunrays (they burst through the gap as the doors part) and ends
- *  on a full-frame sunburst — so the film plays over most of the scroll, and
- *  the last quarter is the light passage: the CSS ray layer joins the baked
- *  rays, the bloom swells to a veil, and the cream flood delivers the hero. */
+/** Scroll-progress beats (fractions of the pinned span). The film carries the
+ *  sunrays (they burst through the gap and fall toward the floor as the doors
+ *  part) and ends on a full-frame sunburst. The last stretch is a cinematic
+ *  light passage — all overlapping so nothing steps: the frame eases FORWARD
+ *  (push-in) so the falling rays rush at the viewer and off the edges, its warm
+ *  core blooms outward in gold, the vignette lifts to pure light, then the cream
+ *  flood lands the hero. NO synthetic ray layer — its crossing gradients read
+ *  as a lattice pattern over the real light. */
 const P = {
   cueOut: 0.03,
-  raysIn: 0.45, // CSS rays join the film's own sunrays late, bridging the veil
-  bloomIn: 0.55, // warm centre bloom swells over the sunburst
-  floodIn: 0.78, // cream wash → identical to the hero ground → seamless unpin
+  pushIn: 0.03, // camera dollies IN across the WHOLE scroll — one slow, even creep
+  bloomIn: 0.48, // warm gold bloom spreads outward from the sunburst
+  floodIn: 0.8, // cream wash → identical to the hero ground → seamless unpin
   doorsOpen: 0.85, // hand the hero its cue (mid-flood, logo already mid-flight)
   filmEnd: 0.75, // last drawn frame — the full sunburst
 };
@@ -240,24 +244,40 @@ export default function DoorScroll() {
           // tick of the scrub — that was 3 DOM queries per frame, ~180 per
           // second, for the whole length of the door.
           const cueEl = rootEl.querySelector<HTMLElement>(".ds-cue");
-          const raysEl = rootEl.querySelector<HTMLElement>(".ds-rays");
+          const vignetteEl = rootEl.querySelector<HTMLElement>(".ds-vignette");
           const bloomEl = rootEl.querySelector<HTMLElement>(".ds-bloom");
           const floodEl = rootEl.querySelector<HTMLElement>(".ds-flood");
+          // Anchor the push-in and the bloom on the sunburst (a touch above
+          // centre), so the frame grows FROM the light, not from dead centre.
+          gsap.set(cv, { transformOrigin: "50% 44%" });
+          if (bloomEl) gsap.set(bloomEl, { transformOrigin: "50% 44%" });
 
           const apply = (p: number) => {
             current = seg(p, 0, P.filmEnd) * (FRAME_COUNT - 1);
             draw(current);
             if (cueEl)
               gsap.set(cueEl, { opacity: 1 - easeIn(seg(p, P.cueOut, 0.05)) });
-            // The film carries the real sunrays; this softer CSS layer joins
-            // them late — brightening AND drifting downward — so the held
-            // sunburst frame keeps breathing until the flood takes over.
-            const r = easeIn(seg(p, P.raysIn, 0.3));
-            if (raysEl) gsap.set(raysEl, { opacity: 0.7 * r, y: 70 * r });
-            // Bloom to FULL — it must veil the doorway completely before the
-            // cream flood arrives, so only light remains on screen.
-            const b = easeIn(seg(p, P.bloomIn, 0.28));
-            if (bloomEl) gsap.set(bloomEl, { opacity: b, scale: 1 + 0.18 * b });
+            // Cinematic push THROUGH the doorway: the whole frame eases forward
+            // so the falling sunrays rush toward the viewer and slide off the
+            // edges — the "rays coming through the screen" feel. Its warm core
+            // then blooms OUTWARD in gold (the ray colour stays consistent, no
+            // sudden white), the vignette lifts so the edges go pure light, and
+            // the cream flood lands the hero. Every value is a continuous
+            // function of scroll — scrub back and it all reverses, no step.
+            // GEOMETRIC dolly-in, spread across the whole scroll: scale grows
+            // exponentially with progress, so the PERCEIVED zoom speed is
+            // constant start-to-finish (a linear scale looks slow early then
+            // "zaps" late, because zoom is multiplicative). One slow, even,
+            // cinematic push toward the sunburst — you feel yourself entering
+            // the doorway the whole way, never a lurch. Reaches ~1.4x by the
+            // threshold; edges slide past as you go in.
+            const push = seg(p, P.pushIn, 0.92);
+            gsap.set(cv, { scale: Math.pow(1.4, push) });
+            // Linear bloom crossfade (no easeIn) so the light spreads at an even
+            // rate too — the whole passage reads as one consistent motion.
+            const b = seg(p, P.bloomIn, 0.4);
+            if (bloomEl) gsap.set(bloomEl, { opacity: b, scale: 1 + 1.4 * b });
+            if (vignetteEl) gsap.set(vignetteEl, { opacity: 1 - b });
             if (floodEl) gsap.set(floodEl, { opacity: seg(p, P.floodIn, 0.16) });
           };
 
@@ -274,12 +294,13 @@ export default function DoorScroll() {
           let rafId = 0;
           let lastT = 0;
           // Exponential glide, expressed as a TIME constant rather than a
-          // per-frame fraction. `renderedP += d * 0.17` every frame is
-          // refresh-rate dependent: it settles in ~412ms at 60Hz but ~206ms on a
-          // 120Hz ProMotion screen and ~824ms at 30Hz — the door literally felt
-          // different per device. TAU = -16.67ms / ln(1 - 0.17) = 89.45ms
-          // reproduces the tuned 60Hz feel exactly, on any refresh rate.
-          const TAU_MS = 89.45;
+          // per-frame fraction (refresh-rate independent). Tuned UP from the
+          // original 89.45ms: each wheel step now unfolds as a long, weighty
+          // slow-mo slide (~90% settled in ~380ms, fully in ~800ms) — the
+          // deliberate, almost-VR glide the client asked for — while staying
+          // sticky enough on top of ScrollSmoother's own ease to never lag the
+          // hand. Scrubbing back gets the same treatment in reverse.
+          const TAU_MS = 165;
           const tickLerp = (now: number) => {
             if (disposed) return;
             // Clamp dt so a backgrounded tab (or a long GC pause) resumes with a
@@ -305,11 +326,13 @@ export default function DoorScroll() {
           };
 
           // The door scroll IS the intro "page": while it owns the screen the
-          // site header would break the spell, so <html> carries `pm-intro`
-          // (CSS lifts the header away) for exactly as long as the section is
-          // active, and restores it the instant the doors give way to the site.
-          const setIntro = (on: boolean) =>
-            document.documentElement.classList.toggle("pm-intro", on);
+          // site header would break the spell. But the film does not END here —
+          // CinematicHero carries straight on INSIDE the mandir and wants the bar
+          // gone too, until the brand resolves. So the hold is shared (see
+          // lib/cinema): if this section simply removed `pm-intro` when it went
+          // inactive, the header would flash in for a frame at the door→interior
+          // seam, in the middle of the shot.
+          const setIntro = (on: boolean) => holdHeader("doors", on);
 
           // Pinning strategy depends on the scroll environment (matched to
           // SmoothScrollProvider):
@@ -436,7 +459,7 @@ export default function DoorScroll() {
       // shouldn't demand 6 screen-heights of swiping to open the doors, so the
       // scrub distance scales up with the device. ScrollTrigger reads this
       // element's height, so the CSS class alone retunes the whole scrub.
-      className="relative bg-cream h-[360svh] md:h-[520svh] lg:h-[640svh]"
+      className="relative bg-cream h-[420svh] md:h-[600svh] lg:h-[780svh]"
       aria-label="The temple doors open as you scroll"
     >
       <div
@@ -449,45 +472,30 @@ export default function DoorScroll() {
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${POSTER})` }}
         />
-        {/* the film, scrubbed frame-by-frame */}
-        <canvas ref={canvas} className="absolute inset-0 h-full w-full" />
+        {/* the film, scrubbed frame-by-frame — CSS-scaled for the push-in */}
+        <canvas
+          ref={canvas}
+          className="absolute inset-0 h-full w-full will-change-transform"
+        />
 
-        {/* filmic vignette — keeps the render reading as photographed footage */}
+        {/* filmic vignette — keeps the render reading as photographed footage;
+            lifts away as the light passage takes over (see `apply`) */}
         <div
-          className="pointer-events-none absolute inset-0"
+          className="ds-vignette pointer-events-none absolute inset-0 will-change-[opacity]"
           style={{
             background:
               "radial-gradient(130% 105% at 50% 45%, rgba(0,0,0,0) 52%, rgba(28,20,8,0.10) 78%, rgba(24,16,6,0.26) 100%)",
           }}
         />
 
-        {/* soft bloom, enriching the centre as the camera enters the light */}
+        {/* warm gold bloom — the frame's core spreads OUTWARD to envelop the
+            screen as the camera enters the light (scaled/faded in `apply`) */}
         <div
           className="ds-bloom pointer-events-none absolute inset-0 will-change-[transform,opacity]"
           style={{
             opacity: 0,
             background:
-              "radial-gradient(closest-side circle at 50% 45%, #FFFDF6 0%, #FCF3D6 30%, rgb(var(--gold-rgb) / 0.34) 50%, rgb(var(--gold-rgb) / 0) 72%)",
-          }}
-        />
-
-        {/* golden god-rays — soft crossing beams falling from above the doorway,
-            brightening + drifting down under the scroll writer (opacity/transform
-            only). Extended past the edges so the drift never reveals a seam. */}
-        <div
-          className="ds-rays pointer-events-none absolute will-change-[opacity,transform]"
-          style={{
-            inset: "-14% 0",
-            opacity: 0,
-            background: [
-              "repeating-linear-gradient(112deg, rgb(var(--gold-rgb) / 0) 0px, rgb(var(--gold-rgb) / 0.16) 2px, rgb(var(--gold-rgb) / 0) 10px, rgb(var(--gold-rgb) / 0) 28px)",
-              "repeating-linear-gradient(68deg, rgb(var(--gold-rgb) / 0) 0px, rgb(var(--gold-rgb) / 0.11) 2px, rgb(var(--gold-rgb) / 0) 13px, rgb(var(--gold-rgb) / 0) 36px)",
-              "radial-gradient(95% 75% at 50% 32%, rgba(255,250,235,0.55), transparent 68%)",
-            ].join(", "),
-            maskImage:
-              "radial-gradient(120% 95% at 50% 40%, #000 32%, transparent 80%)",
-            WebkitMaskImage:
-              "radial-gradient(120% 95% at 50% 40%, #000 32%, transparent 80%)",
+              "radial-gradient(closest-side circle at 50% 45%, #FFFDF6 0%, #FFF4D2 28%, rgb(var(--gold-rgb) / 0.5) 46%, rgb(var(--gold-rgb) / 0) 70%)",
           }}
         />
 

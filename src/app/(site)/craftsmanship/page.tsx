@@ -5,6 +5,7 @@ import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 export const metadata: Metadata = {
   title: "Craftsmanship",
@@ -63,6 +64,11 @@ export default function CraftsmanshipPage() {
           it ASSEMBLES on scroll: the text rolls in from one side, the image from
           the other (SlideReveal), so each step arrives with motion. */}
       <div className="mx-auto max-w-7xl overflow-x-hidden px-6 py-12 sm:py-16">
+        <SectionHeading
+          eyebrow="The Making"
+          title="Five stages, one sanctum"
+          className="mx-auto mb-6 max-w-2xl sm:mb-10"
+        />
         {STEPS.map((s, i) => {
           const textLeft = i % 2 === 0;
           return (
@@ -74,10 +80,10 @@ export default function CraftsmanshipPage() {
                 from={textLeft ? "left" : "right"}
                 className={textLeft ? "" : "lg:order-2"}
               >
-                <p className="font-body text-3xl text-olive-muted italic">
+                <p className="pm-display font-display not-italic text-olive/25">
                   {s.n}
                 </p>
-                <h2 className="pm-h2 mt-2 font-display text-[color:var(--color-heading-brown)]">
+                <h2 className="pm-h2 mt-1 font-display text-[color:var(--color-heading-brown)]">
                   {s.title}
                 </h2>
                 <OrnamentDivider className="mt-4 text-olive/45" />
@@ -89,12 +95,13 @@ export default function CraftsmanshipPage() {
                 from={textLeft ? "right" : "left"}
                 className="overflow-hidden rounded-card"
               >
+                {/* Tall artifacts: show the whole piece uncropped (client
+                    mandate). The frame adopts the photo's real ratio. */}
                 <AssetFrame
                   src={s.img}
                   image={null}
-                  ratio="4/3"
-                  fit="cover"
-                  crop
+                  ratio="3/4"
+                  fit="contain"
                   showLabel={false}
                   sizes="(min-width:1024px) 46vw, 100vw"
                 />

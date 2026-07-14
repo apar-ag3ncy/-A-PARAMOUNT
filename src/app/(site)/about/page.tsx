@@ -118,28 +118,35 @@ export default function AboutPage() {
         </SemicircleField>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-6 overflow-x-clip px-6 pb-24 lg:grid-cols-2">
-        <SlideReveal from="left" className="rounded-card border border-olive/15 bg-cream-deep/50 p-10">
-          <h2 className="pm-label font-display text-olive">
-            Our Mission
-          </h2>
-          <p className="pm-body mt-5 font-body text-espresso/85">
-            To uphold the sanctity of these products by ensuring unparalleled
-            quality, timeless design and utmost respect for religious traditions —
-            exceeding expectations through continuous improvement, ethical practices
-            and devotion to serving religious communities globally.
-          </p>
-        </SlideReveal>
-        <SlideReveal from="right" className="rounded-card border border-olive/15 bg-cream-deep/50 p-10">
-          <h2 className="pm-label font-display text-olive">
-            Our Vision
-          </h2>
-          <p className="pm-body mt-5 font-body text-espresso/85">
-            As a leading manufacturer of temple products, we envision expanding our
-            legacy of excellence and integrity — setting new benchmarks in quality
-            and design, and enhancing the sacredness of temples across the world.
-          </p>
-        </SlideReveal>
+      <section className="mx-auto max-w-7xl overflow-x-clip px-6 pt-24 pb-24">
+        <ScrollReveal className="mb-12">
+          <SectionHeading eyebrow="Our Purpose" title="Mission & Vision" />
+        </ScrollReveal>
+        <div className="grid gap-6 lg:grid-cols-2">
+          <SlideReveal
+            from="left"
+            className="rounded-card border border-olive/15 bg-cream-deep/50 p-8 transition-colors duration-300 hover:border-olive/30"
+          >
+            <h2 className="pm-h3 font-display text-olive-deep">Our Mission</h2>
+            <p className="pm-body mt-3 font-body text-espresso/85">
+              To uphold the sanctity of these products by ensuring unparalleled
+              quality, timeless design and utmost respect for religious traditions —
+              exceeding expectations through continuous improvement, ethical practices
+              and devotion to serving religious communities globally.
+            </p>
+          </SlideReveal>
+          <SlideReveal
+            from="right"
+            className="rounded-card border border-olive/15 bg-cream-deep/50 p-8 transition-colors duration-300 hover:border-olive/30"
+          >
+            <h2 className="pm-h3 font-display text-olive-deep">Our Vision</h2>
+            <p className="pm-body mt-3 font-body text-espresso/85">
+              As a leading manufacturer of temple products, we envision expanding our
+              legacy of excellence and integrity — setting new benchmarks in quality
+              and design, and enhancing the sacredness of temples across the world.
+            </p>
+          </SlideReveal>
+        </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-24">
@@ -150,7 +157,7 @@ export default function AboutPage() {
           {PILLARS.map((p) => (
             <div
               key={p.title}
-              className="rounded-card border border-olive/15 bg-cream p-7"
+              className="rounded-card border border-olive/15 bg-cream p-8 transition-colors duration-300 hover:border-olive/30 hover:bg-cream-deep/40"
             >
               <span className="mb-5 flex h-11 w-11 items-center justify-center rounded-full bg-cream-deep text-olive-deep">
                 <svg
@@ -167,7 +174,7 @@ export default function AboutPage() {
                 </svg>
               </span>
               <h3 className="pm-h3 font-display text-olive-deep">{p.title}</h3>
-              <p className="pm-small mt-2 font-body text-espresso/70">{p.body}</p>
+              <p className="pm-small mt-3 font-body text-espresso/70">{p.body}</p>
             </div>
           ))}
         </div>

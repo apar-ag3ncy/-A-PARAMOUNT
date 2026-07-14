@@ -6,12 +6,24 @@ import ArchMark from "@/components/ui/ArchMark";
 import Wordmark from "@/components/ui/Wordmark";
 
 /**
- * Footer — the deck's closing spread, reimagined. A full-height velvet-olive
- * panel carrying the brand's own back-page damask (extracted from 27June.pdf
- * p118 → /brand/deck-damask.webp) and a vast, ghosted arch-"A" monogram, so the
- * site ends on the same reverent back-cover the printed profile does. The
- * emotional centre is the deck's own closing line (p30). Contact is pared to the
- * essentials — the full directory lives on /contact — so the panel reads as a
+ * Footer — the deck's closing spread, reimagined, and the last room of the temple.
+ *
+ * The site opens by scrolling a pair of marble doors open and walking INSIDE a
+ * mandir; it now CLOSES in the same colonnade. The carved pillars (the very plate
+ * the hero's camera drifts down) are sunk deep into the velvet — a heavy scrim
+ * over a low-opacity photo — so they read as ghosted architecture, a hall you are
+ * standing in, never a photograph pasted behind text. The vanishing point of that
+ * corridor sits dead centre, so the brand lockup lands exactly in its light, with
+ * the pillars flanking it like a colonnade.
+ *
+ * The brand's own elements are layered over that, all deliberately DILUTED so they
+ * fuse rather than compete: the deck's back-page damask (from 27June.pdf p118 →
+ * /brand/deck-damask.webp), a warm gold bloom falling from the top edge (the same
+ * light the doors opened onto), and a vast, ghosted arch-"A" monogram — so the
+ * site ends on the same reverent back-cover the printed profile does.
+ *
+ * The emotional centre is the deck's own closing line (p30). Contact is pared to
+ * the essentials — the full directory lives on /contact — so the panel reads as a
  * considered colophon, not a link dump.
  */
 export default function Footer() {
@@ -25,24 +37,58 @@ export default function Footer() {
           "radial-gradient(125% 90% at 50% 0%, var(--color-velvet-100) 0%, var(--color-velvet-200) 42%, var(--color-velvet-300) 78%, var(--color-velvet-400) 100%)",
       }}
     >
-      {/* the deck's own back-page damask, full-bleed and faint */}
+      {/* ---- the carved colonnade, sunk into the velvet ---- */}
+      <div aria-hidden className="pointer-events-none absolute inset-0">
+        <Image
+          src="/interior/corridor-2560.webp"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover object-center opacity-[0.34]"
+        />
+        {/* Velvet drowns the marble. Lightest at top-centre — where the gold bloom
+            falls and the corridor's own vanishing point glows — and deepening to
+            near-black at the edges and the base, so the pillars emerge out of the
+            dark and the colophon rows below stay clean. */}
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(115% 85% at 50% 6%, rgba(74,68,40,0.62) 0%, rgba(46,35,19,0.82) 38%, rgba(35,27,14,0.92) 70%, rgba(30,23,12,0.96) 100%)",
+          }}
+        />
+        {/* and a straight fade to the deepest velvet at the very bottom, so the
+            baseline rule and copyright never sit on a busy carving */}
+        <div
+          className="absolute inset-x-0 bottom-0 h-1/2"
+          style={{
+            background:
+              "linear-gradient(to bottom, rgba(30,23,12,0) 0%, rgba(30,23,12,0.72) 55%, rgba(30,23,12,0.94) 100%)",
+          }}
+        />
+      </div>
+
+      {/* the deck's own back-page damask, full-bleed and faint — pulled back now
+          that the pillars carry the texture, so the two never fight */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.12] mix-blend-screen"
+        className="pointer-events-none absolute inset-0 bg-cover bg-center opacity-[0.07] mix-blend-screen"
         style={{ backgroundImage: "url(/brand/deck-damask.webp)" }}
       />
-      {/* warm gold bloom from the top edge — the light the doors opened onto */}
+      {/* warm gold bloom from the top edge — the light the doors opened onto,
+          falling INTO the colonnade */}
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-2/3"
         style={{
           background:
-            "radial-gradient(60% 70% at 50% 0%, rgb(var(--gold-rgb) / 0.22) 0%, rgb(var(--gold-rgb) / 0.06) 42%, transparent 74%)",
+            "radial-gradient(60% 70% at 50% 0%, rgb(var(--gold-rgb) / 0.26) 0%, rgb(var(--gold-rgb) / 0.08) 42%, transparent 74%)",
         }}
       />
-      {/* a vast, ghosted arch-A monogram — the printed back cover's grandeur */}
+      {/* a vast, ghosted arch-A monogram — the printed back cover's grandeur,
+          hanging in the corridor's light */}
       <ArchMark
-        className="pointer-events-none absolute top-[42%] left-1/2 h-[520px] w-auto -translate-x-1/2 -translate-y-1/2 text-gold opacity-[0.05]"
+        className="pointer-events-none absolute top-[42%] left-1/2 h-[520px] w-auto -translate-x-1/2 -translate-y-1/2 text-gold opacity-[0.06]"
       />
       {/* fine gold top rule */}
       <div

@@ -147,7 +147,7 @@ export default function CategoryGallery({
           height from the manifest), so every image fills its frame completely —
           no crop, no empty bands — whether it's a tall dhwajadand or a wide
           bhandar. CSS columns balance the varying heights. */}
-      <div className="[column-fill:_balance] gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4">
+      <div className="[column-fill:_balance] gap-6 sm:columns-2 lg:columns-3 [&>*]:mb-6">
         {images.map((img, i) => (
           <button
             key={img.src}

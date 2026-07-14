@@ -68,6 +68,15 @@
 :root {
   --gold-rgb: 226 202 130;
   --pista-rgb: 220 207 149;
+
+  /* Where the sticky header bar ends. Header also sets this inline (it IS the
+     bar), but custom properties only inherit to DESCENDANTS — and the page
+     content is not one (the bar lives outside #smooth-content). Anything outside
+     the header that must clear it (e.g. the pinned /gallery stage) reads it from
+     here. 4rem + 1px = the h-16 row PLUS the hairline rule, which is part of the
+     bar's border-box; a plain 4rem leaves content 1px under the rule. Keep in
+     sync with Header.tsx. */
+  --pm-bar-bottom: calc(4rem + 1px);
 }
 
 @layer base {

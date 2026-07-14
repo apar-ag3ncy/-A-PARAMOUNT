@@ -12,7 +12,7 @@ export default function EnquiryCTA() {
           title="Let us craft something sacred for your temple"
           className="mx-auto max-w-2xl"
         />
-        <div className="mt-11 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <MagneticButton href="/contact">Begin your enquiry</MagneticButton>
         </div>
       </ScrollReveal>

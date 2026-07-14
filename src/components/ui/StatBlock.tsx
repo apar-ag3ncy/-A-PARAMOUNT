@@ -16,9 +16,7 @@ interface Props {
 export default function StatBlock({ value, label }: Props) {
   return (
     <div className="flex flex-col items-center text-center">
-      <span className="font-display text-4xl leading-none sm:text-5xl">
-        {value}
-      </span>
+      <span className="pm-h2 font-display">{value}</span>
       <span className="pm-label mt-2 font-body">{label}</span>
       <OrnamentDivider width="sm" className="mt-3 text-gold/70" />
     </div>

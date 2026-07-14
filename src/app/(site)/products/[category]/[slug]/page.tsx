@@ -63,7 +63,7 @@ export default async function ProductPage({
       <SplitTextReveal
         as="h1"
         by="words"
-        className="pm-h2 mt-3 font-display font-light text-olive-deep"
+        className="pm-display mt-3 font-display font-light text-olive-deep"
       >
         {product.title}
       </SplitTextReveal>
@@ -107,6 +107,8 @@ export default async function ProductPage({
         <Link href={`/products/${product.family}`} className="hover:text-olive">
           {family?.title}
         </Link>
+        <span className="mx-2">/</span>
+        <span className="text-olive-deep/60">{product.title}</span>
       </nav>
 
       {gallery ? (
@@ -119,10 +121,13 @@ export default async function ProductPage({
             gallery={gallery}
             variants={product.variants}
           />
-          <div className="mt-14">
-            <MagneticButton href="/contact">
-              Enquire about {product.title}
-            </MagneticButton>
+          <div className="mt-16 border-t border-olive/15 pt-12 sm:mt-20 sm:pt-14">
+            <p className="pm-eyebrow font-body text-olive">Commission this piece</p>
+            <div className="mt-5">
+              <MagneticButton href="/contact">
+                Enquire about {product.title}
+              </MagneticButton>
+            </div>
             <p className="pm-small mt-6 max-w-md font-body text-espresso/60">
               Every piece is handcrafted to order — sized to your derasar and to
               religious norms.

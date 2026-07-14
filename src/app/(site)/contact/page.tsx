@@ -21,8 +21,8 @@ export default function ContactPage() {
       <div className="mx-auto mt-14 grid max-w-6xl gap-14 px-6 lg:grid-cols-[1.1fr_0.9fr]">
         <ContactForm />
 
-        <aside className="space-y-9">
-          <div>
+        <aside className="divide-y divide-olive/12 rounded-card border border-olive/20 bg-cream-deep/40 p-8 lg:p-10">
+          <div className="pb-8">
             <h2 className="pm-label font-display text-olive">
               Workshops
             </h2>
@@ -33,7 +33,7 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div>
+          <div className="py-8">
             <h2 className="pm-label font-display text-olive">
               Email &amp; Social
             </h2>
@@ -48,17 +48,17 @@ export default function ContactPage() {
             </p>
           </div>
 
-          <div>
+          <div className="pt-8">
             <h2 className="pm-label font-display text-olive">
               Speak with
             </h2>
-            <ul className="mt-3 space-y-1.5 font-body text-espresso/80">
+            <ul className="mt-3 space-y-2.5 font-body text-espresso/80">
               {CONTACT.people.map((p) => (
                 <li key={p.phone}>
                   {p.name} ·{" "}
                   <a
                     href={`tel:${p.phone.replace(/\s+/g, "")}`}
-                    className="tabular-nums hover:text-olive"
+                    className="tabular-nums text-olive-deep hover:text-olive"
                   >
                     {p.phone}
                   </a>

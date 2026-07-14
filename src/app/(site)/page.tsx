@@ -1,7 +1,5 @@
 import CinematicHero from "@/components/sections/CinematicHero";
 import DoorScroll from "@/components/sections/DoorScroll";
-import FeaturedFamilies from "@/components/sections/FeaturedFamilies";
-import FeaturedGallery from "@/components/sections/FeaturedGallery";
 import CraftStory from "@/components/sections/CraftStory";
 import QuoteInterlude from "@/components/sections/QuoteInterlude";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
@@ -15,9 +13,13 @@ export default function Home() {
       {/* The temple doors, opened by the visitor's own scroll: a pinned,
           scrubbed frame-sequence film that ends on the hero's exact cream. */}
       <DoorScroll />
+      {/* "Our Works" is ACT 4 and lives INSIDE CinematicHero's pinned stage — it
+          lands on the very same mandir dome the camera lifted onto, as the brand
+          fades away. It is deliberately NOT a section here: giving it its own
+          backdrop rendered the dome twice ("it feels like duplicated bg in both").
+          (The old "Four families, one sanctum" arch cards were removed; the
+          families still live on /products.) */}
       <CinematicHero />
-      <FeaturedFamilies />
-      <FeaturedGallery />
       <CraftStory />
 
       {/* Deck p30 interlude — "Shaped by devotion," + olive damask circle */}

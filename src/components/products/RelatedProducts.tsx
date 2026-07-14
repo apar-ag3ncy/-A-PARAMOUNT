@@ -14,7 +14,7 @@ export default function RelatedProducts({ items, familySlug }: Props) {
   return (
     <section className="mt-16 border-t border-olive/15 pt-10 sm:mt-28 sm:pt-16">
       <SectionHeading title="More from this collection" className="mb-10" />
-      <div className="grid grid-cols-2 gap-6 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-6 sm:gap-8 md:grid-cols-4">
         {items.map((p) => (
           <Link key={p.slug} href={`/products/${familySlug}/${p.slug}`} className="group">
             {/* `src` = the local /public photo, `image` = Sanity. Passing only
