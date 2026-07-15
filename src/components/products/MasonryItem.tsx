@@ -60,7 +60,7 @@ export default function MasonryItem({
         )}
       </div>
       <div className="mt-3 flex justify-center">
-        <span className="bg-gradient-to-r from-olive-deep to-olive-deep bg-[length:0_1px] bg-[position:left_bottom] bg-no-repeat pb-1 font-display pm-label text-olive-deep transition-[background-size] duration-500 ease-out group-hover:bg-[length:100%_1px]">
+        <span className="bg-gradient-to-r from-olive-deep to-olive-deep bg-[length:0_1px] bg-[position:left_bottom] bg-no-repeat pb-1 font-display pm-label text-maroon transition-[background-size] duration-500 ease-out group-hover:bg-[length:100%_1px]">
           {caption}
         </span>
       </div>

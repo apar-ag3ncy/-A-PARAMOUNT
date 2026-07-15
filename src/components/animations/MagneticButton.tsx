@@ -71,7 +71,7 @@ export default function MagneticButton({
     // Premium fill-wipe: an olive panel sweeps in from the left, the label turns
     // cream, and a gold hairline + arrow slide in — far less flat than a plain
     // colour swap. Everything is transform/opacity, so it stays 60fps.
-    "group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full border border-olive px-8 py-4 font-display text-sm tracking-[0.2em] text-olive-deep uppercase transition-[color,border-color,box-shadow] duration-500 ease-out hover:border-olive-deep hover:text-cream hover:shadow-[0_14px_34px_-16px_rgba(79,71,40,0.6)]",
+    "group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full border border-olive px-8 py-4 font-display text-sm tracking-[0.2em] text-maroon uppercase transition-[color,border-color,box-shadow] duration-500 ease-out hover:border-olive-deep hover:text-cream hover:shadow-[0_14px_34px_-16px_rgba(79,71,40,0.6)]",
     className,
   );
 

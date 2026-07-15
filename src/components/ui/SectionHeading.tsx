@@ -32,9 +32,9 @@ export default function SectionHeading({
   const isCenter = align === "center";
   const alignBox = isCenter ? "items-center text-center" : "items-start text-left";
 
-  const eyebrowColor = tone === "cream" ? "text-cream/70" : "text-olive/80";
+  const eyebrowColor = tone === "cream" ? "text-cream/70" : "text-maroon/80";
   const titleColor =
-    tone === "cream" ? "text-cream" : "text-[color:var(--color-heading-brown)]";
+    tone === "cream" ? "text-cream" : "text-heading-brown";
   const dividerColor = tone === "cream" ? "text-gold/70" : "text-olive/50";
 
   return (

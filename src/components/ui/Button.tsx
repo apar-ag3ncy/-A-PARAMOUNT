@@ -30,11 +30,11 @@ const VARIANT: Record<Variant, string> = {
   solid:
     "rounded-full bg-olive-deep text-cream shadow-[0_12px_30px_-14px_rgba(46,35,19,0.6)] hover:bg-olive hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-16px_rgba(46,35,19,0.7)]",
   outline:
-    "rounded-full border border-olive/35 text-olive-deep hover:border-olive-deep hover:bg-olive-deep hover:text-cream hover:-translate-y-0.5",
-  ghost: "rounded-full text-olive-deep hover:text-olive",
+    "rounded-full border border-olive/35 text-maroon hover:border-olive-deep hover:bg-olive-deep hover:text-cream hover:-translate-y-0.5",
+  ghost: "rounded-full text-maroon hover:text-maroon",
   // cream pill for dark grounds (the header/nav on olive) — warms to gold
   cream:
-    "rounded-full bg-cream text-espresso hover:bg-gold hover:-translate-y-0.5 shadow-[0_10px_26px_-14px_rgba(46,35,19,0.5)]",
+    "rounded-full bg-cream text-maroon hover:bg-gold hover:-translate-y-0.5 shadow-[0_10px_26px_-14px_rgba(46,35,19,0.5)]",
 };
 
 /** On a dark ground, outline/ghost recolour to cream so they stay legible. */

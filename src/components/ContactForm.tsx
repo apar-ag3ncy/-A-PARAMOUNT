@@ -18,9 +18,9 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 const field =
-  "w-full rounded-xl border border-olive/30 bg-cream px-4 py-3.5 font-body text-espresso transition-colors placeholder:text-espresso/40 focus:border-olive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold";
-const errCls = "mt-1 pm-small font-body text-[color:var(--color-heading-brown)]";
-const labelCls = "pm-label mb-1.5 block font-body text-olive/80";
+  "w-full rounded-xl border border-olive/30 bg-cream px-4 py-3.5 font-body text-maroon transition-colors placeholder:text-maroon/40 focus:border-olive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold";
+const errCls = "mt-1 pm-small font-body text-maroon";
+const labelCls = "pm-label mb-1.5 block font-body text-maroon/80";
 
 /**
  * Enquiry form (build-plan Prompt H). react-hook-form + zod validation, posts to
@@ -56,8 +56,8 @@ export default function ContactForm() {
   if (sent) {
     return (
       <div className="rounded-card border border-olive/20 bg-cream-deep/50 p-10 text-center">
-        <p className="pm-h3 font-body text-olive-deep italic">Thank you.</p>
-        <p className="mt-3 pm-body font-body text-espresso/75">
+        <p className="pm-h3 font-body text-heading-brown italic">Thank you.</p>
+        <p className="mt-3 pm-body font-body text-maroon/75">
           We have received your enquiry and will be in touch shortly.
         </p>
       </div>
@@ -114,7 +114,7 @@ export default function ContactForm() {
         </Button>
       </div>
       {failed && (
-        <p className="pm-small font-body text-[color:var(--color-heading-brown)]">
+        <p className="pm-small font-body text-maroon">
           The enquiry service isn’t connected yet — please email us directly at{" "}
           <a href={`mailto:${CONTACT.email}`} className="underline">
             {CONTACT.email}

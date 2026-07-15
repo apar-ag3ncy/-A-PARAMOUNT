@@ -159,13 +159,13 @@ export default function FeaturedGallery() {
       aria-label="Our works"
       className="flex w-full flex-col items-center text-center"
     >
-      <span className="pm-label inline-flex items-center rounded-full bg-cream/60 px-4 py-1.5 font-display text-olive-deep ring-1 ring-olive/20 backdrop-blur-sm">
+      <span className="pm-label inline-flex items-center rounded-full bg-cream/60 px-4 py-1.5 font-display text-maroon ring-1 ring-olive/20 backdrop-blur-sm">
         Selected Works · Since 1968
       </span>
-      <h2 className="pm-display-lg font-display mt-5 text-[color:var(--color-heading-brown)]">
+      <h2 className="pm-display-lg font-display mt-5 text-heading-brown">
         Our Works
       </h2>
-      <p className="pm-body mx-auto mt-4 max-w-xl font-body text-espresso/80">
+      <p className="pm-body mx-auto mt-4 max-w-xl font-body text-maroon/80">
         Three generations of engineering and artistry — each piece handcrafted
         for Jain derasars and Hindu temples.
       </p>

@@ -46,7 +46,7 @@ export default function Header() {
           />
           <Wordmark
             tagline={false}
-            className="text-[15px] text-olive-deep sm:text-[16px]"
+            className="text-[15px] text-heading-brown sm:text-[16px]"
           />
         </Link>
 

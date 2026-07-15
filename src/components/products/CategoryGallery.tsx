@@ -131,8 +131,8 @@ export default function CategoryGallery({
                   className={cn(
                     "pm-micro text-center font-display transition-colors",
                     on
-                      ? "text-olive-deep"
-                      : "text-olive-deep/60 group-hover:text-olive-deep",
+                      ? "text-maroon"
+                      : "text-maroon/60 group-hover:text-maroon",
                   )}
                 >
                   {f.label}

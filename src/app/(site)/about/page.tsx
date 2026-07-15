@@ -76,7 +76,7 @@ export default function AboutPage() {
       <section className="mx-auto mt-20 grid max-w-7xl items-center gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-8">
         <SlideReveal from="left">
           <SectionHeading eyebrow="Since 1968" title="ABOUT US" align="left" />
-          <div className="pm-body mt-8 max-w-xl space-y-5 font-body text-espresso/85">
+          <div className="pm-body mt-8 max-w-xl space-y-5 font-body text-maroon/85">
             <p>
               Established in 1968, A Paramount Engineering Works is a manufacturing
               company based in Mumbai, India which deals in all kinds of Jain Derasar
@@ -127,8 +127,8 @@ export default function AboutPage() {
             from="left"
             className="rounded-card border border-olive/15 bg-cream-deep/50 p-8 transition-colors duration-300 hover:border-olive/30"
           >
-            <h2 className="pm-h3 font-display text-olive-deep">Our Mission</h2>
-            <p className="pm-body mt-3 font-body text-espresso/85">
+            <h2 className="pm-h3 font-display text-heading-brown">Our Mission</h2>
+            <p className="pm-body mt-3 font-body text-maroon/85">
               To uphold the sanctity of these products by ensuring unparalleled
               quality, timeless design and utmost respect for religious traditions —
               exceeding expectations through continuous improvement, ethical practices
@@ -139,8 +139,8 @@ export default function AboutPage() {
             from="right"
             className="rounded-card border border-olive/15 bg-cream-deep/50 p-8 transition-colors duration-300 hover:border-olive/30"
           >
-            <h2 className="pm-h3 font-display text-olive-deep">Our Vision</h2>
-            <p className="pm-body mt-3 font-body text-espresso/85">
+            <h2 className="pm-h3 font-display text-heading-brown">Our Vision</h2>
+            <p className="pm-body mt-3 font-body text-maroon/85">
               As a leading manufacturer of temple products, we envision expanding our
               legacy of excellence and integrity — setting new benchmarks in quality
               and design, and enhancing the sacredness of temples across the world.
@@ -173,8 +173,8 @@ export default function AboutPage() {
                   {p.icon}
                 </svg>
               </span>
-              <h3 className="pm-h3 font-display text-olive-deep">{p.title}</h3>
-              <p className="pm-small mt-3 font-body text-espresso/70">{p.body}</p>
+              <h3 className="pm-h3 font-display text-heading-brown">{p.title}</h3>
+              <p className="pm-small mt-3 font-body text-maroon/70">{p.body}</p>
             </div>
           ))}
         </div>

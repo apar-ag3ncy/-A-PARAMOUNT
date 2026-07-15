@@ -125,7 +125,7 @@ export default function CategoryBrowser({
                   "inline-flex shrink-0 items-center gap-2 rounded-full px-4 py-1.5 font-body pm-label whitespace-nowrap transition-colors",
                   active
                     ? "bg-olive text-cream"
-                    : "text-espresso hover:text-olive-deep",
+                    : "text-maroon hover:text-maroon",
                 )}
               >
                 {/* gold coin marker — matches the deck's variant chips (p13) */}

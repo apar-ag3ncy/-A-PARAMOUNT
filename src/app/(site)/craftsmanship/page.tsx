@@ -80,14 +80,14 @@ export default function CraftsmanshipPage() {
                 from={textLeft ? "left" : "right"}
                 className={textLeft ? "" : "lg:order-2"}
               >
-                <p className="pm-display font-display not-italic text-olive/25">
+                <p className="pm-display font-display not-italic text-heading-brown/25">
                   {s.n}
                 </p>
-                <h2 className="pm-h2 mt-1 font-display text-[color:var(--color-heading-brown)]">
+                <h2 className="pm-h2 mt-1 font-display text-heading-brown">
                   {s.title}
                 </h2>
                 <OrnamentDivider className="mt-4 text-olive/45" />
-                <p className="pm-body mt-5 max-w-md font-body text-espresso/80">
+                <p className="pm-body mt-5 max-w-md font-body text-maroon/80">
                   {s.body}
                 </p>
               </SlideReveal>

@@ -378,14 +378,14 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
           {/* Only the collection is announced — the per-photo counter below would
               otherwise fire the live region on all 58 photo crossings. */}
           <div aria-live="polite">
-            <p className="pm-eyebrow font-body text-olive/70">
+            <p className="pm-eyebrow font-body text-maroon/70">
               Collection {activeCol + 1} of {collections.length}
             </p>
             <h2 className="pm-h2 mt-1 font-display text-heading-brown">
               {col.label}
             </h2>
           </div>
-          <p className="pm-small font-body text-olive/70" aria-hidden>
+          <p className="pm-small font-body text-maroon/70" aria-hidden>
             {within} of {col.count}{" "}
             {col.count === 1 ? "installation" : "installations"}
           </p>
@@ -513,12 +513,12 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
         <div
           ref={cueRef}
           aria-hidden
-          className="flex items-center gap-2 font-display pm-micro text-olive/60"
+          className="flex items-center gap-2 font-display pm-micro text-maroon/60"
         >
           Scroll — each collection flows into the next
           <svg
             viewBox="0 0 24 24"
-            className="size-4 animate-bounce"
+            className="size-4 animate-bounce text-olive/60"
             fill="none"
             stroke="currentColor"
             strokeWidth={1.5}

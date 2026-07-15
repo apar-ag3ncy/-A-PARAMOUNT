@@ -673,7 +673,7 @@ export default function CinematicHero() {
 
         {/* ACT 2's line — the only thing on screen before the brand. */}
         <div className="hv-line pointer-events-none absolute inset-0 z-20 grid place-items-center px-6 opacity-0">
-          <p className="pm-display max-w-[22ch] text-center font-display text-[color:var(--color-heading-brown)]">
+          <p className="pm-display max-w-[22ch] text-center font-display text-heading-brown">
             The doors everyone has been opening since 1968.
           </p>
         </div>
@@ -681,7 +681,7 @@ export default function CinematicHero() {
         {/* ACT 3 — the brand, on the dome. In ACT 4 it dissolves as a GROUP off
             this same backdrop, and "Our Works" takes its place. */}
         <div className="hv-brand relative z-10 flex flex-col items-center px-6 text-center">
-          <p className="hv-eyebrow mb-9 font-display text-[11px] tracking-[0.34em] text-olive-deep uppercase opacity-0">
+          <p className="hv-eyebrow mb-9 font-display text-[11px] tracking-[0.34em] text-maroon uppercase opacity-0">
             {SITE.name} · Since {SITE.since}
           </p>
 
@@ -708,18 +708,18 @@ export default function CinematicHero() {
           </div>
 
           <div className="hv-word mt-9 opacity-0">
-            <Wordmark className="text-[clamp(32px,7.4vw,54px)] text-olive-deep" />
+            <Wordmark className="text-[clamp(32px,7.4vw,54px)] text-heading-brown" />
           </div>
 
           <OrnamentDivider className="hv-div mt-9 text-olive/70 opacity-0" />
 
-          <p className="hv-tag mt-7 font-display text-2xl text-[color:var(--color-heading-brown)] opacity-0 sm:text-4xl">
+          <p className="hv-tag mt-7 font-display text-2xl text-heading-brown opacity-0 sm:text-4xl">
             Crafting Divine{" "}
             <span className="font-body text-olive italic">Elegance</span>
           </p>
         </div>
 
-        <div className="hv-cue absolute bottom-8 left-1/2 -translate-x-1/2 font-display text-[10px] tracking-[0.34em] text-olive-deep/70 uppercase opacity-0">
+        <div className="hv-cue absolute bottom-8 left-1/2 -translate-x-1/2 font-display text-[10px] tracking-[0.34em] text-maroon/70 uppercase opacity-0">
           Scroll to continue
         </div>
 

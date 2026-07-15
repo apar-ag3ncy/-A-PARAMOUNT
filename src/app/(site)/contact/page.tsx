@@ -23,10 +23,10 @@ export default function ContactPage() {
 
         <aside className="divide-y divide-olive/12 rounded-card border border-olive/20 bg-cream-deep/40 p-8 lg:p-10">
           <div className="pb-8">
-            <h2 className="pm-label font-display text-olive">
+            <h2 className="pm-label font-display text-maroon">
               Workshops
             </h2>
-            <div className="pm-body mt-3 space-y-3 font-body text-espresso/80">
+            <div className="pm-body mt-3 space-y-3 font-body text-maroon/80">
               {CONTACT.addresses.map((a) => (
                 <p key={a}>{a}</p>
               ))}
@@ -34,31 +34,31 @@ export default function ContactPage() {
           </div>
 
           <div className="py-8">
-            <h2 className="pm-label font-display text-olive">
+            <h2 className="pm-label font-display text-maroon">
               Email &amp; Social
             </h2>
             <a
               href={`mailto:${CONTACT.email}`}
-              className="pm-body mt-3 block font-body text-espresso/80 hover:text-olive"
+              className="pm-body mt-3 block font-body text-maroon/80 hover:text-maroon"
             >
               {CONTACT.email}
             </a>
-            <p className="pm-body mt-1 font-body text-espresso/60">
+            <p className="pm-body mt-1 font-body text-maroon/60">
               Facebook / Instagram — {CONTACT.social}
             </p>
           </div>
 
           <div className="pt-8">
-            <h2 className="pm-label font-display text-olive">
+            <h2 className="pm-label font-display text-maroon">
               Speak with
             </h2>
-            <ul className="mt-3 space-y-2.5 font-body text-espresso/80">
+            <ul className="mt-3 space-y-2.5 font-body text-maroon/80">
               {CONTACT.people.map((p) => (
                 <li key={p.phone}>
                   {p.name} ·{" "}
                   <a
                     href={`tel:${p.phone.replace(/\s+/g, "")}`}
-                    className="tabular-nums text-olive-deep hover:text-olive"
+                    className="tabular-nums text-maroon hover:text-maroon"
                   >
                     {p.phone}
                   </a>

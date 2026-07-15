@@ -35,12 +35,12 @@ export default function PageHeader({
 }: Props) {
   return (
     <header className={cn("mx-auto max-w-4xl px-6 text-center", className)}>
-      <p className="pm-eyebrow font-display mb-5 text-olive">{eyebrow}</p>
+      <p className="pm-eyebrow font-display mb-5 text-maroon">{eyebrow}</p>
       <SplitTextReveal
         as="h1"
         by="words"
         className={cn(
-          "font-display text-[color:var(--color-heading-brown)]",
+          "font-display text-heading-brown",
           size === "lg" ? "pm-display-lg" : "pm-display",
         )}
       >
@@ -48,10 +48,10 @@ export default function PageHeader({
       </SplitTextReveal>
       {divider && <OrnamentDivider className="mx-auto mt-6 text-olive/50" />}
       {tagline && (
-        <p className="pm-lead font-body mt-5 text-olive italic">{tagline}</p>
+        <p className="pm-lead font-body mt-5 text-maroon italic">{tagline}</p>
       )}
       {subtitle && (
-        <p className="pm-body font-body mx-auto mt-6 max-w-xl text-espresso/75">
+        <p className="pm-body font-body mx-auto mt-6 max-w-xl text-maroon/75">
           {subtitle}
         </p>
       )}

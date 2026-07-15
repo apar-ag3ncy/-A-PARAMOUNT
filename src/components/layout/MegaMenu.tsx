@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 /** Dark-on-light now: the header is a frosted cream bar, so links are
  *  olive-deep and hover deepens + draws the underline. */
 const linkCls =
-  "group/nav relative font-display text-[12px] uppercase tracking-[0.12em] text-olive-deep/85 whitespace-nowrap rounded-sm transition-colors hover:text-olive-deep focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold";
+  "group/nav relative font-display text-[12px] uppercase tracking-[0.12em] text-maroon/85 whitespace-nowrap rounded-sm transition-colors hover:text-maroon focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold";
 
 /** Elegant hover underline that draws in from the left. */
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
@@ -152,10 +152,10 @@ export default function MegaMenu() {
                     sizes="(min-width:1024px) 240px, 0px"
                     frameClassName="rounded-t-full transition-colors duration-[400ms] group-hover:border-olive"
                   />
-                  <p className="mt-3 text-center font-body text-sm text-olive italic">
+                  <p className="mt-3 text-center font-body text-sm text-maroon italic">
                     The Catalogue
                   </p>
-                  <p className="mt-0.5 text-center font-display text-[10px] tracking-[0.22em] text-olive/60 uppercase">
+                  <p className="mt-0.5 text-center font-display text-[10px] tracking-[0.22em] text-maroon/60 uppercase">
                     50 sacred works →
                   </p>
                 </Link>
@@ -176,7 +176,7 @@ export default function MegaMenu() {
                     <Link
                       href={`/products/${f.slug}`}
                       onClick={() => setOpen(false)}
-                      className="flex min-h-[2.4rem] items-end font-display text-[13px] leading-[1.2] tracking-[0.14em] text-olive-deep uppercase transition-colors hover:text-olive"
+                      className="flex min-h-[2.4rem] items-end font-display text-[13px] leading-[1.2] tracking-[0.14em] text-heading-brown uppercase transition-colors hover:text-maroon"
                     >
                       {f.title}
                     </Link>
@@ -197,7 +197,7 @@ export default function MegaMenu() {
                                 showPreview(categoryPreview(p.slug, p.image))
                               }
                               onMouseLeave={clearPreview}
-                              className="font-body text-[12.5px] text-espresso/70 transition-colors hover:text-olive"
+                              className="font-body text-[12.5px] text-maroon/70 transition-colors hover:text-maroon"
                             >
                               {p.title}
                             </Link>
@@ -207,7 +207,7 @@ export default function MegaMenu() {
                     <Link
                       href={`/products/${f.slug}`}
                       onClick={() => setOpen(false)}
-                      className="mt-5 inline-block font-display text-[10px] tracking-[0.18em] text-olive uppercase hover:text-olive-deep"
+                      className="mt-5 inline-block font-display text-[10px] tracking-[0.18em] text-maroon uppercase hover:text-maroon"
                     >
                       View all →
                     </Link>

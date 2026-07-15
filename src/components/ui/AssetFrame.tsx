@@ -186,7 +186,7 @@ export default function AssetFrame({
             </svg>
 
             {showLabel && (
-              <span className="pm-micro absolute right-0 bottom-4 left-0 text-center font-display text-olive/45">
+              <span className="pm-micro absolute right-0 bottom-4 left-0 text-center font-display text-maroon/45">
                 Image coming soon
               </span>
             )}
@@ -242,7 +242,7 @@ export default function AssetFrame({
       </div>
 
       {caption && (
-        <figcaption className="pm-label mt-3 text-center font-display text-olive-deep">
+        <figcaption className="pm-label mt-3 text-center font-display text-maroon">
           {caption}
         </figcaption>
       )}

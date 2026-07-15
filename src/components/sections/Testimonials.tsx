@@ -22,7 +22,7 @@ export default function Testimonials() {
         title="242 temples & trusts served since 1968"
         className="mx-auto max-w-2xl px-6"
       />
-      <p className="pm-body mt-5 px-6 font-body text-espresso/70">
+      <p className="pm-body mt-5 px-6 font-body text-maroon/70">
         Across India — and Nepal, the USA, Japan and Belgium.
       </p>
       <div className="mt-12">

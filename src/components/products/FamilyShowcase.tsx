@@ -64,7 +64,7 @@ export default function FamilyShowcase({ family, products, first }: Props) {
     >
       <div className="mb-10 px-6 lg:px-[8vw]">
         <SectionHeading eyebrow="Collection" title={family.title} align="left" />
-        <p className="pm-body mt-4 max-w-xl font-body text-espresso/70">
+        <p className="pm-body mt-4 max-w-xl font-body text-maroon/70">
           {family.blurb}
         </p>
       </div>
@@ -78,7 +78,7 @@ export default function FamilyShowcase({ family, products, first }: Props) {
               showLabel={false}
               className="h-80 sm:h-96 lg:h-[30rem] xl:h-[34rem]"
             />
-            <span className="pm-label font-display text-olive/55">
+            <span className="pm-label font-display text-maroon/55">
               Pieces coming soon
             </span>
           </div>
@@ -114,7 +114,7 @@ export default function FamilyShowcase({ family, products, first }: Props) {
                   arch && "rounded-t-full",
                 )}
               />
-              <span className="pm-h3 max-w-[18rem] text-center font-display text-olive-deep transition-colors duration-300 group-hover:text-olive">
+              <span className="pm-h3 max-w-[18rem] text-center font-display text-heading-brown transition-colors duration-300 group-hover:text-maroon">
                 {p.title}
               </span>
             </Link>

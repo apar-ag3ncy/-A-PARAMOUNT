@@ -20,9 +20,17 @@
   --color-olive-deep:   #6F6639; /* headings, hover, shadow of olive */
   --color-olive-muted:  #A69A6E; /* borders, dividers, muted UI */
   --color-tan:          #BCAF87; /* damask pattern lines, light accents */
-  --color-espresso:     #2E2313; /* body text (a11y-safe on cream) */
+  --color-espresso:     #2E2313; /* neutral near-black — icons, a few UI strokes */
   --color-taupe:        #A89E8C; /* neutral grey-brown — icon chips */
-  --color-heading-brown: #431716; /* dark warm brown — "Crafting Divine" display text */
+
+  /* -- The TEXT VOICE on cream (client mandate, this session): all heading/big
+        text is the deep oxblood #4f1a15; all body/small/caption/eyebrow/label
+        text is the softer oxblood #7a2a24 (one step brighter so small text stays
+        legible on cream). Accents — borders, gold hairlines, ornament dividers —
+        stay olive/gold; text on dark velvet stays cream/gold/pista. So on cream:
+        headings -> text-heading-brown, small/body -> text-maroon. -- */
+  --color-heading-brown: #4f1a15; /* deep oxblood — ALL headings/display text on cream */
+  --color-maroon:        #7a2a24; /* soft oxblood — ALL body/small/caption text on cream */
 
   /* Accents + the velvet ramp used by every dark panel (footer, DevotionStatement,
      Selected Works). These were pasted as raw hex in 12 components; they are

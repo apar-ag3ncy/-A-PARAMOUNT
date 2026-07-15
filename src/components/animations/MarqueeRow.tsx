@@ -74,7 +74,7 @@ export default function MarqueeRow({ items, pxPerSecond = 24, className }: Props
         {content.map((it, i) => (
           <span
             key={i}
-            className="mx-8 inline-flex items-center gap-8 text-2xl whitespace-nowrap text-olive-deep italic [font-family:var(--font-body),var(--font-devanagari),sans-serif] sm:text-3xl"
+            className="mx-8 inline-flex items-center gap-8 text-2xl whitespace-nowrap text-heading-brown italic [font-family:var(--font-body),var(--font-devanagari),sans-serif] sm:text-3xl"
           >
             {it}
             <span aria-hidden className="text-olive/40 not-italic">
