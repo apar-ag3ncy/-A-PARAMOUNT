@@ -1,9 +1,9 @@
 import type { ProductInfo } from "@/lib/productInfo";
 
 /**
- * ProductSpec — the key-facts strip on a product page: Collection · Materials ·
- * Made to order. Hairline-ruled cells (a gap-px olive ground showing through
- * cream cells) in the brand's olive/gold framing, maroon/heading-brown type.
+ * ProductSpec — the key facts as a compact stacked table for the product page's
+ * sticky details rail: Collection / Materials & finish / Made to order, each a
+ * hairline-ruled row (label above, value below) in the brand's olive framing.
  */
 export function ProductSpec({
   spec,
@@ -14,14 +14,14 @@ export function ProductSpec({
 }) {
   return (
     <dl
-      className={`grid gap-px overflow-hidden rounded-card border border-olive/20 bg-olive/15 sm:grid-cols-3 ${className ?? ""}`}
+      className={`divide-y divide-olive/15 overflow-hidden rounded-card border border-olive/20 bg-cream ${className ?? ""}`}
     >
       {spec.map((s) => (
-        <div key={s.label} className="bg-cream px-5 py-4 text-left">
-          <dt className="pm-micro font-display tracking-[0.2em] text-olive uppercase">
+        <div key={s.label} className="px-4 py-3.5">
+          <dt className="pm-micro font-display tracking-[0.18em] text-olive uppercase">
             {s.label}
           </dt>
-          <dd className="pm-body mt-1.5 font-display text-heading-brown">
+          <dd className="pm-small mt-1 font-display text-heading-brown">
             {s.value}
           </dd>
         </div>
@@ -31,48 +31,42 @@ export function ProductSpec({
 }
 
 /**
- * ProductAbout — the dedicated page's written description of the piece: a fuller
- * static paragraph on what it is and its role, then Placement (where it belongs)
- * and Craft (how it is made) beneath. Framed cream-deep panel.
+ * ProductAbout — the written description of the piece laid out as a structured
+ * definition grid: a fixed label column beside a measured text column, so
+ * Description / Placement / Craft read as aligned spec entries, not a loose
+ * text stack. Constrained measure (~62ch) for comfortable reading.
  */
 export function ProductAbout({
-  title,
   description,
   placement,
   craft,
 }: {
-  title: string;
   description: string;
   placement: string;
   craft: string;
 }) {
+  const rows = [
+    { label: "About the piece", value: description, lead: true },
+    { label: "Placement", value: placement },
+    { label: "Craft", value: craft },
+  ].filter((r) => r.value);
+
   return (
-    <section className="mt-16 rounded-card border border-olive/15 bg-cream-deep/40 p-8 sm:mt-20 sm:p-10">
-      <p className="pm-eyebrow font-body text-olive">About the piece</p>
-      <h2 className="pm-h3 mt-2 font-display text-heading-brown">{title}</h2>
-      {description && (
-        <p className="pm-lead pm-measure mt-5 font-body text-maroon/85">
-          {description}
-        </p>
-      )}
-      <div className="mt-9 grid gap-8 border-t border-olive/12 pt-8 sm:grid-cols-2 sm:gap-12">
-        <div>
-          <h3 className="pm-label font-display tracking-[0.16em] text-olive uppercase">
-            Placement
-          </h3>
-          <p className="pm-body pm-measure mt-2.5 font-body text-maroon/85">
-            {placement}
-          </p>
-        </div>
-        <div>
-          <h3 className="pm-label font-display tracking-[0.16em] text-olive uppercase">
-            Craft
-          </h3>
-          <p className="pm-body pm-measure mt-2.5 font-body text-maroon/85">
-            {craft}
-          </p>
-        </div>
-      </div>
+    <section className="mt-20 rounded-card border border-olive/15 bg-cream-deep/40 p-8 sm:p-10">
+      <dl className="grid gap-x-14 gap-y-9 sm:grid-cols-[minmax(140px,200px)_minmax(0,1fr)]">
+        {rows.map((r) => (
+          <div key={r.label} className="contents">
+            <dt className="pm-label font-display tracking-[0.16em] text-olive uppercase">
+              {r.label}
+            </dt>
+            <dd
+              className={`max-w-[62ch] font-body text-maroon/85 ${r.lead ? "pm-lead" : "pm-body"}`}
+            >
+              {r.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }

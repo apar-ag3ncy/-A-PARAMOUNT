@@ -64,10 +64,13 @@ export default function CraftsmanshipPage() {
           it ASSEMBLES on scroll: the text rolls in from one side, the image from
           the other (SlideReveal), so each step arrives with motion. */}
       <div className="mx-auto max-w-7xl overflow-x-hidden px-6 py-12 sm:py-16">
+        {/* left-aligned to the step grid's left edge — it was centered over
+            left-anchored content, so the heading floated off its own section */}
         <SectionHeading
           eyebrow="The Making"
           title="Five stages, one sanctum"
-          className="mx-auto mb-6 max-w-2xl sm:mb-10"
+          align="left"
+          className="mb-8 max-w-2xl sm:mb-12"
         />
         {STEPS.map((s, i) => {
           const textLeft = i % 2 === 0;
@@ -95,12 +98,15 @@ export default function CraftsmanshipPage() {
                 from={textLeft ? "right" : "left"}
                 className="overflow-hidden rounded-card"
               >
-                {/* Tall artifacts: show the whole piece uncropped (client
-                    mandate). The frame adopts the photo's real ratio. */}
+                {/* One uniform 4/5 frame across all five steps (crop forces the
+                    ratio; contain keeps the whole piece — client mandate), so the
+                    image columns share a height instead of each adopting its
+                    photo's ratio and making every row a different height. */}
                 <AssetFrame
                   src={s.img}
                   image={null}
-                  ratio="3/4"
+                  ratio="4/5"
+                  crop
                   fit="contain"
                   showLabel={false}
                   sizes="(min-width:1024px) 46vw, 100vw"

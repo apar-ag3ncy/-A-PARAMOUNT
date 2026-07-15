@@ -64,7 +64,7 @@ export default async function ProductPage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <nav className="pm-label mb-10 font-display text-maroon/70">
+      <nav className="pm-label mb-8 font-display text-maroon/70">
         <Link href="/products" className="hover:text-maroon">
           Collections
         </Link>
@@ -76,89 +76,84 @@ export default async function ProductPage({
         <span className="text-maroon/60">{product.title}</span>
       </nav>
 
-      {/* ---- name + what it is (informational, per piece) ---- */}
-      <header className="max-w-3xl">
-        <p className="pm-eyebrow font-display text-maroon">{info.familyLabel}</p>
-        <SplitTextReveal
-          as="h1"
-          by="words"
-          className="pm-display mt-3 font-display font-light text-heading-brown"
-        >
-          {product.title}
-        </SplitTextReveal>
-        {info.overview && (
-          <p className="pm-lead pm-measure mt-6 font-body text-maroon/85">
-            {info.overview}
-          </p>
-        )}
-      </header>
-
-      {/* ---- the key facts ---- */}
-      <ProductSpec spec={info.spec} className="mt-9 max-w-2xl" />
-
-      {/* ---- the piece itself ---- */}
-      {gallery ? (
-        // Gallery-forward: the full material-filtered grid with a fullscreen
-        // viewer (the client's per-category photo folders).
-        <div className="mt-14">
-          <CategoryGallery
-            title={product.title}
-            gallery={gallery}
-            variants={product.variants}
-          />
+      {/* ===== product record: media (left) + sticky details rail (right) ===== */}
+      <div className="grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
+        {/* the piece */}
+        <div className="min-w-0">
+          {gallery ? (
+            <CategoryGallery
+              title={product.title}
+              gallery={gallery}
+              variants={product.variants}
+            />
+          ) : (
+            <ProductGalleryTabs
+              title={product.title}
+              materials={materials}
+              ratio={product.ratio}
+              image={product.heroImage}
+              src={product.image}
+            />
+          )}
         </div>
-      ) : (
-        // No photography yet: the frame with material tabs, plus the finishes.
-        <div className="mt-14 grid items-start gap-12 lg:grid-cols-[minmax(0,1fr)_22rem] lg:gap-16">
-          <ProductGalleryTabs
-            title={product.title}
-            materials={materials}
-            ratio={product.ratio}
-            image={product.heroImage}
-            src={product.image}
-          />
-          <div className="lg:pt-4">
-            {product.variants.length > 0 && (
-              <div>
-                <p className="pm-label font-display text-olive">Available in</p>
-                <ul className="mt-3 flex flex-wrap gap-2.5">
-                  {product.variants.map((v) => (
-                    <li
-                      key={v}
-                      className="pm-small inline-flex items-center gap-2 rounded-full border border-olive/25 bg-cream-deep/40 px-3.5 py-1.5 font-body text-maroon/90 transition-colors duration-300 hover:border-olive/60 hover:bg-cream-deep/70"
-                    >
-                      <span className="size-1.5 rounded-full bg-gold" />
-                      {v}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+
+        {/* the details — sticky beside the imagery on desktop, so the identity,
+            specs and the enquire action stay together */}
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <p className="pm-eyebrow font-display text-maroon">{info.familyLabel}</p>
+          <SplitTextReveal
+            as="h1"
+            by="words"
+            className="pm-display mt-3 font-display font-light text-heading-brown"
+          >
+            {product.title}
+          </SplitTextReveal>
+          {info.overview && (
+            <p className="pm-lead mt-5 font-body text-maroon/85">{info.overview}</p>
+          )}
+
+          <ProductSpec spec={info.spec} className="mt-8" />
+
+          {/* the finishes, as a labelled set (the gallery keeps its own coin
+              filter for photographed pieces, so only show chips when there is
+              no gallery to carry them) */}
+          {!gallery && product.variants.length > 0 && (
+            <div className="mt-7">
+              <p className="pm-label font-display tracking-[0.16em] text-olive uppercase">
+                Available in
+              </p>
+              <ul className="mt-3 flex flex-wrap gap-2.5">
+                {product.variants.map((v) => (
+                  <li
+                    key={v}
+                    className="pm-small inline-flex items-center gap-2 rounded-full border border-olive/25 bg-cream-deep/40 px-3.5 py-1.5 font-body text-maroon/90 transition-colors duration-300 hover:border-olive/60 hover:bg-cream-deep/70"
+                  >
+                    <span className="size-1.5 rounded-full bg-gold" />
+                    {v}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="mt-9 border-t border-olive/15 pt-8">
+            <MagneticButton href="/contact">
+              Enquire about {product.title}
+            </MagneticButton>
+            <p className="pm-small mt-5 max-w-sm font-body text-maroon/60">
+              Every piece is handcrafted to order — sized to your derasar and to
+              religious norms.
+            </p>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* ---- the written description + where it belongs + how it is made ---- */}
+      {/* ===== the written description + placement + craft ===== */}
       <ProductAbout
-        title={product.title}
         description={info.description}
         placement={info.placement}
         craft={info.craft}
       />
-
-      {/* ---- commission ---- */}
-      <div className="mt-16 border-t border-olive/15 pt-12 text-center sm:mt-20 sm:pt-14">
-        <p className="pm-eyebrow font-body text-olive">Commission this piece</p>
-        <div className="mt-5 flex justify-center">
-          <MagneticButton href="/contact">
-            Enquire about {product.title}
-          </MagneticButton>
-        </div>
-        <p className="pm-small mx-auto mt-6 max-w-md font-body text-maroon/60">
-          Every piece is handcrafted to order — sized to your derasar and to
-          religious norms.
-        </p>
-      </div>
 
       <RelatedProducts items={related} familySlug={product.family} />
     </article>

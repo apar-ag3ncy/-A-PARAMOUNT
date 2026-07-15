@@ -73,10 +73,9 @@ export default function FamilyShowcase({ family, products, first }: Props) {
         <div className="flex justify-center px-6 lg:px-[8vw]">
           <div className="flex flex-col items-center gap-3">
             <AssetFrame
-              heightDriven
-              ratio="3/4"
+              ratio="4/5"
               showLabel={false}
-              className="h-80 sm:h-96 lg:h-[30rem] xl:h-[34rem]"
+              className="w-[15rem] sm:w-[16rem] lg:w-[18rem]"
             />
             <span className="pm-label font-display text-maroon/55">
               Pieces coming soon
@@ -103,12 +102,16 @@ export default function FamilyShowcase({ family, products, first }: Props) {
               <AssetFrame
                 image={p.heroImage}
                 src={p.image}
-                heightDriven
-                // Equal-height justified row: every card is the same height,
-                // its width follows the photo so nothing is cropped or padded.
-                ratio="3/4"
-                className="h-80 sm:h-96 lg:h-[30rem] xl:h-[34rem]"
-                fit="cover"
+                // ONE uniform card module: a fixed-width 4/5 frame with the photo
+                // CONTAINED (never cropped — client mandate). `heightDriven` used
+                // to derive each card's width from its photo's own ratio, so a
+                // wide piece rendered a ~2800px card and the filmstrip read as a
+                // jumble of random-width blocks. A locked frame gives a rhythmic
+                // row and an even pin length; the photo floats centred within it.
+                ratio="4/5"
+                crop
+                fit="contain"
+                className="w-[15rem] sm:w-[16rem] lg:w-[18rem]"
                 frameClassName={cn(
                   "transition-colors duration-[400ms] group-hover:border-olive",
                   arch && "rounded-t-full",

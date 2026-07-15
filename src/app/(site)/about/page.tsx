@@ -72,8 +72,10 @@ export default function AboutPage() {
         tagline="Makers of Temple Accessories"
       />
 
-      {/* ABOUT US body beside the olive GENERATION semicircle (deck p07) */}
-      <section className="mx-auto mt-20 grid max-w-7xl items-center gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-8">
+      {/* ABOUT US body beside the olive GENERATION semicircle (deck p07). Tops
+          aligned (items-start), not centered — the short text column used to
+          float 185px down the middle of the taller semicircle. */}
+      <section className="mx-auto mt-20 grid max-w-7xl items-start gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-12">
         <SlideReveal from="left">
           <SectionHeading eyebrow="Since 1968" title="ABOUT US" align="left" />
           <div className="pm-body mt-8 max-w-xl space-y-5 font-body text-maroon/85">
@@ -120,7 +122,7 @@ export default function AboutPage() {
 
       <section className="mx-auto max-w-7xl overflow-x-clip px-6 pt-24 pb-24">
         <ScrollReveal className="mb-12">
-          <SectionHeading eyebrow="Our Purpose" title="Mission & Vision" />
+          <SectionHeading eyebrow="Our Purpose" title="Mission & Vision" align="left" />
         </ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">
           <SlideReveal
@@ -151,9 +153,9 @@ export default function AboutPage() {
 
       <section className="mx-auto max-w-7xl px-6 pb-24">
         <ScrollReveal className="mb-12">
-          <SectionHeading eyebrow="Our Promise" title="Why choose us" />
+          <SectionHeading eyebrow="Our Promise" title="Why choose us" align="left" />
         </ScrollReveal>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid items-stretch gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {PILLARS.map((p) => (
             <div
               key={p.title}
@@ -173,7 +175,9 @@ export default function AboutPage() {
                   {p.icon}
                 </svg>
               </span>
-              <h3 className="pm-h3 font-display text-heading-brown">{p.title}</h3>
+              <h3 className="pm-h3 font-display text-heading-brown sm:min-h-[3.25rem]">
+                {p.title}
+              </h3>
               <p className="pm-small mt-3 font-body text-maroon/70">{p.body}</p>
             </div>
           ))}
