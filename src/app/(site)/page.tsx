@@ -1,5 +1,4 @@
-import CinematicHero from "@/components/sections/CinematicHero";
-import DoorScroll from "@/components/sections/DoorScroll";
+import HomeFilm from "@/components/sections/HomeFilm";
 import CraftStory from "@/components/sections/CraftStory";
 import QuoteInterlude from "@/components/sections/QuoteInterlude";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
@@ -10,16 +9,13 @@ import SectionHeading from "@/components/ui/SectionHeading";
 export default function Home() {
   return (
     <>
-      {/* The temple doors, opened by the visitor's own scroll: a pinned,
-          scrubbed frame-sequence film that ends on the hero's exact cream. */}
-      <DoorScroll />
-      {/* "Our Works" is ACT 4 and lives INSIDE CinematicHero's pinned stage — it
-          lands on the very same mandir dome the camera lifted onto, as the brand
-          fades away. It is deliberately NOT a section here: giving it its own
-          backdrop rendered the dome twice ("it feels like duplicated bg in both").
-          (The old "Four families, one sanctum" arch cards were removed; the
-          families still live on /products.) */}
-      <CinematicHero />
+      {/* The ENTIRE opening as ONE pinned scroll — the temple doors part (with
+          live god-rays spilling out), the cream flood becomes the mandir interior,
+          the brand resolves on the carved dome, then "Our Works" lands on that same
+          dome. One film, no seam (it used to be two stacked pinned sections, which
+          read as "breaky / three different animations"). "Our Works" lives INSIDE
+          this stage — its own backdrop once rendered the dome twice. */}
+      <HomeFilm />
       <CraftStory />
 
       {/* Deck p30 interlude — "Shaped by devotion," + olive damask circle */}

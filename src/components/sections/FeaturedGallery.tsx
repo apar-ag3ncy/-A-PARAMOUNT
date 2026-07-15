@@ -13,7 +13,7 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * "Our Works" — the drifting arc ribbon of the client's pieces.
  *
  * This is CONTENT ONLY: no <section>, no background, no panel. It is mounted
- * INSIDE `CinematicHero`'s pinned stage as the film's fourth act, so it lands on
+ * INSIDE `HomeFilm`'s pinned stage as the film's fourth act, so it lands on
  * the very same mandir dome the camera lifted onto — the brand fades out, and the
  * work fades in on that identical backdrop. It used to be its own section with a
  * SECOND copy of the dome behind an opaque cream panel; the client saw the dome
