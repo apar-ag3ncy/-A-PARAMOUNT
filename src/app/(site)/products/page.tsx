@@ -21,10 +21,14 @@ export default async function ProductsPage() {
   );
   return (
     <div className="pt-24">
+      {/* Left-aligned + wide, so the hero shares ONE spine with the left-aligned
+          collection rows below (it used to be a centred column over left rows). */}
       <PageHeader
         eyebrow="The Catalogue"
         title="Our Collections"
         size="lg"
+        align="left"
+        width="7xl"
         subtitle="Four families of temple artifacts. Scroll through each — every piece is handcrafted to order in your choice of material."
         className="pb-10"
       />

@@ -21,6 +21,15 @@ interface Props {
   divider?: boolean;
   /** "lg" for the catalogue's larger title. */
   size?: "md" | "lg";
+  /**
+   * Header axis. "center" (default) is the content-page hero; "left" aligns the
+   * whole stack to the same left rail the page's content uses — for catalogue
+   * pages whose sections below are left-aligned, so the page reads on one spine
+   * instead of a centred hero over left content.
+   */
+  align?: "center" | "left";
+  /** Container max-width — match the page's content container for a shared spine. */
+  width?: "4xl" | "7xl";
   className?: string;
 }
 
@@ -31,10 +40,20 @@ export default function PageHeader({
   tagline,
   divider = true,
   size = "md",
+  align = "center",
+  width = "4xl",
   className,
 }: Props) {
+  const left = align === "left";
   return (
-    <header className={cn("mx-auto max-w-4xl px-6 text-center", className)}>
+    <header
+      className={cn(
+        "mx-auto px-6",
+        width === "7xl" ? "max-w-7xl" : "max-w-4xl",
+        left ? "text-left" : "text-center",
+        className,
+      )}
+    >
       <p className="pm-eyebrow font-display mb-5 text-maroon">{eyebrow}</p>
       <SplitTextReveal
         as="h1"
@@ -46,12 +65,19 @@ export default function PageHeader({
       >
         {title}
       </SplitTextReveal>
-      {divider && <OrnamentDivider className="mx-auto mt-6 text-olive/50" />}
+      {divider && (
+        <OrnamentDivider className={cn("mt-6 text-olive/50", left ? "ml-0" : "mx-auto")} />
+      )}
       {tagline && (
         <p className="pm-lead font-body mt-5 text-maroon italic">{tagline}</p>
       )}
       {subtitle && (
-        <p className="pm-body font-body mx-auto mt-6 max-w-xl text-maroon/75">
+        <p
+          className={cn(
+            "pm-body font-body mt-6 max-w-xl text-maroon/75",
+            left ? "" : "mx-auto",
+          )}
+        >
           {subtitle}
         </p>
       )}

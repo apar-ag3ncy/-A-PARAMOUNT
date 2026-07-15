@@ -6,6 +6,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import SectionHeading from "@/components/ui/SectionHeading";
+import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Craftsmanship",
@@ -77,7 +78,7 @@ export default function CraftsmanshipPage() {
           return (
             <section
               key={s.n}
-              className="grid items-center gap-10 py-12 lg:grid-cols-2 lg:gap-20 lg:py-16"
+              className="grid items-center gap-10 py-10 lg:grid-cols-2 lg:gap-16 lg:py-14"
             >
               <SlideReveal
                 from={textLeft ? "left" : "right"}
@@ -96,7 +97,15 @@ export default function CraftsmanshipPage() {
               </SlideReveal>
               <SlideReveal
                 from={textLeft ? "right" : "left"}
-                className="overflow-hidden rounded-card"
+                // Cap the image so a step row is a calm ~460px band, not a 775px
+                // one with the short text floating in empty cream. Sits on the
+                // outer edge of its half, opposite the text.
+                className={cn(
+                  "w-full max-w-sm overflow-hidden rounded-card lg:max-w-md",
+                  // the text SlideReveal carries the order swap; the image only
+                  // needs to hug the correct edge of its half
+                  textLeft ? "lg:justify-self-end" : "lg:justify-self-start",
+                )}
               >
                 {/* One uniform 4/5 frame across all five steps (crop forces the
                     ratio; contain keeps the whole piece — client mandate), so the
@@ -109,7 +118,7 @@ export default function CraftsmanshipPage() {
                   crop
                   fit="contain"
                   showLabel={false}
-                  sizes="(min-width:1024px) 46vw, 100vw"
+                  sizes="(min-width:1024px) 28rem, 100vw"
                 />
               </SlideReveal>
             </section>
