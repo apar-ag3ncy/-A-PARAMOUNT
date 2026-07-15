@@ -31,25 +31,31 @@ export function ProductSpec({
 }
 
 /**
- * ProductAbout — the deeper static note for a piece: where it belongs in the
- * temple, and how it is made. Framed cream-deep panel, two columns on desktop.
+ * ProductAbout — the dedicated page's written description of the piece: a fuller
+ * static paragraph on what it is and its role, then Placement (where it belongs)
+ * and Craft (how it is made) beneath. Framed cream-deep panel.
  */
 export function ProductAbout({
   title,
+  description,
   placement,
   craft,
 }: {
   title: string;
+  description: string;
   placement: string;
   craft: string;
 }) {
   return (
     <section className="mt-16 rounded-card border border-olive/15 bg-cream-deep/40 p-8 sm:mt-20 sm:p-10">
       <p className="pm-eyebrow font-body text-olive">About the piece</p>
-      <h2 className="pm-h3 mt-2 font-display text-heading-brown">
-        {title} in the temple
-      </h2>
-      <div className="mt-7 grid gap-8 sm:grid-cols-2 sm:gap-12">
+      <h2 className="pm-h3 mt-2 font-display text-heading-brown">{title}</h2>
+      {description && (
+        <p className="pm-lead pm-measure mt-5 font-body text-maroon/85">
+          {description}
+        </p>
+      )}
+      <div className="mt-9 grid gap-8 border-t border-olive/12 pt-8 sm:grid-cols-2 sm:gap-12">
         <div>
           <h3 className="pm-label font-display tracking-[0.16em] text-olive uppercase">
             Placement

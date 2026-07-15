@@ -138,9 +138,10 @@ export default async function ProductPage({
         </div>
       )}
 
-      {/* ---- where it belongs + how it is made ---- */}
+      {/* ---- the written description + where it belongs + how it is made ---- */}
       <ProductAbout
         title={product.title}
+        description={info.description}
         placement={info.placement}
         craft={info.craft}
       />
