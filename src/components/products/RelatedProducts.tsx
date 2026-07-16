@@ -23,7 +23,7 @@ export default function RelatedProducts({ items, familySlug }: Props) {
     <section className="mt-20 border-t border-olive/15 pt-14 text-center sm:mt-28">
       <p className="pm-eyebrow font-body text-olive/80">More from this collection</p>
       <OrnamentDivider className="mx-auto mt-4 text-olive/45" />
-      <div className="mt-10 grid grid-cols-2 items-start gap-5 sm:gap-6 md:grid-cols-4">
+      <div className="mt-10 flex flex-wrap items-start justify-center gap-6">
         {items.map((p) => {
           const ar = productAspect(p.image);
           const frameAr = ar ? clampAr(ar) : 0.8;
@@ -31,7 +31,7 @@ export default function RelatedProducts({ items, familySlug }: Props) {
           <Link
             key={p.slug}
             href={`/products/${familySlug}/${p.slug}`}
-            className="group flex flex-col text-center"
+            className="group flex w-[calc((100%-1.5rem)/2)] flex-col text-center md:w-[calc((100%-4.5rem)/4)]"
           >
             <div
               className="relative overflow-hidden rounded-[1rem] ring-1 ring-olive/12"

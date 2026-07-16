@@ -47,7 +47,10 @@ export default function CategoryGrid({
           <Link
             key={p.slug}
             href={`/products/${familySlug}/${p.slug}`}
-            className="group flex w-full flex-col rounded-[1.4rem] border border-olive/15 p-5 text-center shadow-[0_26px_60px_-46px_rgba(46,35,19,0.4)] transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-olive/40 sm:w-[calc((100%-1.5rem)/2)] sm:p-6 lg:w-[calc((100%-3rem)/3)]"
+            // THREE in a line from the small-tablet breakpoint up (each card is
+            // exactly a third of the row minus the two 1.5rem gaps); a partial last
+            // row centres via the parent's justify-center. One column on phones.
+            className="group flex w-full flex-col rounded-[1.4rem] border border-olive/15 p-5 text-center shadow-[0_26px_60px_-46px_rgba(46,35,19,0.4)] transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-olive/40 sm:w-[calc((100%-3rem)/3)] sm:p-6"
             style={{
               background: "linear-gradient(180deg, #FFFDF6 0%, #F6E9CE 100%)",
             }}
