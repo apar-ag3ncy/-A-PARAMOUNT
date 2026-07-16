@@ -23,14 +23,16 @@
   --color-espresso:     #2E2313; /* neutral near-black — icons, a few UI strokes */
   --color-taupe:        #A89E8C; /* neutral grey-brown — icon chips */
 
-  /* -- The TEXT VOICE on cream (client mandate, this session): all heading/big
-        text is the deep oxblood #4f1a15; all body/small/caption/eyebrow/label
-        text is the softer oxblood #7a2a24 (one step brighter so small text stays
-        legible on cream). Accents — borders, gold hairlines, ornament dividers —
-        stay olive/gold; text on dark velvet stays cream/gold/pista. So on cream:
-        headings -> text-heading-brown, small/body -> text-maroon. -- */
-  --color-heading-brown: #4f1a15; /* deep oxblood — ALL headings/display text on cream */
-  --color-maroon:        #7a2a24; /* soft oxblood — ALL body/small/caption text on cream */
+  /* -- The TEXT VOICE on cream (client mandate). NOTE: these two token NAMES are
+        legacy (they briefly held oxblood); they now hold the BRAND OLIVE. All
+        heading/big/logo text is the brand olive #897E49; all body/small/caption/
+        eyebrow/label/info text is the deeper olive #7C7144. Accents — borders,
+        gold hairlines, ornament dividers — stay olive/gold; text on dark velvet
+        stays cream/gold/pista. On cream: headings -> text-heading-brown,
+        small/body -> text-maroon (utility names unchanged so the value swap is
+        one edit each). -- */
+  --color-heading-brown: #897E49; /* brand olive — ALL headings/display/logo text on cream */
+  --color-maroon:        #7C7144; /* deeper olive — ALL body/small/caption/info text on cream */
 
   /* Accents + the velvet ramp used by every dark panel (footer, DevotionStatement,
      Selected Works). These were pasted as raw hex in 12 components; they are
