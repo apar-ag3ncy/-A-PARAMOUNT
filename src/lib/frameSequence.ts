@@ -37,6 +37,13 @@ export interface FrameSequenceOptions {
   concurrency?: number;
   /** True for a looping turntable (nearest may wrap 95 → 0), false for a film. */
   wrap?: boolean;
+  /**
+   * Downscale each frame to this pixel width AT DECODE TIME (createImageBitmap
+   * resizeWidth), preserving aspect. Slashes decoded-bitmap memory (the store
+   * holds every frame) and GPU fill for a long film whose source frames are far
+   * larger than the canvas ever draws. Omit to decode at native size.
+   */
+  decodeWidth?: number;
   /** Fired when a frame lands. `first` is true only for the very first one. */
   onFrame?: (index: number, first: boolean) => void;
 }
@@ -109,6 +116,7 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
     strides = [16, 8, 4, 2, 1],
     concurrency = 6,
     wrap = false,
+    decodeWidth,
     onFrame,
   } = opts;
 
@@ -123,9 +131,15 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
   const decode = async (i: number): Promise<void> => {
     if (frames[i] || disposed) return;
     try {
-      // Off-thread decode: scrolling and dragging never stutter.
+      // Off-thread decode: scrolling and dragging never stutter. Optionally
+      // downscale to decodeWidth so the store stays light and draws stay cheap.
       const blob = await (await fetch(src(i))).blob();
-      frames[i] = await createImageBitmap(blob);
+      frames[i] = decodeWidth
+        ? await createImageBitmap(blob, {
+            resizeWidth: decodeWidth,
+            resizeQuality: "high",
+          })
+        : await createImageBitmap(blob);
     } catch {
       try {
         const img = new window.Image();
