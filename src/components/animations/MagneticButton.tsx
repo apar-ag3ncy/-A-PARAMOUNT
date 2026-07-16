@@ -12,6 +12,8 @@ interface Props {
   onClick?: () => void;
   className?: string;
   strength?: number;
+  /** "dark" for use on the velvet/dark editorial pages (gold outline → gold fill). */
+  tone?: "light" | "dark";
 }
 
 /**
@@ -25,7 +27,9 @@ export default function MagneticButton({
   onClick,
   className,
   strength = 0.4,
+  tone = "light",
 }: Props) {
+  const dark = tone === "dark";
   const ref = useRef<HTMLSpanElement>(null);
 
   useIsomorphicLayoutEffect(() => {
@@ -68,19 +72,25 @@ export default function MagneticButton({
   }, [strength]);
 
   const inner = cn(
-    // Premium fill-wipe: an olive panel sweeps in from the left, the label turns
-    // cream, and a gold hairline + arrow slide in — far less flat than a plain
-    // colour swap. Everything is transform/opacity, so it stays 60fps.
-    "group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full border border-olive px-8 py-4 font-display text-sm tracking-[0.2em] text-maroon uppercase transition-[color,border-color,box-shadow] duration-500 ease-out hover:border-olive-deep hover:text-cream hover:shadow-[0_14px_34px_-16px_rgba(79,71,40,0.6)]",
+    // Premium fill-wipe: a panel sweeps in from the left, the label recolours, and
+    // a hairline + arrow slide in — far less flat than a plain colour swap.
+    // Everything is transform/opacity, so it stays 60fps.
+    "group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full border px-8 py-4 font-display text-sm tracking-[0.2em] uppercase transition-[color,border-color,box-shadow] duration-500 ease-out",
+    dark
+      ? "border-gold/50 text-cream hover:border-gold hover:text-[#17110A] hover:shadow-[0_14px_34px_-16px_rgba(226,202,130,0.5)]"
+      : "border-olive text-maroon hover:border-olive-deep hover:text-cream hover:shadow-[0_14px_34px_-16px_rgba(79,71,40,0.6)]",
     className,
   );
 
   const content = (
     <>
-      {/* olive fill sweeping in from the left */}
+      {/* fill sweeping in from the left */}
       <span
         aria-hidden
-        className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-olive-deep to-olive transition-transform duration-500 ease-out group-hover:scale-x-100"
+        className={cn(
+          "absolute inset-0 origin-left scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100 bg-gradient-to-r",
+          dark ? "from-gold to-pista" : "from-olive-deep to-olive",
+        )}
       />
       {/* gold hairline drawing along the bottom */}
       <span

@@ -6,9 +6,9 @@ import { FAMILIES } from "@/lib/constants";
 import { galleryFor } from "@/lib/galleries";
 import { getProductInfo } from "@/lib/productInfo";
 import CategoryGallery from "@/components/products/CategoryGallery";
-import ProductGalleryTabs from "@/components/products/ProductGalleryTabs";
 import RelatedProducts from "@/components/products/RelatedProducts";
-import { ProductSpec, ProductAbout } from "@/components/products/ProductFacts";
+import ArchMark from "@/components/ui/ArchMark";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
 import MagneticButton from "@/components/animations/MagneticButton";
 
@@ -38,7 +38,6 @@ export default async function ProductPage({
   if (!product || product.family !== category) notFound();
 
   const family = FAMILIES.find((f) => f.slug === product.family);
-  const materials = product.variants.length ? product.variants : ["Standard"];
   const gallery = galleryFor(slug);
   const info = getProductInfo(product);
   const related = (await getProductsByFamily(product.family))
@@ -58,104 +57,159 @@ export default async function ProductPage({
   };
 
   return (
-    <article className="mx-auto max-w-7xl px-6 pt-24 pb-24">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+    // DARK EDITORIAL product "post" (client reference), centred, brand velvet.
+    <div style={{ background: "#17110A" }}>
+      <article className="mx-auto max-w-5xl px-6 pt-32 pb-28">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
 
-      <nav className="pm-label mb-8 font-display text-maroon/70">
-        <Link href="/products" className="hover:text-maroon">
-          Collections
-        </Link>
-        <span className="mx-2">/</span>
-        <Link href={`/products/${product.family}`} className="hover:text-maroon">
-          {family?.title}
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="text-maroon/60">{product.title}</span>
-      </nav>
+        {/* breadcrumb — centred, small caps */}
+        <nav className="pm-micro text-center font-body tracking-[0.2em] text-pista/40 uppercase">
+          <Link href="/products" className="transition-colors hover:text-gold">
+            Collections
+          </Link>
+          <span className="mx-2 text-gold/30">/</span>
+          <Link
+            href={`/products/${product.family}`}
+            className="transition-colors hover:text-gold"
+          >
+            {family?.title}
+          </Link>
+          <span className="mx-2 text-gold/30">/</span>
+          <span className="text-pista/70">{product.title}</span>
+        </nav>
 
-      {/* ===== product record: media (left) + sticky details rail (right) ===== */}
-      <div className="grid items-start gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:gap-14">
-        {/* the piece */}
-        <div className="min-w-0">
+        {/* header — centred editorial */}
+        <header className="mt-12 text-center">
+          <div className="flex items-center justify-center gap-4 pm-micro font-body tracking-[0.28em] text-pista/40 uppercase">
+            <span>A Paramount</span>
+            <span className="h-px w-8 bg-gold/30" aria-hidden />
+            <span>Est. 1968</span>
+          </div>
+          <p className="pm-eyebrow mt-9 font-body text-gold/70">
+            {info.familyLabel}
+          </p>
+          <SplitTextReveal
+            as="h1"
+            by="words"
+            className="pm-display mt-3 font-display font-light text-balance text-cream"
+          >
+            {product.title}
+          </SplitTextReveal>
+          <OrnamentDivider className="mx-auto mt-6 text-gold/55" />
+          {info.overview && (
+            <p className="pm-lead mx-auto mt-6 max-w-2xl font-body text-pista/75">
+              {info.overview}
+            </p>
+          )}
+        </header>
+
+        {/* the piece — framed imagery on the dark ground */}
+        <div className="mt-14">
           {gallery ? (
             <CategoryGallery
+              dark
               title={product.title}
               gallery={gallery}
               variants={product.variants}
             />
           ) : (
-            <ProductGalleryTabs
-              title={product.title}
-              materials={materials}
-              ratio={product.ratio}
-              image={product.heroImage}
-              src={product.image}
-            />
-          )}
-        </div>
-
-        {/* the details — sticky beside the imagery on desktop, so the identity,
-            specs and the enquire action stay together */}
-        <div className="lg:sticky lg:top-28 lg:self-start">
-          <p className="pm-eyebrow font-display text-maroon">{info.familyLabel}</p>
-          <SplitTextReveal
-            as="h1"
-            by="words"
-            className="pm-display mt-3 font-display font-light text-heading-brown"
-          >
-            {product.title}
-          </SplitTextReveal>
-          {info.overview && (
-            <p className="pm-lead mt-5 font-body text-maroon/85">{info.overview}</p>
-          )}
-
-          <ProductSpec spec={info.spec} className="mt-8" />
-
-          {/* the finishes, as a labelled set (the gallery keeps its own coin
-              filter for photographed pieces, so only show chips when there is
-              no gallery to carry them) */}
-          {!gallery && product.variants.length > 0 && (
-            <div className="mt-7">
-              <p className="pm-label font-display tracking-[0.16em] text-olive uppercase">
-                Available in
-              </p>
-              <ul className="mt-3 flex flex-wrap gap-2.5">
-                {product.variants.map((v) => (
-                  <li
-                    key={v}
-                    className="pm-small inline-flex items-center gap-2 rounded-full border border-olive/25 bg-cream-deep/40 px-3.5 py-1.5 font-body text-maroon/90 transition-colors duration-300 hover:border-olive/60 hover:bg-cream-deep/70"
-                  >
-                    <span className="size-1.5 rounded-full bg-gold" />
-                    {v}
-                  </li>
-                ))}
-              </ul>
+            <div
+              className="mx-auto grid aspect-[4/5] max-w-sm place-items-center rounded-[1.4rem] border border-gold/12"
+              style={{
+                background: "linear-gradient(180deg, #2F2716 0%, #201808 100%)",
+              }}
+            >
+              <ArchMark className="h-24 w-auto text-gold/25" />
             </div>
           )}
+        </div>
 
-          <div className="mt-9 border-t border-olive/15 pt-8">
-            <MagneticButton href="/contact">
+        {/* spec — the reference's numbered columns, dark, on gold hairlines */}
+        <dl className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-[1.4rem] border border-gold/12 bg-gold/12 sm:grid-cols-3">
+          {info.spec.map((s, idx) => (
+            <div
+              key={s.label}
+              className="px-6 py-8 text-center"
+              style={{ background: "#221A0C" }}
+            >
+              <span className="pm-micro font-body tabular-nums tracking-[0.2em] text-gold/45">
+                {String(idx + 1).padStart(2, "0")}
+              </span>
+              <dt className="pm-label mt-4 font-body tracking-[0.16em] text-pista/45 uppercase">
+                {s.label}
+              </dt>
+              <dd className="pm-body mt-2 font-display text-cream">{s.value}</dd>
+            </div>
+          ))}
+        </dl>
+
+        {/* finishes — chips, when there is no photo gallery to carry them */}
+        {!gallery && product.variants.length > 0 && (
+          <div className="mt-12 text-center">
+            <p className="pm-label font-display tracking-[0.16em] text-gold/60 uppercase">
+              Available in
+            </p>
+            <ul className="mt-4 flex flex-wrap justify-center gap-2.5">
+              {product.variants.map((v) => (
+                <li
+                  key={v}
+                  className="pm-small inline-flex items-center gap-2 rounded-full border border-gold/25 px-3.5 py-1.5 font-body text-pista/85 transition-colors duration-300 hover:border-gold/60"
+                >
+                  <span className="size-1.5 rounded-full bg-gold" />
+                  {v}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* the written description + placement + craft — centred */}
+        <section className="mx-auto mt-16 max-w-3xl text-center">
+          <p className="pm-eyebrow font-body text-gold/70">About the piece</p>
+          {info.description && (
+            <p className="pm-lead mx-auto mt-4 max-w-2xl font-body text-pista/80">
+              {info.description}
+            </p>
+          )}
+          <div className="mt-10 grid gap-8 border-t border-gold/12 pt-10 text-center sm:grid-cols-2 sm:gap-12">
+            <div>
+              <h3 className="pm-label font-display tracking-[0.16em] text-gold/55 uppercase">
+                Placement
+              </h3>
+              <p className="pm-body mx-auto mt-2.5 max-w-sm font-body text-pista/70">
+                {info.placement}
+              </p>
+            </div>
+            <div>
+              <h3 className="pm-label font-display tracking-[0.16em] text-gold/55 uppercase">
+                Craft
+              </h3>
+              <p className="pm-body mx-auto mt-2.5 max-w-sm font-body text-pista/70">
+                {info.craft}
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* commission */}
+        <div className="mt-16 text-center">
+          <p className="pm-eyebrow font-body text-gold/70">Commission this piece</p>
+          <div className="mt-5 flex justify-center">
+            <MagneticButton href="/contact" tone="dark">
               Enquire about {product.title}
             </MagneticButton>
-            <p className="pm-small mt-5 max-w-sm font-body text-maroon/60">
-              Every piece is handcrafted to order — sized to your derasar and to
-              religious norms.
-            </p>
           </div>
+          <p className="pm-small mx-auto mt-6 max-w-md font-body text-pista/50">
+            Every piece is handcrafted to order — sized to your derasar and to
+            religious norms.
+          </p>
         </div>
-      </div>
 
-      {/* ===== the written description + placement + craft ===== */}
-      <ProductAbout
-        description={info.description}
-        placement={info.placement}
-        craft={info.craft}
-      />
-
-      <RelatedProducts items={related} familySlug={product.family} />
-    </article>
+        <RelatedProducts items={related} familySlug={product.family} />
+      </article>
+    </div>
   );
 }

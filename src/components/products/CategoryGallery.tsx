@@ -35,11 +35,14 @@ export default function CategoryGallery({
   title,
   gallery,
   variants = [],
+  dark = false,
 }: {
   title: string;
   gallery: ProductGallery;
   /** Catalogue finishes, used to build coins when photos aren't split by finish. */
   variants?: string[];
+  /** Render for the dark editorial product page (light coin labels, gold hairlines). */
+  dark?: boolean;
 }) {
   const groups = gallery.groups;
 
@@ -86,7 +89,10 @@ export default function CategoryGallery({
         <div
           role="tablist"
           aria-label="Choose a finish"
-          className="mb-10 flex flex-wrap gap-x-6 gap-y-5 sm:gap-x-8"
+          className={cn(
+            "mb-10 flex flex-wrap gap-x-6 gap-y-5 sm:gap-x-8",
+            dark && "justify-center",
+          )}
         >
           {finishes.map((f, i) => {
             const on = i === active;
@@ -130,9 +136,13 @@ export default function CategoryGallery({
                 <span
                   className={cn(
                     "pm-micro text-center font-display transition-colors",
-                    on
-                      ? "text-maroon"
-                      : "text-maroon/60 group-hover:text-maroon",
+                    dark
+                      ? on
+                        ? "text-cream"
+                        : "text-pista/55 group-hover:text-cream"
+                      : on
+                        ? "text-maroon"
+                        : "text-maroon/60 group-hover:text-maroon",
                   )}
                 >
                   {f.label}
@@ -153,7 +163,12 @@ export default function CategoryGallery({
             key={img.src}
             onClick={() => setOpen(i)}
             aria-label={`View ${caption} photo ${i + 1}`}
-            className="group relative aspect-square overflow-hidden rounded-card border border-olive/15 bg-cream-deep transition-colors duration-300 hover:border-olive/50"
+            className={cn(
+              "group relative aspect-square overflow-hidden rounded-[1rem] bg-cream-deep transition-colors duration-300",
+              dark
+                ? "border border-cream/10 hover:border-gold/40"
+                : "border border-olive/15 hover:border-olive/50",
+            )}
           >
             {/* square frames — the client's per-piece photos are square, so they
                 fill edge-to-edge with no crop and no letterbox; a differently
