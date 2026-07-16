@@ -153,32 +153,30 @@ export default function CategoryGallery({
         </div>
       )}
 
-      {/* ALIGNED grid: one UNIFORM 4/5 frame per photo (the piece contained,
-          never cropped — client mandate — so it floats centred), on even gutters
-          and a shared column rhythm. (Was a ragged CSS-columns masonry with holes
-          and mismatched heights; the client asked for an aligned pattern.) */}
-      <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
+      {/* Aligned grid, centred so a partial last row sits in the middle. Each
+          frame ADOPTS its photo's own aspect ratio, so the shot FILLS the frame
+          edge-to-edge with NO crop and NO letterbox (a product's photos usually
+          share one ratio, so the row stays even). */}
+      <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
         {images.map((img, i) => (
           <button
             key={img.src}
             onClick={() => setOpen(i)}
             aria-label={`View ${caption} photo ${i + 1}`}
+            style={{ aspectRatio: `${img.w} / ${img.h}` }}
             className={cn(
-              "group relative aspect-square overflow-hidden rounded-[1rem] bg-cream-deep transition-colors duration-300",
+              "group relative w-[calc((100%-1rem)/2)] overflow-hidden rounded-[1rem] bg-cream-deep transition-colors duration-300 sm:w-[calc((100%-2rem)/3)]",
               dark
                 ? "border border-cream/10 hover:border-gold/40"
                 : "border border-olive/15 hover:border-olive/50",
             )}
           >
-            {/* square frames — the client's per-piece photos are square, so they
-                fill edge-to-edge with no crop and no letterbox; a differently
-                shaped shot still sits contained (uncropped) in the same box. */}
             <Image
               src={img.src}
               fill
               alt={`${caption} — ${i + 1}`}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
+              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
           </button>
         ))}

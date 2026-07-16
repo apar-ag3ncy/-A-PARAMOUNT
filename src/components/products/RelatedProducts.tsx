@@ -2,12 +2,15 @@ import Link from "next/link";
 import Image from "next/image";
 import ArchMark from "@/components/ui/ArchMark";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import { productAspect } from "@/lib/productImageDims";
 import type { CatalogCategory } from "@/lib/catalog";
 
 interface Props {
   items: CatalogCategory[];
   familySlug: string;
 }
+
+const clampAr = (ar: number) => Math.min(1.4, Math.max(0.56, ar));
 
 /**
  * Related pieces — editorial mini-cards matching the collection grid: a framed
@@ -20,16 +23,19 @@ export default function RelatedProducts({ items, familySlug }: Props) {
     <section className="mt-20 border-t border-olive/15 pt-14 text-center sm:mt-28">
       <p className="pm-eyebrow font-body text-olive/80">More from this collection</p>
       <OrnamentDivider className="mx-auto mt-4 text-olive/45" />
-      <div className="mt-10 grid grid-cols-2 gap-5 sm:gap-6 md:grid-cols-4">
-        {items.map((p) => (
+      <div className="mt-10 grid grid-cols-2 items-start gap-5 sm:gap-6 md:grid-cols-4">
+        {items.map((p) => {
+          const ar = productAspect(p.image);
+          const frameAr = ar ? clampAr(ar) : 0.8;
+          return (
           <Link
             key={p.slug}
             href={`/products/${familySlug}/${p.slug}`}
             className="group flex flex-col text-center"
           >
             <div
-              className="relative aspect-[4/5] overflow-hidden rounded-[1rem] ring-1 ring-olive/12"
-              style={{ background: "#F3E7CE" }}
+              className="relative overflow-hidden rounded-[1rem] ring-1 ring-olive/12"
+              style={{ aspectRatio: String(frameAr), background: "#F3E7CE" }}
             >
               {p.image ? (
                 <Image
@@ -54,7 +60,8 @@ export default function RelatedProducts({ items, familySlug }: Props) {
               {p.title}
             </h3>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
