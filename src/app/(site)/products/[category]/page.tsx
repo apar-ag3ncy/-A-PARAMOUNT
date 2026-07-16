@@ -31,8 +31,8 @@ export default async function CategoryPage({
   const products = await getProductsByFamily(family.slug);
 
   return (
-    // DARK EDITORIAL collection page (client reference), in the brand's velvet.
-    <div style={{ background: "#17110A" }}>
+    // EDITORIAL collection page (client reference layout) on the brand's beige.
+    <div style={{ background: "#FEF1DA" }}>
       <CategoryHero
         title={family.title}
         subtitle={family.blurb}
