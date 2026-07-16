@@ -143,25 +143,27 @@ export default function CategoryGallery({
         </div>
       )}
 
-      {/* True masonry: each frame takes its photo's OWN aspect ratio (width/
-          height from the manifest), so every image fills its frame completely —
-          no crop, no empty bands — whether it's a tall dhwajadand or a wide
-          bhandar. CSS columns balance the varying heights. */}
-      <div className="[column-fill:_balance] gap-6 sm:columns-2 lg:columns-3 [&>*]:mb-6">
+      {/* ALIGNED grid: one UNIFORM 4/5 frame per photo (the piece contained,
+          never cropped — client mandate — so it floats centred), on even gutters
+          and a shared column rhythm. (Was a ragged CSS-columns masonry with holes
+          and mismatched heights; the client asked for an aligned pattern.) */}
+      <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-3">
         {images.map((img, i) => (
           <button
             key={img.src}
             onClick={() => setOpen(i)}
             aria-label={`View ${caption} photo ${i + 1}`}
-            className="group block w-full break-inside-avoid overflow-hidden rounded-card border border-olive/15 bg-cream-deep transition-colors duration-300 hover:border-olive/50"
+            className="group relative aspect-square overflow-hidden rounded-card border border-olive/15 bg-cream-deep transition-colors duration-300 hover:border-olive/50"
           >
+            {/* square frames — the client's per-piece photos are square, so they
+                fill edge-to-edge with no crop and no letterbox; a differently
+                shaped shot still sits contained (uncropped) in the same box. */}
             <Image
               src={img.src}
-              width={img.w}
-              height={img.h}
+              fill
               alt={`${caption} — ${i + 1}`}
-              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-              className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.04]"
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]"
             />
           </button>
         ))}
