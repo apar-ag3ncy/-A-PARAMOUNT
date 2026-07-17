@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { FAMILIES } from "@/lib/constants";
 import { getProductsByFamily } from "@/lib/data";
-import CategoryGrid from "@/components/products/CategoryGrid";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import ArchMark from "@/components/ui/ArchMark";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
 
 export const metadata: Metadata = {
@@ -13,18 +14,24 @@ export const metadata: Metadata = {
 };
 
 export default async function ProductsPage() {
+  // The landing is a structured OVERVIEW of the four collections — one card each,
+  // leading into that collection's own page. The full piece grids live on the
+  // /products/[category] pages, so nothing is listed twice.
   const families = await Promise.all(
-    FAMILIES.map(async (f) => ({
-      slug: f.slug,
-      title: f.title,
-      blurb: f.blurb,
-      products: await getProductsByFamily(f.slug),
-    })),
+    FAMILIES.map(async (f) => {
+      const products = await getProductsByFamily(f.slug);
+      return {
+        slug: f.slug,
+        title: f.title,
+        blurb: f.blurb,
+        count: products.length,
+        // representative piece — the first photographed one in the family
+        hero: products.find((p) => p.image)?.image ?? null,
+      };
+    }),
   );
 
   return (
-    // The catalogue overview in the same EDITORIAL beige style as each collection
-    // page: every family gets a header + the 3-per-line grid of its pieces.
     <div style={{ background: "#FEF1DA" }}>
       {/* editorial page header, centred */}
       <header className="px-6 pt-32 pb-4 text-center">
@@ -48,35 +55,62 @@ export default async function ProductsPage() {
         </p>
       </header>
 
-      {families.map((f, i) => (
-        <section key={f.slug} className="px-6 py-10 sm:py-14">
-          <div className="mx-auto max-w-7xl">
-            {/* family section header — title left, view-all right, on a hairline */}
-            <div className="mb-9 flex flex-wrap items-end justify-between gap-4 border-b border-olive/20 pb-5">
-              <div>
-                <p className="pm-eyebrow font-body text-olive/70">
+      {/* the four collections, as cards — each opens its own piece grid */}
+      <section className="px-6 pt-10 pb-28">
+        <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-2">
+          {families.map((f, i) => (
+            <Link
+              key={f.slug}
+              href={`/products/${f.slug}`}
+              className="group flex flex-col overflow-hidden rounded-[1.6rem] border border-olive/15 shadow-[0_30px_70px_-52px_rgba(46,35,19,0.5)] transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-olive/35"
+              style={{ background: "linear-gradient(180deg, #FFFDF6 0%, #F6E9CE 100%)" }}
+            >
+              {/* metadata row — index left, count right, on a hairline */}
+              <div className="mx-7 flex items-center justify-between border-b border-olive/12 pt-6 pb-4">
+                <span className="pm-micro font-body tabular-nums tracking-[0.22em] text-olive/55">
                   Collection {String(i + 1).padStart(2, "0")}
-                </p>
-                <h2 className="pm-h2 mt-2 font-display text-heading-brown">
-                  {f.title}
-                </h2>
+                </span>
+                <span className="pm-micro font-body tracking-[0.22em] text-olive/55 uppercase">
+                  {f.count} {f.count === 1 ? "piece" : "pieces"}
+                </span>
               </div>
-              <Link
-                href={`/products/${f.slug}`}
-                className="pm-label font-display tracking-[0.16em] text-olive uppercase transition-colors hover:text-maroon"
-              >
-                View all {f.products.length} —
-              </Link>
-            </div>
 
-            <CategoryGrid
-              familySlug={f.slug}
-              familyLabel={f.title}
-              products={f.products}
-            />
-          </div>
-        </section>
-      ))}
+              {/* representative piece — contained on a warm mat (product shots
+                  are never cropped), or a cream monogram tile when unphotographed */}
+              <div
+                className="relative mx-7 mt-6 overflow-hidden rounded-[1.15rem] ring-1 ring-olive/12"
+                style={{ background: "#F3E7CE", aspectRatio: "16 / 10" }}
+              >
+                {f.hero ? (
+                  <Image
+                    src={f.hero}
+                    alt=""
+                    fill
+                    sizes="(min-width:640px) 45vw, 90vw"
+                    className="object-contain p-5 transition-transform duration-500 group-hover:scale-[1.04]"
+                  />
+                ) : (
+                  <div className="grid h-full place-items-center">
+                    <ArchMark className="h-16 w-auto text-olive/20" />
+                  </div>
+                )}
+              </div>
+
+              {/* title + blurb + cue */}
+              <div className="flex flex-1 flex-col px-7 pt-7 pb-8 text-center">
+                <h2 className="pm-h2 font-display text-heading-brown">{f.title}</h2>
+                <OrnamentDivider className="mx-auto mt-3 text-olive/45" />
+                <p className="pm-small mx-auto mt-4 max-w-sm font-body text-maroon/75">
+                  {f.blurb}
+                </p>
+                <span className="pm-label mt-auto pt-7 font-display tracking-[0.16em] text-olive uppercase transition-colors group-hover:text-maroon">
+                  Explore collection —
+                </span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
