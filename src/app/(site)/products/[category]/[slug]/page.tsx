@@ -83,25 +83,20 @@ export default async function ProductPage({
         </nav>
 
         {/* header — centred editorial */}
-        <header className="mt-12 text-center">
-          <div className="flex items-center justify-center gap-4 pm-micro font-body tracking-[0.28em] text-olive/50 uppercase">
-            <span>A Paramount</span>
-            <span className="h-px w-8 bg-olive/30" aria-hidden />
-            <span>Est. 1968</span>
-          </div>
-          <p className="pm-eyebrow mt-9 font-body text-olive/80">
+        <header className="mt-10 text-center">
+          <p className="pm-eyebrow font-body text-olive/80">
             {info.familyLabel}
           </p>
           <SplitTextReveal
             as="h1"
             by="words"
-            className="pm-display mt-3 font-display font-light text-balance text-heading-brown"
+            className="pm-display mt-4 font-display font-light text-balance text-heading-brown"
           >
             {product.title}
           </SplitTextReveal>
           <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
           {info.overview && (
-            <p className="pm-lead mx-auto mt-6 max-w-2xl font-body text-maroon/80">
+            <p className="pm-lead mx-auto mt-6 max-w-xl font-body text-maroon/80">
               {info.overview}
             </p>
           )}
@@ -172,9 +167,8 @@ export default async function ProductPage({
 
         {/* the written description + placement + craft — centred */}
         <Reveal className="mx-auto mt-16 max-w-3xl text-center">
-          <p className="pm-eyebrow font-body text-olive/80">About the piece</p>
           {info.description && (
-            <p className="pm-lead mx-auto mt-4 max-w-2xl font-body text-maroon/85">
+            <p className="pm-lead mx-auto max-w-2xl font-body text-maroon/85">
               {info.description}
             </p>
           )}

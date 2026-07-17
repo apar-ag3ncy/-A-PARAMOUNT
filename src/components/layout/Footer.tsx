@@ -106,7 +106,7 @@ export default function Footer() {
         {/* deck p30 — the emotional centre. Set in Inter (the brand's only
             lowercase face; Storica is caps-only), light italic, so it reads as a
             soft sentence-case murmur rather than a shout. */}
-        <p className="pm-h2 max-w-3xl font-body font-light text-cream/95 italic">
+        <p className="pm-h2 max-w-3xl font-body font-light text-cream/95">
           Shaped by devotion, destined to inspire generations.
         </p>
 
@@ -126,7 +126,7 @@ export default function Footer() {
             ariaLabel={SITE.name}
             className="pm-h3 mt-5 text-cream opacity-95"
           />
-          <p className="pm-body mt-4 font-body text-cream/75 italic">
+          <p className="pm-body mt-4 font-body text-cream/75">
             {SITE.tagline}
           </p>
         </div>

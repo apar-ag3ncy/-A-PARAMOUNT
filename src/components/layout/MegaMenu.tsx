@@ -57,7 +57,7 @@ function categoryPreview(slug: string, image?: string): string | null {
 /**
  * Desktop navigation + the Collections mega-panel — an ornamental, deck-faithful
  * dropdown: damask-washed cream, hairline gold rules, corner flourishes, serif-
- * italic family headings, staggered link entrance, and an arch-framed feature
+ * family headings, staggered link entrance, and an arch-framed feature
  * that previews whichever category is hovered.
  */
 export default function MegaMenu() {
@@ -191,7 +191,7 @@ export default function MegaMenu() {
                         feature ? "opacity-0" : "opacity-100",
                       )}
                     >
-                      <p className="text-center font-body text-sm text-maroon italic">
+                      <p className="text-center font-body text-sm text-maroon">
                         The Catalogue
                       </p>
                       <p className="mt-0.5 text-center font-display text-[10px] tracking-[0.22em] text-maroon/60 uppercase">
@@ -210,7 +210,7 @@ export default function MegaMenu() {
                         {feature?.title}
                       </p>
                       {feature?.blurb && (
-                        <p className="mx-auto mt-1.5 max-w-[26ch] overflow-hidden text-center font-body text-[11.5px] leading-[1.5] text-maroon/70 italic [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [display:-webkit-box]">
+                        <p className="mx-auto mt-1.5 max-w-[26ch] overflow-hidden text-center font-body text-[11.5px] leading-[1.5] text-maroon/70 [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [display:-webkit-box]">
                           {feature.blurb}
                         </p>
                       )}

@@ -6,22 +6,15 @@ interface Props {
 }
 
 /*
- * One wing (drawn for the left side, mirrored for the right):
- * a hairline that runs out to the edge, broken by a small 4-point diamond (✦),
- * with the segment nearest the medallion a touch shorter. Stroke-based.
+ * One wing (drawn for the left side, mirrored for the right): a single hairline
+ * running from the edge in toward the medallion, fading a touch toward the tip.
+ * Stroke-based. (The old 4-point diamond flourishes were dropped — they were not
+ * part of the brand ornament; only the arch-A monogram is.)
  */
 const wing = (
   <>
-    {/* hairline: outer segment, then a gap for the diamond, then inner segment */}
-    <path d="M2 12 H44" opacity={0.55} />
-    <path d="M56 12 H70" opacity={0.9} />
-    {/* small 4-point diamond (✦) sitting on the rule */}
-    <path
-      d="M50 12 L49 9.4 L48 12 L49 14.6 Z M50 12 L52.6 11 L50 10 L47.4 11 Z M50 12 L52.6 13 L50 14 L47.4 13 Z M50 12 L47.4 11 L50 10 L52.6 11 Z"
-      fill="currentColor"
-      stroke="none"
-      opacity={0.9}
-    />
+    <path d="M2 12 H62" opacity={0.5} />
+    <path d="M62 12 H70" opacity={0.85} />
   </>
 );
 

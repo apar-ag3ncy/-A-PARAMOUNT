@@ -74,10 +74,11 @@ const FILM_END = 0.62;
 // linear; fp 0.66 is the doorscroll→ceiling match cut (frame 106 of 166).
 const PACE: ReadonlyArray<readonly [number, number]> = [
   [0.0, 0.0],
-  [0.2, 0.217], // reached the doors (frame ~36)
-  [0.42, 0.29], // doors fully open (frame ~48) — held a beat
-  [0.66, 0.639], // arrived in the hall; ceiling crane begins (frame 106)
-  [1.0, 1.0], // settled on the carved ceiling (frame 166)
+  [0.18, 0.2], // dollied up to the closed doors (video ~2.2s)
+  [0.52, 0.3], // doors SLOWLY swing fully open (video ~3.3s) — the payoff, given
+  //             a third of the film's scroll so it's savoured, not rushed
+  [0.72, 0.639], // arrived in the sanctum hall; ceiling crane begins (video ~7s)
+  [1.0, 1.0], // settled on the carved ceiling (video ~11s)
 ];
 const paceMap = (fp: number): number => {
   for (let i = 1; i < PACE.length; i++) {
@@ -90,11 +91,12 @@ const paceMap = (fp: number): number => {
   return 1;
 };
 
-/** Door-open light, in FILM progress fp — the doors swing over fp≈0.20…0.42. */
+/** Door-open light, in FILM progress fp — the doors swing SLOWLY over fp≈0.18…0.52,
+ *  so the light pours out for the length of the open, then eases as we step in. */
 const D = {
-  cueOut: 0.1, // "scroll to open" holds through the approach, fades as doors near
-  raysIn: 0.22, raysLen: 0.2, raysFade: 0.46, raysFadeLen: 0.16,
-  bloomIn: 0.24, bloomLen: 0.16, bloomFade: 0.44, bloomFadeLen: 0.14,
+  cueOut: 0.12, // "scroll to open" holds through the approach, fades as doors near
+  raysIn: 0.22, raysLen: 0.28, raysFade: 0.56, raysFadeLen: 0.16,
+  bloomIn: 0.26, bloomLen: 0.24, bloomFade: 0.54, bloomFadeLen: 0.15,
 };
 
 /** Interior veil + brand + works, in GLOBAL progress P. The film settles on the
@@ -117,7 +119,8 @@ const GLOBAL_BRAND_DONE = B.brandDone;
 
 const BLUR_PX = 5;
 const WASH_MAX = 0.42;
-const TAU_MS = 165; // the glide's time constant — the whole film's slow-mo weight
+const TAU_MS = 115; // the glide's time constant — weighty but tight enough that the
+//                     video tracks the scroll (higher felt "draggy/laggy")
 
 const MASK_STYLE: React.CSSProperties = {
   WebkitMaskImage: "url(/brand/a-mark-white.png)",
@@ -165,18 +168,18 @@ export default function HomeFilm() {
     // Irregular beams — varied angle, width, length, shimmer — so they never form
     // a regular lattice. Weighted to fan outward and downward (light falls out of
     // the opening), with a few long ones reaching the screen edges.
-    // Fewer, longer shafts that pour DOWN & OUT from the door opening (the mid)
-    // and reach PAST the frame — a fan biased to the lower arc, so the light
-    // "falls from mid till outside the doors" rather than haloing evenly around.
-    const N = 11;
+    // Long soft shafts that pour OUT of the door opening (the mid) and reach PAST
+    // the frame — a fan across the whole lower arc and the sides, so the light
+    // spills toward the viewer as the doors part rather than haloing evenly around.
+    const N = 13;
     const beams = Array.from({ length: N }, (_, i) => {
       const t = i / (N - 1); // 0..1 across the fan
       return {
-        // centred on straight-down (π/2), spread ±~1.4rad → lower hemisphere + sides
-        ang: Math.PI / 2 + (t - 0.5) * 2.8 + ((i % 3) - 1) * 0.1,
-        half: (0.7 + ((i * 37) % 10) / 10) * 0.11, // half-angle width (rad)
-        len: 1.05 + (((i * 53) % 10) / 10) * 0.75, // reach past the frame, in max-dims
-        base: 0.055 + (((i * 29) % 10) / 10) * 0.06, // per-beam brightness
+        // centred on straight-down (π/2), spread ±~1.6rad → lower hemisphere + sides
+        ang: Math.PI / 2 + (t - 0.5) * 3.2 + ((i % 3) - 1) * 0.09,
+        half: (0.7 + ((i * 37) % 10) / 10) * 0.1, // half-angle width (rad)
+        len: 1.1 + (((i * 53) % 10) / 10) * 0.8, // reach past the frame, in max-dims
+        base: 0.06 + (((i * 29) % 10) / 10) * 0.06, // per-beam brightness
         tw: 0.5 + (((i * 17) % 10) / 10) * 1.4, // shimmer speed
         ph: i * 1.7, // shimmer phase
       };
@@ -410,19 +413,32 @@ export default function HomeFilm() {
     let ready = false;
     let target = 0; // the video time the scrub currently wants
     let lastSeek = -1;
-    // Seek only when the target moved enough to matter (~a quarter-frame); rapid
-    // sets coalesce to the latest, so the scrub never queues up behind the decoder.
-    // Clamp off the very last frame so the settled ceiling holds cleanly.
+    let seeking = false;
+    let seekStartT = 0;
+    // Scrub the video ONE seek at a time. While a seek is still decoding we just
+    // remember the latest target and fire it the instant `seeked` lands — this
+    // PACES seeks to the decoder instead of piling them up, which is the fix for
+    // the fast/draggy/laggy stutter. The video then tracks the scroll as fast as
+    // it can, smoothly, never queuing behind itself. Clamp off the very last frame
+    // so the settled ceiling holds cleanly. A 300ms watchdog self-heals if a seek
+    // ever stalls (e.g. a dropped `seeked`), so the film can never freeze.
     const seek = (t: number) => {
       if (!ready) return;
-      const clamped = Math.min(duration - 0.05, Math.max(0, t));
-      if (Math.abs(clamped - lastSeek) < 0.012) return;
-      lastSeek = clamped;
+      target = Math.min(duration - 0.05, Math.max(0, t));
+      if (seeking && performance.now() - seekStartT < 300) return;
+      if (Math.abs(target - lastSeek) < 0.008) return;
+      lastSeek = target;
+      seeking = true;
+      seekStartT = performance.now();
       try {
-        video.currentTime = clamped;
+        video.currentTime = target;
       } catch {
-        /* not seekable yet — the next tick retries */
+        seeking = false; // not seekable yet — the next tick retries
       }
+    };
+    const onSeeked = () => {
+      seeking = false;
+      if (Math.abs(target - lastSeek) >= 0.008) seek(target); // chase a target that moved mid-seek
     };
     const onMeta = () => {
       if (Number.isFinite(video.duration) && video.duration > 0) duration = video.duration;
@@ -441,6 +457,7 @@ export default function HomeFilm() {
       video.preload = "auto";
       video.addEventListener("loadedmetadata", onMeta);
       video.addEventListener("loadeddata", onReady);
+      video.addEventListener("seeked", onSeeked);
       video.src = frugal || smallScreen ? FILM_SM : FILM;
       video.load();
     }
@@ -489,14 +506,16 @@ export default function HomeFilm() {
         // lingers on the door-swing and the ceiling reveal; past FILM_END the seek
         // holds the settled-ceiling frame as the brand resolves on it.
         const fp = seg(P, 0, FILM_END);
-        target = paceMap(fp) * duration;
-        seek(target);
+        seek(paceMap(fp) * duration);
         if (dcueEl) gsap.set(dcueEl, { opacity: 1 - easeIn(seg(fp, D.cueOut, 0.14)) });
 
-        // ---- door-open light (fp) ----
-        // god-rays pour from the widening gap, then dissolve as we move inside
+        // ---- door-open light + cinematic push (fp) ----
+        // a slow synthetic zoom INTO the doorway across the approach and the swing,
+        // layered on the video's own dolly for a deeper, cinematic push-in.
+        if (zoomEl) gsap.set(zoomEl, { scale: 1 + 0.12 * smooth(seg(fp, 0, 0.52)) });
+        // god-rays POUR OUT of the opening as the doors swing, then dissolve inside
         rayStrength.current =
-          0.72 *
+          0.9 *
           smooth(seg(fp, D.raysIn, D.raysLen)) *
           (1 - smooth(seg(fp, D.raysFade, D.raysFadeLen)));
         // warm gold bloom swells through the opening then eases so the hall reads clean
@@ -505,7 +524,7 @@ export default function HomeFilm() {
           (1 - smooth(seg(fp, D.bloomFade, D.bloomFadeLen)));
         if (dbloomEl) gsap.set(dbloomEl, { opacity: 0.8 * db, scale: 1 + 1.1 * db });
         if (dvignetteEl) gsap.set(dvignetteEl, { opacity: 0.4 + 0.42 * (1 - db) });
-        if (fp >= 0.42) fireDoorsOpen();
+        if (fp >= 0.5) fireDoorsOpen();
 
         // ---------------- VEIL / TYPE / BRAND / WORKS (P) ----------------
         const inside = smooth(seg(P, B.veilIn, B.veilLen));
@@ -695,6 +714,7 @@ export default function HomeFilm() {
       holdHeader("film", false);
       video.removeEventListener("loadedmetadata", onMeta);
       video.removeEventListener("loadeddata", onReady);
+      video.removeEventListener("seeked", onSeeked);
       video.removeAttribute("src");
       video.load();
       ctx.revert();
@@ -706,8 +726,9 @@ export default function HomeFilm() {
     <section
       ref={root}
       // ONE long pinned span for the WHOLE film — doors → walk-in → ceiling →
-      // brand → works. FILM_END splits scrub from hold. ScrollTrigger reads this.
-      className="hf relative bg-cream h-[900svh] md:h-[1250svh] lg:h-[1500svh]"
+      // brand → works. Longer = slower, more cinematic (esp. the door-swing).
+      // FILM_END splits scrub from hold. ScrollTrigger reads this.
+      className="hf relative bg-cream h-[1050svh] md:h-[1450svh] lg:h-[1750svh]"
     >
       <div
         ref={stage}
@@ -858,7 +879,7 @@ export default function HomeFilm() {
           </div>
           <OrnamentDivider className="hv-div mt-9 text-olive/70 opacity-0" />
           <p className="hv-tag mt-7 font-display text-2xl text-heading-brown opacity-0 sm:text-4xl">
-            Crafting Divine <span className="font-body text-maroon italic">Elegance</span>
+            Crafting Divine <span className="font-body text-maroon">Elegance</span>
           </p>
         </div>
 

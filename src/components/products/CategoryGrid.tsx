@@ -31,11 +31,9 @@ const clampAr = (ar: number) => Math.min(MAX_AR, Math.max(MIN_AR, ar));
 export default function CategoryGrid({
   products,
   familySlug,
-  familyLabel,
 }: {
   products: CatalogCategory[];
   familySlug: string;
-  familyLabel: string;
 }) {
   return (
     <div className="flex flex-wrap justify-center gap-6">
@@ -67,9 +65,8 @@ export default function CategoryGrid({
               </span>
             </div>
 
-            {/* eyebrow + the name, the focal point of the card */}
-            <p className="pm-eyebrow mt-6 font-body text-olive/75">{familyLabel}</p>
-            <h3 className="mt-2 font-display text-[1.55rem] leading-[1.1] text-heading-brown">
+            {/* the name — the focal point of the card */}
+            <h3 className="mt-6 font-display text-[1.55rem] leading-[1.1] text-heading-brown">
               {p.title}
             </h3>
 

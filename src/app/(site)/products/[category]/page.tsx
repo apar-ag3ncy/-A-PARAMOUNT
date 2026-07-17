@@ -41,11 +41,7 @@ export default async function CategoryPage({
 
       <section className="px-6 pt-8 pb-28">
         <div className="mx-auto max-w-7xl">
-          <CategoryGrid
-            familySlug={family.slug}
-            familyLabel={family.title}
-            products={products}
-          />
+          <CategoryGrid familySlug={family.slug} products={products} />
         </div>
       </section>
     </div>

@@ -69,7 +69,7 @@ export default function PageHeader({
         <OrnamentDivider className={cn("mt-6 text-olive/50", left ? "ml-0" : "mx-auto")} />
       )}
       {tagline && (
-        <p className="pm-lead font-body mt-5 text-maroon italic">{tagline}</p>
+        <p className="pm-lead font-body mt-5 text-maroon">{tagline}</p>
       )}
       {subtitle && (
         <p
