@@ -30,12 +30,12 @@ export interface ReelCard {
   href: string;
 }
 
-const ASPECT = 0.64; // card width / height — tall portrait, matching the reference
-const PITCH_FRAC = 1.14; // card-to-card pitch as a fraction of card width (small gap)
-const ROT_MAX = 7; // deg the outermost card in the arc leans
-const LIFT_FRAC = 0.05; // edge cards dip this fraction of card height below centre
-const SCALE_DROP = 0.06; // outermost card shrinks by this much
-const SPEED = 46; // px/sec auto-drift (≈ one card every ~4s)
+const ASPECT = 0.667; // card width / height — 2:3 portrait (measured 122×183 off the reference)
+const PITCH_FRAC = 1.13; // card-to-card pitch as a fraction of card width (~13% gap, no overlap — ref)
+const ROT_MAX = 8; // deg the cropped edge card leans (reference fans ~±8; outer-visible ~±5.4)
+const LIFT_FRAC = 0.02; // near-zero: the reference arc is PURE rotation, centres ~collinear (<5px lift)
+const SCALE_DROP = 0.05; // outermost card shrinks by this much
+const AUTO_RATE = 0.8; // auto-drift in card-PITCHES per second (reference glides ~1 pitch/sec, linear)
 const FRICTION = 0.94; // per-frame inertia decay (frame-rate normalised)
 
 interface Metrics {
@@ -69,7 +69,7 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
     if (!root) return;
     const w = root.clientWidth;
     if (!w) return;
-    const cardW = Math.min(196, Math.max(146, w * 0.14));
+    const cardW = Math.min(214, Math.max(156, w * 0.146));
     const cardH = cardW / ASPECT;
     const pitch = cardW * PITCH_FRAC;
     const m: Metrics = {
@@ -77,7 +77,7 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       cardH,
       pitch,
       total: n * pitch,
-      radius: w * 0.42,
+      radius: w * 0.4,
       visHalf: w / 2 + cardW * 0.9,
       fade: cardW * 0.8,
       lift: cardH * LIFT_FRAC,
@@ -180,7 +180,9 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       if (!draggingRef.current) {
         const drifting =
           !reducedRef.current && !(finePointer && hoverRef.current);
-        if (drifting) offsetRef.current += SPEED * dt;
+        // auto-drift in card-pitches/sec, so it reads the same at every viewport
+        const pitch = metricsRef.current?.pitch || 0;
+        if (drifting) offsetRef.current += pitch * AUTO_RATE * dt;
         if (velRef.current) {
           offsetRef.current += velRef.current * dt;
           velRef.current *= Math.pow(FRICTION, dt * 60);
@@ -280,7 +282,7 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       aria-label="Installation gallery — drag left or right to explore"
       onKeyDown={onKeyDown}
       className="relative w-full cursor-grab touch-pan-y select-none overflow-hidden focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
-      style={{ height: "calc(var(--ch, 22rem) + 4rem)", ["--cw" as string]: "12rem", ["--ch" as string]: "19rem" }}
+      style={{ height: "calc(var(--ch, 20rem) + 2.75rem)", ["--cw" as string]: "12rem", ["--ch" as string]: "18rem" }}
     >
       {cards.map((c, i) => (
         <figure
@@ -288,7 +290,7 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
           ref={(el) => {
             cardRefs.current[i] = el;
           }}
-          className="absolute top-1/2 left-1/2 m-0 overflow-hidden rounded-[1.4rem] bg-cream-deep opacity-0 shadow-[0_34px_70px_-34px_rgba(46,35,19,0.62)] ring-1 ring-black/[0.06] will-change-transform"
+          className="absolute top-1/2 left-1/2 m-0 overflow-hidden rounded-[1.15rem] bg-cream-deep opacity-0 shadow-[0_10px_38px_-18px_rgba(46,35,19,0.18)] ring-1 ring-black/[0.04] will-change-transform"
           style={{ width: "var(--cw)", height: "var(--ch)" }}
         >
           {/* Clean photo cards (reference has no labels). Every image is eager
@@ -300,21 +302,13 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
             fill
             draggable={false}
             loading="eager"
-            sizes="224px"
+            sizes="240px"
             className="pointer-events-none object-cover select-none"
           />
         </figure>
       ))}
-
-      {/* soft cream edges — cards drift out instead of being hard-cut */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 left-0 z-[1200] w-12 bg-gradient-to-r from-cream to-transparent sm:w-28"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-y-0 right-0 z-[1200] w-12 bg-gradient-to-l from-cream to-transparent sm:w-28"
-      />
+      {/* No edge vignette — the reference clips its end cards HARD at the card's
+          rounded corner (this rail sits inside the page's overflow-hidden card). */}
     </div>
   );
 }
