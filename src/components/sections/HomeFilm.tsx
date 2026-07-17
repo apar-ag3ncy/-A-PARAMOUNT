@@ -40,10 +40,12 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * Everything is a PURE FUNCTION of P written with gsap.set inside apply(P) — no
  * tweens, no captured start values, so scrubbing BACK restores the exact frame.
  * The scroll target eases toward the seek on its own rAF loop with the door's time
- * constant (TAU_MS 165), giving the whole film one weighty glide. Dual pin: GSAP pin
- * on a mouse (ScrollSmoother transforms #smooth-content so CSS sticky can't hold),
- * native `position: sticky` on touch. The header is withheld for the whole film via
- * lib/cinema and returns only once the brand has resolved.
+ * constant (TAU_MS), giving the whole film one weighty glide — Lenis' page lerp
+ * (SmoothScrollProvider) feeds it an already-smooth scroll position. Dual pin:
+ * GSAP pin on a mouse, native `position: sticky` on touch (Lenis keeps native
+ * scroll, so sticky works — the dual path simply predates the smoother swap).
+ * The header is withheld for the whole film via lib/cinema and returns only once
+ * the brand has resolved.
  *
  * There is no static interior plate any more — the ceiling video IS the backdrop the
  * brand resolves on (a static ceiling poster stands in only under reduced motion).
@@ -730,11 +732,12 @@ export default function HomeFilm() {
     <section
       ref={root}
       // ONE pinned span for the WHOLE film — doors → walk-in → ceiling → brand →
-      // works. Kept SHORT so a little scroll starts AND completes the film: the
-      // door-swing scrubs across ~1.5-2 screen-heights, not ten. Smoothness comes
-      // from the glide loop (TAU_MS), not from a long runway. FILM_END splits
-      // scrub from hold; ScrollTrigger reads this.
-      className="hf relative bg-cream h-[320svh] md:h-[360svh] lg:h-[400svh]"
+      // works. Sized so the film plays through in ~3.5-4 screen-heights of scroll:
+      // short enough that a modest scroll carries it start-to-finish, long enough
+      // that it never whips (the first short cut at 320-400svh read "very fast" —
+      // client). Lenis' lerp + the TAU_MS glide supply the smoothness on top.
+      // FILM_END splits scrub from hold; ScrollTrigger reads this.
+      className="hf relative bg-cream h-[550svh] md:h-[640svh] lg:h-[720svh]"
     >
       <div
         ref={stage}

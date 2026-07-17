@@ -1,7 +1,8 @@
 "use client";
 
 import { useRef } from "react";
-import { gsap, ScrollSmoother } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
+import { getLenis } from "@/lib/lenis";
 import { cn } from "@/lib/utils";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
@@ -35,9 +36,11 @@ export default function MarqueeRow({ items, pxPerSecond = 24, className }: Props
           duration: half / pxPerSecond,
           repeat: -1,
         });
-        const smoother = ScrollSmoother.get();
         const update = () => {
-          const v = smoother ? smoother.getVelocity() : 0;
+          // Lenis velocity is px per rAF tick (~16ms); ×60 ≈ the px/sec that
+          // ScrollSmoother.getVelocity() used to report, so the clamp holds.
+          const lenis = getLenis();
+          const v = lenis ? lenis.velocity * 60 : 0;
           loop.timeScale(1 + gsap.utils.clamp(0, 5, Math.abs(v) * 0.004));
         };
         // Only run the per-frame velocity ticker while the marquee is on-screen.

@@ -2,50 +2,71 @@
 
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
-import { gsap, ScrollTrigger, ScrollSmoother } from "@/lib/gsap";
+import Lenis from "lenis";
+import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { setLenis } from "@/lib/lenis";
 
 // useLayoutEffect on the client, useEffect on the server (avoids the SSR warning).
 const useIsomorphicLayoutEffect =
   typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /**
- * ScrollSmoother foundation (PARAMOUNT_SCROLL_UI_PROMPT.md §0).
- * Renders the required #smooth-wrapper / #smooth-content structure and creates
- * the smoother inside a gsap.context so teardown is clean. Header/CustomCursor
- * live OUTSIDE this wrapper so they stay pinned to the viewport.
+ * Lenis smooth-scroll foundation (replaced GSAP ScrollSmoother — the client
+ * wanted a smoother, calmer glide and Lenis delivers it WITHOUT transforming
+ * the content: scroll position stays REAL native scroll, so `position: sticky`
+ * works everywhere and ScrollTrigger reads the page directly).
+ *
+ * Wiring is the canonical Lenis × GSAP pairing: Lenis runs on the gsap ticker
+ * (one rAF for everything), pushes ScrollTrigger.update on scroll, and
+ * lagSmoothing is off so the two never disagree about time. Touch keeps the
+ * native compositor scroll (syncTouch: false) — phones already glide.
+ *
+ * The #smooth-wrapper / #smooth-content divs remain as PLAIN divs: nothing
+ * transforms them any more, but styles/selectors still reference them.
  */
 export default function SmoothScrollProvider({
   children,
 }: {
   children: ReactNode;
 }) {
-  const smoother = useRef<ScrollSmoother | null>(null);
+  const lenisRef = useRef<Lenis | null>(null);
   const pathname = usePathname();
 
   useIsomorphicLayoutEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const finePointer = window.matchMedia("(pointer: fine)").matches;
-    const ctx = gsap.context(() => {
-      smoother.current = ScrollSmoother.create({
-        wrapper: "#smooth-wrapper",
-        content: "#smooth-content",
-        smooth: reduce ? 0 : 1.25, // seconds of catch-up — slow-mo glide, sticky-smooth
-        smoothTouch: 0, // keep native compositor touch scrolling on phones
-        effects: !reduce, // enables data-speed / data-lag parallax
-        normalizeScroll: finePointer, // JS scroll normalization only for mouse/trackpad devices
-        ignoreMobileResize: true, // no re-layout jank on mobile address-bar show/hide
-      });
+    if (reduce) return; // native, instant scroll — no smoothing at all
+
+    const lenis = new Lenis({
+      lerp: 0.09, // exponential catch-up per frame — the buttery glide
+      wheelMultiplier: 0.85, // each wheel notch travels a touch less — calm, unhurried
+      smoothWheel: true,
+      syncTouch: false, // phones keep native compositor scrolling
     });
+    lenisRef.current = lenis;
+    setLenis(lenis);
+
+    lenis.on("scroll", ScrollTrigger.update);
+    const tick = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(tick);
+    gsap.ticker.lagSmoothing(0);
+
     // Recompute once webfonts have swapped in (line splits + trigger positions).
     if (typeof document !== "undefined" && "fonts" in document) {
       document.fonts.ready.then(() => ScrollTrigger.refresh());
     }
-    return () => ctx.revert();
+
+    return () => {
+      gsap.ticker.remove(tick);
+      lenis.destroy();
+      lenisRef.current = null;
+      setLenis(null);
+    };
   }, []);
 
-  // Content height changes on navigation — recompute scroll length + reset to top.
+  // Content height changes on navigation — reset to top + recompute triggers.
   useIsomorphicLayoutEffect(() => {
-    smoother.current?.scrollTo(0, false);
+    if (lenisRef.current) lenisRef.current.scrollTo(0, { immediate: true });
+    else window.scrollTo(0, 0);
     ScrollTrigger.refresh();
   }, [pathname]);
 

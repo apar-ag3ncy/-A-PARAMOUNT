@@ -125,6 +125,22 @@
       scroll-behavior: auto !important;
     }
   }
+
+  /* Lenis smooth scroll (SmoothScrollProvider) — the library's recommended
+     boilerplate: it stamps these classes on <html>. Native CSS smooth-behavior
+     must not stack on Lenis' own animation, and a stopped Lenis locks the page. */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
 }
 
 /* ============================================================================
