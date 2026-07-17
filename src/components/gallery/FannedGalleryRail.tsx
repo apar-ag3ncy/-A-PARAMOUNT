@@ -46,7 +46,6 @@ interface Metrics {
   total: number; // full reel width, the wrap period
   radius: number; // px from centre at which a card reaches full ROT_MAX
   visHalf: number; // half-width of the visible band (beyond it a card is parked)
-  fade: number; // fade band width
   lift: number; // px
 }
 
@@ -79,7 +78,6 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       total: n * pitch,
       radius: w * 0.4,
       visHalf: w / 2 + cardW * 0.9,
-      fade: cardW * 0.8,
       lift: cardH * LIFT_FRAC,
     };
     metricsRef.current = m;
@@ -126,18 +124,16 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       const rot = ROT_MAX * tc;
       const ty = m.lift * Math.min(t * t, 1.6);
       const sc = 1 - SCALE_DROP * Math.abs(tc);
-      const op =
-        mag <= m.visHalf - m.fade
-          ? 1
-          : Math.max(0, (m.visHalf - mag) / m.fade);
 
       el.style.transform =
         `translate(-50%,-50%) translateX(${cx.toFixed(2)}px) ` +
         `translateY(${ty.toFixed(2)}px) rotate(${rot.toFixed(2)}deg) ` +
         `scale(${sc.toFixed(4)})`;
       el.style.zIndex = String(Math.round(1000 - mag));
-      el.style.opacity = op.toFixed(3);
-      el.style.pointerEvents = op < 0.05 ? "none" : "auto";
+      // OPAQUE: no edge fade — a card stays fully solid right up to the moment it
+      // is clipped off by the card's rounded edge (overflow-hidden), then parks.
+      el.style.opacity = "1";
+      el.style.pointerEvents = "auto";
     }
   };
 
