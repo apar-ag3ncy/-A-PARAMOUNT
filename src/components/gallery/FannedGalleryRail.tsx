@@ -13,11 +13,12 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * scrolls, so the envelope stays put while the imagery moves under it.
  *
  * ONE rAF owns everything (no per-frame React render): it advances a single
- * `offset` (px) by a gentle auto-scroll plus any release inertia, wraps it
- * modulo the reel width for a seamless infinite loop, and writes each visible
- * card's transform/opacity/z directly. A pointer drag scrubs `offset` 1:1 and
- * hands its velocity to the inertia on release; a fine-pointer hover pauses the
- * auto-drift so the work can be inspected. Reduced-motion => no drift, drag only.
+ * `offset` (px) by a CONTINUOUS always-on auto-scroll (≈1 card-pitch/sec, like
+ * the reference marquee — it never pauses on hover) plus any release inertia,
+ * wraps it modulo the reel width for a seamless infinite loop, and writes each
+ * visible card's transform/opacity/z directly. A pointer drag scrubs `offset`
+ * 1:1 and hands its velocity to the inertia on release, then the drift resumes.
+ * Reduced-motion => no drift, drag only.
  *
  * The photos are in-situ INSTALLATION photography (not white-ground studio
  * shots), so a uniform portrait card with `object-cover` is correct here — the
@@ -35,7 +36,7 @@ const PITCH_FRAC = 1.13; // card-to-card pitch as a fraction of card width (~13%
 const ROT_MAX = 8; // deg the cropped edge card leans (reference fans ~±8; outer-visible ~±5.4)
 const LIFT_FRAC = 0.02; // near-zero: the reference arc is PURE rotation, centres ~collinear (<5px lift)
 const SCALE_DROP = 0.05; // outermost card shrinks by this much
-const AUTO_RATE = 0.8; // auto-drift in card-PITCHES per second (reference glides ~1 pitch/sec, linear)
+const AUTO_RATE = 1.0; // auto-drift in card-PITCHES per second (the reference marquee glides ~1/sec, linear)
 const FRICTION = 0.94; // per-frame inertia decay (frame-rate normalised)
 
 interface Metrics {
@@ -59,7 +60,6 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
   const offsetRef = useRef(0); // the single playhead (px), wrapped to [0,total)
   const velRef = useRef(0); // inertia on top of the auto-drift (px/sec)
   const draggingRef = useRef(false);
-  const hoverRef = useRef(false);
   const reducedRef = useRef(false);
   const metricsRef = useRef<Metrics | null>(null);
 
@@ -149,7 +149,6 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
     reducedRef.current = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const finePointer = window.matchMedia("(pointer: fine)").matches;
 
     measure();
     // measure() no-ops until the box has a real width; the ResizeObserver below
@@ -178,11 +177,10 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       const dt = last ? Math.min(0.05, (now - last) / 1000) : 0;
       last = now;
       if (!draggingRef.current) {
-        const drifting =
-          !reducedRef.current && !(finePointer && hoverRef.current);
-        // auto-drift in card-pitches/sec, so it reads the same at every viewport
+        // Continuous always-on marquee — the reference NEVER pauses (no hover
+        // stop); only reduced-motion or an active drag halts the drift.
         const pitch = metricsRef.current?.pitch || 0;
-        if (drifting) offsetRef.current += pitch * AUTO_RATE * dt;
+        if (!reducedRef.current) offsetRef.current += pitch * AUTO_RATE * dt;
         if (velRef.current) {
           offsetRef.current += velRef.current * dt;
           velRef.current *= Math.pow(FRICTION, dt * 60);
@@ -194,6 +192,21 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
+
+    // Dev-only handle so the marquee can be stepped & MEASURED without a live rAF
+    // (the preview tab freezes rAF). Stripped in production. Mirrors HomeFilm's
+    // `window.__pmFilm`. `advance(sec)` runs exactly what one second of drift does.
+    if (process.env.NODE_ENV !== "production") {
+      (window as unknown as { __rail?: unknown }).__rail = {
+        advance: (sec: number) => {
+          const pitch = metricsRef.current?.pitch || 0;
+          offsetRef.current = wrap(offsetRef.current + pitch * AUTO_RATE * sec);
+          layout();
+        },
+        offset: () => offsetRef.current,
+        pitch: () => metricsRef.current?.pitch || 0,
+      };
+    }
 
     // -------- pointer drag: scrub 1:1, hand velocity to inertia --------
     let active: number | null = null;
@@ -235,19 +248,10 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       void e;
     };
 
-    const enter = () => {
-      hoverRef.current = true;
-    };
-    const leave = () => {
-      hoverRef.current = false;
-    };
-
     root.addEventListener("pointerdown", down);
     root.addEventListener("pointermove", move);
     root.addEventListener("pointerup", up);
     root.addEventListener("pointercancel", up);
-    root.addEventListener("pointerenter", enter);
-    root.addEventListener("pointerleave", leave);
 
     return () => {
       cancelAnimationFrame(raf);
@@ -256,10 +260,10 @@ export default function FannedGalleryRail({ cards }: { cards: ReelCard[] }) {
       root.removeEventListener("pointermove", move);
       root.removeEventListener("pointerup", up);
       root.removeEventListener("pointercancel", up);
-      root.removeEventListener("pointerenter", enter);
-      root.removeEventListener("pointerleave", leave);
+      if (process.env.NODE_ENV !== "production") {
+        delete (window as unknown as { __rail?: unknown }).__rail;
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [n]);
 
   // Keyboard: nudge the reel one card either way (via the inertia channel).
