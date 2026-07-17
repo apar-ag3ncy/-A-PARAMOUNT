@@ -74,13 +74,15 @@ const FILM_END = 0.62;
 // approach is long and its door-swing quick, so we pass the approach + the
 // walk-in faster and LINGER on the door-swing and the ceiling reveal. Piecewise
 // linear; fp 0.66 is the doorscroll→ceiling match cut (frame 106 of 166).
+// EVEN pacing so a little scroll plays it SMOOTHLY end-to-end (no whippy fast
+// stretch on the now-short runway). The door-swing is still the slowest beat —
+// the payoff — but the interior glides at a steady rate rather than 6× faster.
 const PACE: ReadonlyArray<readonly [number, number]> = [
   [0.0, 0.0],
-  [0.18, 0.2], // dollied up to the closed doors (video ~2.2s)
-  [0.52, 0.3], // doors SLOWLY swing fully open (video ~3.3s) — the payoff, given
-  //             a third of the film's scroll so it's savoured, not rushed
-  [0.72, 0.639], // arrived in the sanctum hall; ceiling crane begins (video ~7s)
-  [1.0, 1.0], // settled on the carved ceiling (video ~11s)
+  [0.18, 0.19], // dollied up to the closed doors
+  [0.54, 0.4], // doors swing open — the slow payoff, still the film's slowest beat
+  [0.72, 0.639], // arrived in the sanctum hall; doorscroll→ceiling match cut (frame 106/166)
+  [1.0, 1.0], // ceiling crane settles — a steady, even glide
 ];
 const paceMap = (fp: number): number => {
   for (let i = 1; i < PACE.length; i++) {
@@ -727,10 +729,12 @@ export default function HomeFilm() {
   return (
     <section
       ref={root}
-      // ONE long pinned span for the WHOLE film — doors → walk-in → ceiling →
-      // brand → works. Longer = slower, more cinematic (esp. the door-swing).
-      // FILM_END splits scrub from hold. ScrollTrigger reads this.
-      className="hf relative bg-cream h-[1050svh] md:h-[1450svh] lg:h-[1750svh]"
+      // ONE pinned span for the WHOLE film — doors → walk-in → ceiling → brand →
+      // works. Kept SHORT so a little scroll starts AND completes the film: the
+      // door-swing scrubs across ~1.5-2 screen-heights, not ten. Smoothness comes
+      // from the glide loop (TAU_MS), not from a long runway. FILM_END splits
+      // scrub from hold; ScrollTrigger reads this.
+      className="hf relative bg-cream h-[320svh] md:h-[360svh] lg:h-[400svh]"
     >
       <div
         ref={stage}
