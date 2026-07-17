@@ -23,8 +23,10 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * <video> (doorscroll.mp4 0-7s, then ceilingvideo.mp4 0-4s; the last doorscroll
  * frame ≈ the first ceiling frame, a seamless MATCH CUT). It is SCRUBBED by SEEKING
  * video.currentTime — never played — so it runs at NATIVE resolution (sharp),
- * hardware-decoded and low-memory. Dense g=4 keyframes make each seek a near-instant
- * single-frame decode, so scrubbing is buttery. (This replaced a 167-WebP-frame
+ * hardware-decoded and low-memory. It is ALL-INTRA (every frame a keyframe), so
+ * every seek is a single-frame decode (measured seek latency ~½ of the g=4 cut) —
+ * that + a decoder-paced one-seek-at-a-time scrub is what makes it buttery, not
+ * draggy. (This replaced a 167-WebP-frame
  * canvas film that had to be downscaled to fight memory — which is what made it
  * blurry and heavy; the mandate against video-seeking assumed a naive sparse-GOP clip.)
  *   [0 .. FILM_END]  a slow dolly IN to the carved marble doors, which swing open
@@ -51,8 +53,8 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 // -- the film: doorscroll.mp4 (0-7s: approach → doors swing open → walk into the
 //    sanctum hall) then ceilingvideo.mp4 (0-4s: crane up to the carved ceiling),
-//    concatenated into ONE H.264 <video> (native 1928×972, 24fps, dense g=4
-//    keyframes so scroll-seeking is buttery). The doorscroll→ceiling join is a
+//    concatenated into ONE H.264 <video> (native 1928×972, 24fps, ALL-INTRA so
+//    every frame is a keyframe and each seek is instant). The doorscroll→ceiling join is a
 //    seamless match cut. The last frame (settled ceiling) is the brand's backdrop.
 //    Scrubbed by SEEKING currentTime — hardware-decoded, native-sharp, low-memory
 //    (no 167-bitmap frame store to blur or thrash). --
