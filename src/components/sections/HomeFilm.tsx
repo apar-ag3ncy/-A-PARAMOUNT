@@ -53,16 +53,18 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * marble and the type so the copy always reads and the brand never looks pasted-on.
  */
 
-// -- the film: doorscroll.mp4 (0-7s: approach → doors swing open → walk into the
-//    sanctum hall) then ceilingvideo.mp4 (0-4s: crane up to the carved ceiling),
-//    concatenated into ONE H.264 <video> (native 1928×972, 24fps, ALL-INTRA so
-//    every frame is a keyframe and each seek is instant). The doorscroll→ceiling join is a
-//    seamless match cut. The last frame (settled ceiling) is the brand's backdrop.
-//    Scrubbed by SEEKING currentTime — hardware-decoded, native-sharp, low-memory
-//    (no 167-bitmap frame store to blur or thrash). --
+// -- the film: "final - 1 -60fps.mp4" (client's fresh graded master, ONE continuous
+//    take, 9.82s @ 60fps, native 1928×1072): closed brass doors in the marble gate
+//    (0-1s) → doors swing open onto the golden sanctum, real god-rays baked in
+//    (1-2.5s) → walk-in through the pillared hall toward the shrine (2.5-7s) →
+//    camera cranes UP to the carved golden ceiling (7-9.82s). The last frame
+//    (settled ceiling) is the brand's backdrop. Encoded ALL-INTRA (every frame a
+//    keyframe) so every seek is a single-frame decode — instant; 60fps gives the
+//    slow-mo scrub twice the temporal granularity of the old 24fps cut.
+//    Scrubbed by SEEKING currentTime — hardware-decoded, native-sharp, low-memory. --
 const FILM = "/door/film.mp4";
-const FILM_SM = "/door/film-960.mp4"; // lighter cut for phones / frugal links
-const FILM_DURATION = 11.08; // seconds — overridden by video.duration once known
+const FILM_SM = "/door/film-960.mp4"; // 960w 30fps cut for phones / frugal links
+const FILM_DURATION = 9.82; // seconds — overridden by video.duration once known
 const POSTER = "/door/door-open-poster.jpg";
 const CEIL_POSTER = "/door/ceiling-poster.jpg"; // reduced-motion fallback backdrop
 const GOLD = "var(--color-gold)";
@@ -72,19 +74,17 @@ const GOLD = "var(--color-gold)";
 // "Our Works" lands. There is no dome image any more — the ceiling video is it.
 const FILM_END = 0.62;
 
-// Scrub pacing — control points [filmProgress fp, frameFraction]. The video's
-// approach is long and its door-swing quick, so we pass the approach + the
-// walk-in faster and LINGER on the door-swing and the ceiling reveal. Piecewise
-// linear; fp 0.66 is the doorscroll→ceiling match cut (frame 106 of 166).
-// EVEN pacing so a little scroll plays it SMOOTHLY end-to-end (no whippy fast
-// stretch on the now-short runway). The door-swing is still the slowest beat —
-// the payoff — but the interior glides at a steady rate rather than 6× faster.
+// Scrub pacing — control points [filmProgress fp, frameFraction], retimed to the
+// NEW master's beats (doors part 0–2.5s = frac 0–0.255; walk-in 2.5–7s = 0.255–
+// 0.713; ceiling crane 7–9.82s = 0.713–1). The door-swing gets the biggest slice
+// of scroll — the slow-mo payoff the client keeps asking for — then the walk-in
+// and the ceiling glide at a steady, even rate. Piecewise linear.
 const PACE: ReadonlyArray<readonly [number, number]> = [
   [0.0, 0.0],
-  [0.18, 0.19], // dollied up to the closed doors
-  [0.54, 0.4], // doors swing open — the slow payoff, still the film's slowest beat
-  [0.72, 0.639], // arrived in the sanctum hall; doorscroll→ceiling match cut (frame 106/166)
-  [1.0, 1.0], // ceiling crane settles — a steady, even glide
+  [0.14, 0.09], // up to the first crack of gold between the doors
+  [0.5, 0.255], // the swing itself in slow-mo — fully open exactly at fp 0.5
+  [0.78, 0.713], // the walk-in through the pillared hall to the shrine
+  [1.0, 1.0], // ceiling crane settles — the brand's backdrop
 ];
 const paceMap = (fp: number): number => {
   for (let i = 1; i < PACE.length; i++) {
@@ -97,7 +97,7 @@ const paceMap = (fp: number): number => {
   return 1;
 };
 
-/** Door-open light, in FILM progress fp — the doors swing SLOWLY over fp≈0.18…0.52,
+/** Door-open light, in FILM progress fp — the doors swing SLOWLY over fp≈0.14…0.5,
  *  so the light pours out for the length of the open, then eases as we step in. */
 const D = {
   cueOut: 0.12, // "scroll to open" holds through the approach, fades as doors near
