@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 export const metadata: Metadata = {
   title: "Craftsmanship",
   description:
-    "From shastra to sanctum — the Paramount process: design, carving, cladding, polishing and installation of Jain and Hindu temple artifacts.",
+    "From shastra to sanctum, the Paramount process: design, carving, cladding, polishing and installation of Jain and Hindu temple artifacts.",
 };
 
 const STEPS: { n: string; title: string; body: string; img: string }[] = [
@@ -24,7 +24,7 @@ const STEPS: { n: string; title: string; body: string; img: string }[] = [
   {
     n: "02",
     title: "Carving",
-    body: 'Premium quality wood is carved to depth — from roughly 0.25" normal carving to 1.5" extra-deep — each cut deepening the intricacy of the design.',
+    body: 'Premium quality wood is carved to depth, from roughly 0.25" normal carving to 1.5" extra deep, each cut deepening the intricacy of the design.',
     img: "/products/wooden-carved-murti.webp",
   },
   {
@@ -36,13 +36,13 @@ const STEPS: { n: string; title: string; body: string; img: string }[] = [
   {
     n: "04",
     title: "Polish & Lacquer",
-    body: "Each surface is polished and lacquered for a shine and durability that endures — engraved, where needed, with yantra and name.",
+    body: "Each surface is polished and lacquered for a shine and durability that endures, engraved, where needed, with yantra and name.",
     img: "/products/kalash.webp",
   },
   {
     n: "05",
     title: "Installation",
-    body: "Delivered on time and installed at your derasar — sized to the space, with the transparency and care of a fifty-year relationship.",
+    body: "Delivered on time and installed at your derasar, sized to the space, with the transparency and care of a fifty year relationship.",
     img: "/products/mandir.webp",
   },
 ];
@@ -53,19 +53,19 @@ export default function CraftsmanshipPage() {
       <PageHeader
         eyebrow="The Process"
         title="From shastra to sanctum"
-        subtitle="A rare combination of engineering expertise and artistic skill — every temple need under one roof."
+        subtitle="A rare combination of engineering expertise and artistic skill, every temple need under one roof."
       />
 
-      {/* Deck p11–12 — the "WHY CHOOSE US" pill card on an olive band */}
+      {/* Deck p11–12, the "WHY CHOOSE US" pill card on an olive band */}
       <div className="mt-16">
         <WhyChooseUs />
       </div>
 
-      {/* The process, restored to the alternating left/right editorial — but now
+      {/* The process, restored to the alternating left/right editorial, but now
           it ASSEMBLES on scroll: the text rolls in from one side, the image from
           the other (SlideReveal), so each step arrives with motion. */}
       <div className="mx-auto max-w-7xl overflow-x-hidden px-6 py-12 sm:py-16">
-        {/* left-aligned to the step grid's left edge — it was centered over
+        {/* left-aligned to the step grid's left edge, it was centered over
             left-anchored content, so the heading floated off its own section */}
         <SectionHeading
           eyebrow="The Making"
@@ -108,7 +108,7 @@ export default function CraftsmanshipPage() {
                 )}
               >
                 {/* One uniform 4/5 frame across all five steps (crop forces the
-                    ratio; contain keeps the whole piece — client mandate), so the
+                    ratio; contain keeps the whole piece, client mandate), so the
                     image columns share a height instead of each adopting its
                     photo's ratio and making every row a different height. */}
                 <AssetFrame

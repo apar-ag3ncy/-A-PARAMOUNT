@@ -9,29 +9,29 @@ import Button from "@/components/ui/Button";
 import type { CoverflowFlow } from "@/lib/galleryCoverflow";
 
 /**
- * GalleryCoverflow — the whole portfolio as ONE CONTINUOUS scroll-driven Cover
+ * GalleryCoverflow, the whole portfolio as ONE CONTINUOUS scroll-driven Cover
  * Flow. This is a showcase, not a shop: the visitor doesn't click through, they
  * *scroll*, and the flow glides photo to photo under a pinned timeline. When one
- * collection's photos run out the next carries straight on — Doors → Kalash →
- * Samovasaran → … — and the collection NAME changes with it. There is no filter
+ * collection's photos run out the next carries straight on, Doors → Kalash →
+ * Samovasaran → …, and the collection NAME changes with it. There is no filter
  * to pick from; the river IS the navigation, and the film-strip rail beneath
  * jumps to any collection.
  *
  * SIZING (the load-bearing bit). The stage is pinned at the very top of the
- * viewport, so ANY height it doesn't fit inside `100vh` is unreachable forever —
+ * viewport, so ANY height it doesn't fit inside `100vh` is unreachable forever,
  * an earlier cut put the rail and the CTA permanently below the fold on a
  * 1366x768 laptop. So the stage is exactly `h-screen` (minus the header bar via
  * --pm-bar-bottom), the flow box takes the leftover space (`flex-1 min-h-0`), and
  * the card height `--ch` is MEASURED from that box at runtime (ResizeObserver)
  * rather than guessed from a viewport clamp. `--ch` is then also bounded so the
- * widest card in the flow still fits the box's width. Everything else — card
- * widths, x-offsets, the drop — is expressed in units of `--ch`, so a resize just
+ * widest card in the flow still fits the box's width. Everything else, card
+ * widths, x-offsets, the drop, is expressed in units of `--ch`, so a resize just
  * re-resolves one number.
  *
  * NO CROP (client mandate). Each card is `height: --ch; width: calc(--ch * ratio)`
  * with its own photo's ratio, so the frame matches the photo exactly and
  * object-cover crops zero pixels. The neighbour DROP is in --ch units too, not
- * px — a fixed px drop pushed off-centre cards past the bottom of the box on
+ * px, a fixed px drop pushed off-centre cards past the bottom of the box on
  * small screens and the container shaved them.
  *
  * Because card widths differ, cards can't sit on a fixed grid: each card's slot
@@ -39,27 +39,27 @@ import type { CoverflowFlow } from "@/lib/galleryCoverflow";
  * so neighbours overlap by a consistent FRACTION of their own width in every run.
  *
  * On a fine pointer with motion allowed the section pins and scroll IS the
- * playhead — `pos` (0 … n-1) drives every card imperatively (no per-frame React
+ * playhead, `pos` (0 … n-1) drives every card imperatively (no per-frame React
  * render); the glide comes from ScrollSmoother (smooth: 1.25), not from `scrub`.
  * On touch or reduced-motion it falls back to a 1:1 drag of the same flow, with
  * no pin. Arrow keys drive it on both.
  */
 
-const STEP = 0.62; // neighbour pitch as a fraction of card width — loose = airy
+const STEP = 0.62; // neighbour pitch as a fraction of card width, loose = airy
 const DROP_RATIO = 0.05; // a neighbour sinks this much of --ch per step (< 0.07 slack)
 const SCALE_STEP = 0.14;
 const TURN = 6; // deg of Y-rotation per step (capped at ±2 steps)
 const VISIBLE = 2; // fully-shown cards each side; the next fades out
 const CAP = 3; // transforms stop growing past this many steps out
-const PARKED = CAP + 1; // past this the card is invisible — pose it once, then skip
+const PARKED = CAP + 1; // past this the card is invisible, pose it once, then skip
 const VH_PER_PHOTO = 24; // scrub runway each photo gets
 const MOUNT_WINDOW = 6; // cards each side that mount an <Image>
 const EAGER_WINDOW = 3; // …of which these fetch immediately (overflow-hidden defeats
 //                          native lazy-load: a parked card is clipped out of the
 //                          intersection rect, so it would only start loading as it
 //                          slid into view, and pop in.)
-const MAX_CH = 480; // px — the card never grows past this, however big the screen
-const FIT = 0.88; // card height as a fraction of the flow box — the remainder is
+const MAX_CH = 480; // px, the card never grows past this, however big the screen
+const FIT = 0.88; // card height as a fraction of the flow box, the remainder is
 //                   the slack a dropped, turned neighbour needs so the container
 //                   never shaves its bottom corners.
 
@@ -83,7 +83,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
   const { photos, collections } = flow;
   const n = photos.length;
 
-  /** Widest card in the flow — `--ch` is capped so even that one fits the box. */
+  /** Widest card in the flow, `--ch` is capped so even that one fits the box. */
   const maxRatio = useMemo(
     () => photos.reduce((m, p) => Math.max(m, p.ratio), 0.0001),
     [photos],
@@ -109,12 +109,12 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
   const stRef = useRef<ScrollTrigger | null>(null);
   const parkedRef = useRef<boolean[]>([]);
 
-  const posRef = useRef(0); // continuous centre (0 … n-1) — the single playhead
+  const posRef = useRef(0); // continuous centre (0 … n-1), the single playhead
   const colRef = useRef(0);
   const centerRef = useRef(0);
 
   const [activeCol, setActiveCol] = useState(0);
-  const [center, setCenter] = useState(0); // rounded centre — drives image mounting
+  const [center, setCenter] = useState(0); // rounded centre, drives image mounting
 
   const clampPos = (p: number) => gsap.utils.clamp(0, Math.max(0, n - 1), p);
 
@@ -138,7 +138,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
       const el = cards[i];
       if (!el) continue;
       const o = i - pos;
-      // Far-off cards are invisible and unchanging — pose them once, then skip.
+      // Far-off cards are invisible and unchanging, pose them once, then skip.
       // (Without this we'd write ~236 style props/frame for the whole runway.)
       if (Math.abs(o) > PARKED) {
         if (parked[i]) continue;
@@ -170,7 +170,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
       );
     }
 
-    // Crossings — the only things allowed to re-render React.
+    // Crossings, the only things allowed to re-render React.
     const idx = Math.round(clampPos(pos));
     if (idx !== centerRef.current) {
       centerRef.current = idx;
@@ -183,7 +183,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
     }
   };
 
-  /** Send the flow to a photo index — scrolling in pinned mode, directly on touch. */
+  /** Send the flow to a photo index, scrolling in pinned mode, directly on touch. */
   const jumpTo = (index: number) => {
     const target = clampPos(index);
     const st = stRef.current;
@@ -223,7 +223,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
       const h = box.clientHeight;
       const w = box.clientWidth;
       if (!h || !w) return;
-      // Three bounds, tightest ALWAYS wins — no lower floor, because a floor that
+      // Three bounds, tightest ALWAYS wins, no lower floor, because a floor that
       // outgrew the box would make the card taller than its overflow-hidden
       // parent and bring the crop straight back:
       //  - HEIGHT: only FIT of the box, so a dropped+turned neighbour still has
@@ -273,14 +273,14 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
         };
       });
 
-      // Touch / reduced-motion: no pin (never hijack the page). A finger drag —
-      // itself a scroll gesture — moves the flow 1:1 with the card under it.
+      // Touch / reduced-motion: no pin (never hijack the page). A finger drag,
+      // itself a scroll gesture, moves the flow 1:1 with the card under it.
       mm.add("(pointer: coarse), (prefers-reduced-motion: reduce)", () => {
         root.style.height = "";
         place(0);
         let active: { id: number; x: number; from: number } | null = null;
 
-        /** px the flow travels per unit of `pos` AT this point in the flow — the
+        /** px the flow travels per unit of `pos` AT this point in the flow, the
          *  local slot gradient. A constant would only be right for square cards. */
         const gradient = (at: number) => {
           const ch =
@@ -317,7 +317,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
         box.addEventListener("pointermove", move);
         box.addEventListener("pointerup", end);
         // A vertical page-swipe that starts on the flow is taken over by the
-        // browser and fires pointercancel, NOT pointerup — without this the drag
+        // browser and fires pointercancel, NOT pointerup, without this the drag
         // stays "active" with a stale origin and the next move teleports the flow.
         box.addEventListener("pointercancel", end);
         return () => {
@@ -375,7 +375,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
       >
         {/* ---------- the collection, named as the flow reaches it ---------- */}
         <div ref={nameRef} className="flex flex-col items-center gap-1.5 text-center">
-          {/* Only the collection is announced — the per-photo counter below would
+          {/* Only the collection is announced, the per-photo counter below would
               otherwise fire the live region on all 58 photo crossings. */}
           <div aria-live="polite">
             <p className="pm-eyebrow font-body text-maroon/70">
@@ -396,7 +396,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
           ref={flowRef}
           role="slider"
           tabIndex={0}
-          aria-label="Gallery position — use the arrow keys"
+          aria-label="Gallery position, use the arrow keys"
           aria-valuemin={0}
           aria-valuemax={n - 1}
           aria-valuenow={center}
@@ -447,7 +447,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
               >
                 <Image
                   src={p.src}
-                  alt={`${label} — installation ${i - collections[p.collection].start + 1}`}
+                  alt={`${label}, installation ${i - collections[p.collection].start + 1}`}
                   fill
                   draggable={false}
                   loading={d <= EAGER_WINDOW ? "eager" : "lazy"}
@@ -478,7 +478,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
                 key={c.label}
                 type="button"
                 onClick={() => jumpTo(c.start)}
-                title={`${c.label} — ${c.count} photos`}
+                title={`${c.label}, ${c.count} photos`}
                 aria-label={`Jump to ${c.label}`}
                 aria-current={i === activeCol ? "true" : undefined}
                 style={{ flexGrow: c.count }}
@@ -515,7 +515,7 @@ export default function GalleryCoverflow({ flow }: { flow: CoverflowFlow }) {
           aria-hidden
           className="flex items-center gap-2 font-display pm-micro text-maroon/60"
         >
-          Scroll — each collection flows into the next
+          Scroll, each collection flows into the next
           <svg
             viewBox="0 0 24 24"
             className="size-4 animate-bounce text-olive/60"

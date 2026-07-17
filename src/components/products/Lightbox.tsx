@@ -80,7 +80,7 @@ export default function Lightbox({
     <div
       role="dialog"
       aria-modal="true"
-      aria-label={caption ? `${caption} — image viewer` : "Image viewer"}
+      aria-label={caption ? `${caption}, image viewer` : "Image viewer"}
       className="fixed inset-0 z-[200] flex flex-col bg-espresso/95 backdrop-blur-sm"
       style={{ animation: "pm-fade-in 0.25s ease-out both" }}
       onClick={onClose}

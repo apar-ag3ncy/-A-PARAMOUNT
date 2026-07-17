@@ -10,6 +10,7 @@ import RelatedProducts from "@/components/products/RelatedProducts";
 import ArchMark from "@/components/ui/ArchMark";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import Reveal from "@/components/animations/Reveal";
 import MagneticButton from "@/components/animations/MagneticButton";
 
 export function generateStaticParams() {
@@ -127,25 +128,27 @@ export default async function ProductPage({
         </div>
 
         {/* spec — the reference's numbered columns, on olive hairlines */}
-        <dl className="mt-16 grid grid-cols-1 gap-px overflow-hidden rounded-[1.4rem] border border-olive/15 bg-olive/12 sm:grid-cols-3">
-          {info.spec.map((s, idx) => (
-            <div
-              key={s.label}
-              className="px-6 py-8 text-center"
-              style={{ background: "#FBF0D6" }}
-            >
-              <span className="pm-micro font-body tabular-nums tracking-[0.2em] text-olive/45">
-                {String(idx + 1).padStart(2, "0")}
-              </span>
-              <dt className="pm-label mt-4 font-body tracking-[0.16em] text-olive/60 uppercase">
-                {s.label}
-              </dt>
-              <dd className="pm-body mt-2 font-display text-heading-brown">
-                {s.value}
-              </dd>
-            </div>
-          ))}
-        </dl>
+        <Reveal className="mt-16">
+          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-[1.4rem] border border-olive/15 bg-olive/12 sm:grid-cols-3">
+            {info.spec.map((s, idx) => (
+              <div
+                key={s.label}
+                className="px-6 py-8 text-center"
+                style={{ background: "#FBF0D6" }}
+              >
+                <span className="pm-micro font-body tabular-nums tracking-[0.2em] text-olive/45">
+                  {String(idx + 1).padStart(2, "0")}
+                </span>
+                <dt className="pm-label mt-4 font-body tracking-[0.16em] text-olive/60 uppercase">
+                  {s.label}
+                </dt>
+                <dd className="pm-body mt-2 font-display text-heading-brown">
+                  {s.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </Reveal>
 
         {/* finishes — chips, when there is no photo gallery to carry them */}
         {!gallery && product.variants.length > 0 && (
@@ -168,7 +171,7 @@ export default async function ProductPage({
         )}
 
         {/* the written description + placement + craft — centred */}
-        <section className="mx-auto mt-16 max-w-3xl text-center">
+        <Reveal className="mx-auto mt-16 max-w-3xl text-center">
           <p className="pm-eyebrow font-body text-olive/80">About the piece</p>
           {info.description && (
             <p className="pm-lead mx-auto mt-4 max-w-2xl font-body text-maroon/85">
@@ -193,10 +196,10 @@ export default async function ProductPage({
               </p>
             </div>
           </div>
-        </section>
+        </Reveal>
 
         {/* commission */}
-        <div className="mt-16 text-center">
+        <Reveal className="mt-16 text-center">
           <p className="pm-eyebrow font-body text-olive/80">Commission this piece</p>
           <div className="mt-5 flex justify-center">
             <MagneticButton href="/contact">
@@ -204,10 +207,10 @@ export default async function ProductPage({
             </MagneticButton>
           </div>
           <p className="pm-small mx-auto mt-6 max-w-md font-body text-maroon/60">
-            Every piece is handcrafted to order — sized to your derasar and to
+            Every piece is handcrafted to order, sized to your derasar and to
             religious norms.
           </p>
-        </div>
+        </Reveal>
 
         <RelatedProducts items={related} familySlug={product.family} />
       </article>

@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 
 /**
  * The "PARAMOUNT · ENGINEERING WORKS" wordmark, set as LIVE TEXT in the real
- * brand fonts — Storica (display) for PARAMOUNT, Inter (tracked caps) for the
+ * brand fonts, Storica (display) for PARAMOUNT, Inter (tracked caps) for the
  * subline. Replaces the baked `paramount-word-*.png` art so the logotype is the
  * actual font, crisp at every size, and themes by text colour.
  *
  * Colour is inherited (`currentColor`): the caller sets `text-olive`,
- * `text-cream`, etc. Size is driven by font-size on the root — everything inside
+ * `text-cream`, etc. Size is driven by font-size on the root, everything inside
  * is in `em`, so PARAMOUNT, the subline and their spacing scale together. Pass a
  * `text-*`/`text-[..]` size via `className`.
  *
@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils";
 export default function Wordmark({
   className,
   tagline = true,
-  ariaLabel = "A Paramount — Engineering Works",
+  ariaLabel = "A Paramount, Engineering Works",
 }: {
   className?: string;
   tagline?: boolean;

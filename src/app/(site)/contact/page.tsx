@@ -6,13 +6,13 @@ import SplitTextReveal from "@/components/animations/SplitTextReveal";
 export const metadata: Metadata = {
   title: "Contact",
   description:
-    "Enquire with A Paramount Engineering Works — two Mumbai workshops, since 1968. Makers of Jain Derasar and Hindu temple accessories.",
+    "Enquire with A Paramount Engineering Works, two Mumbai workshops, since 1968. Makers of Jain Derasar and Hindu temple accessories.",
 };
 
 export default function ContactPage() {
   return (
     <div className="pt-28 pb-32">
-      {/* ONE container for the whole page — the intro and the two columns share
+      {/* ONE container for the whole page, the intro and the two columns share
           the same max-width and left rail, so nothing floats over an unrelated
           grid. Left-aligned to that rail (the page was a centered intro stranded
           above a wider left-aligned form grid). */}
@@ -31,7 +31,7 @@ export default function ContactPage() {
           </p>
         </header>
 
-        {/* Two MATCHED panels — the form was bare fields floating beside a framed
+        {/* Two MATCHED panels, the form was bare fields floating beside a framed
             info card; both now share the same surface. */}
         <div className="mt-12 grid items-start gap-8 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="rounded-card border border-olive/20 bg-cream-deep/40 p-7 sm:p-9">
@@ -59,7 +59,7 @@ export default function ContactPage() {
                 {CONTACT.email}
               </a>
               <p className="pm-body mt-1 font-body text-maroon/60">
-                Facebook / Instagram — {CONTACT.social}
+                Facebook / Instagram, {CONTACT.social}
               </p>
             </div>
 

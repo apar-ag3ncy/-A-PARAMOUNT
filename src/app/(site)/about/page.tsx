@@ -11,7 +11,7 @@ import EnquiryCTA from "@/components/sections/EnquiryCTA";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Established in 1968, A Paramount Engineering Works is a Mumbai manufacturer of Jain Derasar and Hindu temple accessories — three generations of engineering and artistry.",
+    "Established in 1968, A Paramount Engineering Works is a Mumbai manufacturer of Jain Derasar and Hindu temple accessories, three generations of engineering and artistry.",
 };
 
 const STATS: [string, string][] = [
@@ -56,7 +56,7 @@ const PILLARS: { title: string; body: string; icon: React.ReactNode }[] = [
   },
   {
     title: "Devotion in Every Detail",
-    body: "We create with faith, respect and devotion — not just manufacture.",
+    body: "We create with faith, respect and devotion, not just manufacture.",
     icon: (
       <path d="M3 13c3 0 4-2 6-2s2 2 5 2M20 8.5a3 3 0 00-5.2-2A3 3 0 009.6 8.5c0 2.2 2.8 4 5.2 6 2.4-2 5.2-3.8 5.2-6z" />
     ),
@@ -73,7 +73,7 @@ export default function AboutPage() {
       />
 
       {/* ABOUT US body beside the olive GENERATION semicircle (deck p07). Tops
-          aligned (items-start), not centered — the short text column used to
+          aligned (items-start), not centered, the short text column used to
           float 185px down the middle of the taller semicircle. */}
       <section className="mx-auto mt-20 grid max-w-7xl items-start gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-12">
         <SlideReveal from="left">
@@ -87,7 +87,7 @@ export default function AboutPage() {
             <p>
               Backed by rich experience and extensive knowledge, we pride ourselves
               on being the only company that provides all kinds of temple needs under
-              one roof — with a rare combination of engineering expertise and artistic
+              one roof, with a rare combination of engineering expertise and artistic
               skill.
             </p>
             <p>
@@ -132,7 +132,7 @@ export default function AboutPage() {
             <h2 className="pm-h3 font-display text-heading-brown">Our Mission</h2>
             <p className="pm-body mt-3 font-body text-maroon/85">
               To uphold the sanctity of these products by ensuring unparalleled
-              quality, timeless design and utmost respect for religious traditions —
+              quality, timeless design and utmost respect for religious traditions,
               exceeding expectations through continuous improvement, ethical practices
               and devotion to serving religious communities globally.
             </p>
@@ -144,7 +144,7 @@ export default function AboutPage() {
             <h2 className="pm-h3 font-display text-heading-brown">Our Vision</h2>
             <p className="pm-body mt-3 font-body text-maroon/85">
               As a leading manufacturer of temple products, we envision expanding our
-              legacy of excellence and integrity — setting new benchmarks in quality
+              legacy of excellence and integrity, setting new benchmarks in quality
               and design, and enhancing the sacredness of temples across the world.
             </p>
           </SlideReveal>

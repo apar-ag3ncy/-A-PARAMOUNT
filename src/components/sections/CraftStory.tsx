@@ -4,7 +4,7 @@ import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import Button from "@/components/ui/Button";
 
 /**
- * Editorial split — text (SplitText word reveal) beside an image that reveals via
+ * Editorial split, text (SplitText word reveal) beside an image that reveals via
  * a clip-path wipe + inner scale (PARAMOUNT_SCROLL_UI_PROMPT.md §4.2, §4.3).
  */
 export default function CraftStory() {
@@ -19,7 +19,7 @@ export default function CraftStory() {
         <div className="pm-body mt-7 space-y-4 font-body text-maroon/80">
           <p>
             For three generations and over fifty years, every piece has been
-            handcrafted to order — premium wood carved to depth, then clad in
+            handcrafted to order, premium wood carved to depth, then clad in
             silver, german silver, brass or copper, polished and lacquered for a
             shine that endures.
           </p>

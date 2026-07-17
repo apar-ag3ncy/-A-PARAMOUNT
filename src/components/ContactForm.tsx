@@ -115,7 +115,7 @@ export default function ContactForm() {
       </div>
       {failed && (
         <p className="pm-small font-body text-maroon">
-          The enquiry service isn’t connected yet — please email us directly at{" "}
+          The enquiry service isn’t connected yet, please email us directly at{" "}
           <a href={`mailto:${CONTACT.email}`} className="underline">
             {CONTACT.email}
           </a>

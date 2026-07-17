@@ -10,17 +10,17 @@ import Button from "@/components/ui/Button";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 /**
- * "Our Works" — the drifting arc ribbon of the client's pieces.
+ * "Our Works", the drifting arc ribbon of the client's pieces.
  *
  * This is CONTENT ONLY: no <section>, no background, no panel. It is mounted
  * INSIDE `HomeFilm`'s pinned stage as the film's fourth act, so it lands on
- * the very same mandir dome the camera lifted onto — the brand fades out, and the
+ * the very same mandir dome the camera lifted onto, the brand fades out, and the
  * work fades in on that identical backdrop. It used to be its own section with a
  * SECOND copy of the dome behind an opaque cream panel; the client saw the dome
  * rendered twice and called it out ("it feels like duplicated bg in both"). Do not
  * give this component a background again.
  *
- * The cards ride a CONVEX ARC — the one nearest the centre stands upright, tallest
+ * The cards ride a CONVEX ARC, the one nearest the centre stands upright, tallest
  * and largest, while cards fan outward (rotating away, dropping and shrinking)
  * toward both edges; each straightens as it passes the middle and leans as it
  * exits, so the ribbon reads like a slow carousel. Hover pauses the drift and
@@ -44,7 +44,7 @@ const WORKS = [
   { slug: "vyaakhyan-paat", src: "/gallery/vyaakhyan-paat/all/04.webp", w: 893, h: 1600 },
 ] as const;
 
-// Derived from module constants — resolve once, outside render.
+// Derived from module constants, resolve once, outside render.
 const ITEMS = WORKS.map((work) => {
   const category = CATEGORIES.find((c) => c.slug === work.slug);
   if (!category) return null;
@@ -134,7 +134,7 @@ export default function FeaturedGallery() {
         };
       });
 
-      // Reduced motion: no drift — a static arc, scrollable by hand.
+      // Reduced motion: no drift, a static arc, scrollable by hand.
       mm.add("(prefers-reduced-motion: reduce)", () => {
         scroller.style.overflowX = "auto";
         layout();
@@ -166,7 +166,7 @@ export default function FeaturedGallery() {
         Our Works
       </h2>
       <p className="pm-body mx-auto mt-4 max-w-xl font-body text-maroon/80">
-        Three generations of engineering and artistry — each piece handcrafted
+        Three generations of engineering and artistry, each piece handcrafted
         for Jain derasars and Hindu temples.
       </p>
 
@@ -218,7 +218,7 @@ export default function FeaturedGallery() {
                   sizes="(min-width: 1024px) 20vw, (min-width: 640px) 30vw, 45vw"
                   className="object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.06] motion-reduce:group-hover:scale-100"
                 />
-                {/* title reveals on hover — clean photo at rest */}
+                {/* title reveals on hover, clean photo at rest */}
                 <span
                   aria-hidden
                   className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"

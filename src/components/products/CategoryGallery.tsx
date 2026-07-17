@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Lightbox from "@/components/products/Lightbox";
+import { gsap } from "@/lib/gsap";
+import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import {
   MATERIAL_ICONS,
   VARIANT_ICONS,
@@ -15,13 +17,11 @@ import { cn } from "@/lib/utils";
  * The photo gallery for one product/category.
  *
  * The client's `icon-buttons` PNGs are the MATERIAL selector — big circular coin
- * buttons shown on EVERY product that comes in more than one finish:
- *  • products whose photos are split by finish (Doors, Bhandar, 14-Swapna) get a
- *    coin per photo group, and tapping one filters the grid to that finish;
- *  • products with a single photo set but multiple catalogue finishes (Kalash →
- *    Brass/Copper, Chattar → Silver/Gold/…) show a coin per finish over the same
- *    photos, so the selector looks and feels identical everywhere.
- * Tapping a photo opens the fullscreen Lightbox.
+ * buttons shown on EVERY product that comes in more than one finish, and CENTRED
+ * on the page. Tapping one filters the grid; tapping a photo opens the Lightbox.
+ * The pieces sit THREE to a row (a partial last row centres), and both the coins
+ * and the tiles fade+rise into view on scroll (GSAP), re-staggering when the
+ * finish is switched — a quiet, professional reveal.
  */
 
 interface Finish {
@@ -82,17 +82,69 @@ export default function CategoryGallery({
     [activeFinish, title],
   );
 
+  // ---- reveals (GSAP) ----
+  const coinsRef = useRef<HTMLDivElement>(null);
+  const gridRef = useRef<HTMLDivElement>(null);
+  const firstTiles = useRef(true);
+
+  // Coins rise in on mount — they sit near the top of the page (usually in view
+  // on load), so they must NOT be gated behind a scroll trigger that might not
+  // fire and leave the finish selector invisible.
+  useIsomorphicLayoutEffect(() => {
+    const el = coinsRef.current;
+    if (!el) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = gsap.context(() => {
+      gsap.from(el.children, {
+        opacity: 0,
+        y: 18,
+        duration: 0.6,
+        ease: "power2.out",
+        stagger: 0.06,
+        delay: 0.15,
+      });
+    }, el);
+    return () => ctx.revert();
+  }, [hasSelector]);
+
+  // Tiles stagger-rise: waiting for scroll on first view, then immediately each
+  // time the finish is switched (the images remount, so they fade in cleanly).
+  useIsomorphicLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const tiles = grid.querySelectorAll<HTMLElement>(".pm-gtile");
+    if (!tiles.length) return;
+    const scrollFirst = firstTiles.current;
+    firstTiles.current = false;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        tiles,
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.62,
+          ease: "power2.out",
+          stagger: 0.06,
+          scrollTrigger: scrollFirst
+            ? { trigger: grid, start: "top 84%", once: true }
+            : undefined,
+        },
+      );
+    }, grid);
+    return () => ctx.revert();
+  }, [active, images.length]);
+
   return (
     <div>
-      {/* material selector — big circular coin buttons */}
+      {/* material selector — big circular coin buttons, always CENTRED */}
       {hasSelector && (
         <div
+          ref={coinsRef}
           role="tablist"
           aria-label="Choose a finish"
-          className={cn(
-            "mb-10 flex flex-wrap gap-x-6 gap-y-5 sm:gap-x-8",
-            dark && "justify-center",
-          )}
+          className="mb-10 flex flex-wrap justify-center gap-x-6 gap-y-5 sm:gap-x-8"
         >
           {finishes.map((f, i) => {
             const on = i === active;
@@ -153,11 +205,12 @@ export default function CategoryGallery({
         </div>
       )}
 
-      {/* Aligned grid, centred so a partial last row sits in the middle. Each
-          frame ADOPTS its photo's own aspect ratio, so the shot FILLS the frame
-          edge-to-edge with NO crop and NO letterbox (a product's photos usually
-          share one ratio, so the row stays even). */}
-      <div className="flex flex-wrap justify-center gap-4 sm:gap-5">
+      {/* Aligned grid — THREE to a row (from the small-tablet breakpoint up),
+          centred so a partial last row sits in the middle. Each frame ADOPTS its
+          photo's own aspect ratio, so the shot FILLS the frame edge-to-edge with
+          NO crop and NO letterbox (a product's photos usually share one ratio,
+          so the row stays even). Two to a row on phones. */}
+      <div ref={gridRef} className="flex flex-wrap justify-center gap-4 sm:gap-6">
         {images.map((img, i) => (
           <button
             key={img.src}
@@ -165,7 +218,7 @@ export default function CategoryGallery({
             aria-label={`View ${caption} photo ${i + 1}`}
             style={{ aspectRatio: `${img.w} / ${img.h}` }}
             className={cn(
-              "group relative w-[calc((100%-1rem)/2)] overflow-hidden rounded-[1rem] bg-cream-deep transition-colors duration-300 sm:w-[calc((100%-2rem)/3)]",
+              "pm-gtile group relative w-[calc((100%-1rem)/2)] overflow-hidden rounded-[1rem] bg-cream-deep transition-colors duration-300 sm:w-[calc((100%-3rem)/3)]",
               dark
                 ? "border border-cream/10 hover:border-gold/40"
                 : "border border-olive/15 hover:border-olive/50",
@@ -174,7 +227,7 @@ export default function CategoryGallery({
             <Image
               src={img.src}
               fill
-              alt={`${caption} — ${i + 1}`}
+              alt={`${caption} photo ${i + 1}`}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />

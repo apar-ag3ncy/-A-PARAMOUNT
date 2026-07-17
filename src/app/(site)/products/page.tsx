@@ -10,11 +10,11 @@ import SplitTextReveal from "@/components/animations/SplitTextReveal";
 export const metadata: Metadata = {
   title: "Collections",
   description:
-    "Four families of Jain and Hindu temple artifacts — architecture, sacred symbols, ceremonial pieces and puja devotional ware.",
+    "Four families of Jain and Hindu temple artifacts, architecture, sacred symbols, ceremonial pieces and puja devotional ware.",
 };
 
 export default async function ProductsPage() {
-  // The landing is a structured OVERVIEW of the four collections — one card each,
+  // The landing is a structured OVERVIEW of the four collections, one card each,
   // leading into that collection's own page. The full piece grids live on the
   // /products/[category] pages, so nothing is listed twice.
   const families = await Promise.all(
@@ -25,7 +25,7 @@ export default async function ProductsPage() {
         title: f.title,
         blurb: f.blurb,
         count: products.length,
-        // representative piece — the first photographed one in the family
+        // representative piece, the first photographed one in the family
         hero: products.find((p) => p.image)?.image ?? null,
       };
     }),
@@ -50,12 +50,12 @@ export default async function ProductsPage() {
         </SplitTextReveal>
         <OrnamentDivider className="mx-auto mt-7 text-olive/50" />
         <p className="pm-body mx-auto mt-6 max-w-xl font-body text-maroon/75">
-          Four families of temple artifacts — every piece handcrafted to order in
+          Four families of temple artifacts, every piece handcrafted to order in
           your choice of material.
         </p>
       </header>
 
-      {/* the four collections, as cards — each opens its own piece grid */}
+      {/* the four collections, as cards, each opens its own piece grid */}
       <section className="px-6 pt-10 pb-28">
         <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-2">
           {families.map((f, i) => (
@@ -65,7 +65,7 @@ export default async function ProductsPage() {
               className="group flex flex-col overflow-hidden rounded-[1.6rem] border border-olive/15 shadow-[0_30px_70px_-52px_rgba(46,35,19,0.5)] transition-[border-color,transform] duration-300 hover:-translate-y-1 hover:border-olive/35"
               style={{ background: "linear-gradient(180deg, #FFFDF6 0%, #F6E9CE 100%)" }}
             >
-              {/* metadata row — index left, count right, on a hairline */}
+              {/* metadata row, index left, count right, on a hairline */}
               <div className="mx-7 flex items-center justify-between border-b border-olive/12 pt-6 pb-4">
                 <span className="pm-micro font-body tabular-nums tracking-[0.22em] text-olive/55">
                   Collection {String(i + 1).padStart(2, "0")}
@@ -75,7 +75,7 @@ export default async function ProductsPage() {
                 </span>
               </div>
 
-              {/* representative piece — contained on a warm mat (product shots
+              {/* representative piece, contained on a warm mat (product shots
                   are never cropped), or a cream monogram tile when unphotographed */}
               <div
                 className="relative mx-7 mt-6 overflow-hidden rounded-[1.15rem] ring-1 ring-olive/12"
@@ -104,7 +104,7 @@ export default async function ProductsPage() {
                   {f.blurb}
                 </p>
                 <span className="pm-label mt-auto pt-7 font-display tracking-[0.16em] text-olive uppercase transition-colors group-hover:text-maroon">
-                  Explore collection —
+                  Explore collection
                 </span>
               </div>
             </Link>

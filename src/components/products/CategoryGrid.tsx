@@ -5,7 +5,7 @@ import { productAspect } from "@/lib/productImageDims";
 import type { CatalogCategory } from "@/lib/catalog";
 
 /**
- * CategoryGrid — the family's pieces as an editorial grid of light cream cards
+ * CategoryGrid, the family's pieces as an editorial grid of light cream cards
  * (client reference layout) on the brand's beige ground.
  *
  * LAYOUT: a centred flex-wrap of fixed-width cards, so a PARTIAL last row (a
@@ -13,7 +13,7 @@ import type { CatalogCategory } from "@/lib/catalog";
  * SYMMETRICALLY in the middle rather than stranded left.
  *
  * IMAGES: the client's photos span aspect ratios from 0.23 (a tall cloth dhaja)
- * to 5.17 (a panoramic toran) — no single frame can fill them all without
+ * to 5.17 (a panoramic toran), no single frame can fill them all without
  * cropping. So each card's frame ADOPTS its own photo's ratio (clamped to a sane
  * card range), and the photo fills that frame edge-to-edge with `object-contain`:
  * because frame ratio == photo ratio the piece FILLS the frame with NO letterbox
@@ -55,7 +55,7 @@ export default function CategoryGrid({
               background: "linear-gradient(180deg, #FFFDF6 0%, #F6E9CE 100%)",
             }}
           >
-            {/* metadata row — index left, finishes right, on the card's top rule */}
+            {/* metadata row, index left, finishes right, on the card's top rule */}
             <div className="flex items-center justify-between border-b border-olive/12 pb-3">
               <span className="pm-micro font-body tabular-nums tracking-[0.2em] text-olive/50">
                 {String(i + 1).padStart(2, "0")}
@@ -67,13 +67,13 @@ export default function CategoryGrid({
               </span>
             </div>
 
-            {/* eyebrow + the name — the focal point of the card */}
+            {/* eyebrow + the name, the focal point of the card */}
             <p className="pm-eyebrow mt-6 font-body text-olive/75">{familyLabel}</p>
             <h3 className="mt-2 font-display text-[1.55rem] leading-[1.1] text-heading-brown">
               {p.title}
             </h3>
 
-            {/* framed image — the frame takes the photo's OWN ratio, so the piece
+            {/* framed image, the frame takes the photo's OWN ratio, so the piece
                 fills it edge-to-edge, uncropped and proportionate. Centred so it
                 sits symmetrically whatever its shape. */}
             <div className="mt-6 flex flex-1 items-center justify-center">
@@ -104,7 +104,7 @@ export default function CategoryGrid({
             </div>
 
             <span className="pm-micro mt-6 font-body tracking-[0.26em] text-maroon/60 uppercase transition-colors duration-300 group-hover:text-olive">
-              View piece —
+              View piece
             </span>
           </Link>
         );
