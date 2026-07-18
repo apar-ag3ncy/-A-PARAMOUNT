@@ -3,12 +3,12 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
-import { SITE } from "@/lib/constants";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import Wordmark from "@/components/ui/Wordmark";
 import FeaturedGallery from "@/components/sections/FeaturedGallery";
 import { openDoors, resetDoors } from "@/lib/doors";
 import { holdHeader } from "@/lib/cinema";
+import { createFrameSequence, frameSize, type Frame } from "@/lib/frameSequence";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 /**
@@ -19,27 +19,28 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * the merge: one section, one pin, one progress P 0→1, one slow-mo glide — so
  * there is no seam left to break.
  *
- * The film, in one unbroken scroll — TWO temple videos concatenated into ONE H.264
- * <video> (doorscroll.mp4 0-7s, then ceilingvideo.mp4 0-4s; the last doorscroll
- * frame ≈ the first ceiling frame, a seamless MATCH CUT). It is SCRUBBED by SEEKING
- * video.currentTime — never played — so it runs at NATIVE resolution (sharp),
- * hardware-decoded and low-memory. It is ALL-INTRA (every frame a keyframe), so
- * every seek is a single-frame decode (measured seek latency ~½ of the g=4 cut) —
- * that + a decoder-paced one-seek-at-a-time scrub is what makes it buttery, not
- * draggy. (This replaced a 167-WebP-frame
- * canvas film that had to be downscaled to fight memory — which is what made it
- * blurry and heavy; the mandate against video-seeking assumed a naive sparse-GOP clip.)
+ * The film, in one unbroken scroll — the graded master baked to a WebP FRAME
+ * SEQUENCE (200 frames per tier) and drawn on a canvas. Scroll progress picks a
+ * frame; the nearest DECODED frame is painted object-cover in a single drawImage
+ * per rAF. This REPLACED a scrubbed <video> (seek video.currentTime): seeking has
+ * resolution-dependent decode latency and coalesces under continuous input, so slow
+ * scrolling read as laggy/inconsistent — a pre-decoded frame draw is frame-perfect
+ * at any speed. The earlier frame film looked blurry because its SOURCE was
+ * downscaled to save memory; here the source stays sharp and only the DECODE width
+ * is capped (frameSequence.decodeWidth), so the bitmap store stays light without
+ * softening. This is the architecture CLAUDE.md prescribes ("bake frames, don't
+ * re-animate live"; never <video> currentTime-seeking).
  *   [0 .. FILM_END]  a slow dolly IN to the carved marble doors, which swing open
  *                    (god-rays + gold bloom that ease off so it reads clean), then
  *                    we WALK THROUGH into the golden sanctum hall — the "1968" line
  *                    breathes in and dissolves over it — and the camera CRANES UP
  *                    to the ornate carved ceiling.
- *   [FILM_END .. 1]  the seek HOLDS the settled ceiling; the brand resolves on it in
+ *   [FILM_END .. 1]  the frame HOLDS the settled ceiling; the brand resolves on it in
  *                    a clean warm halo field, then dissolves and "Our Works" lands.
  *
  * Everything is a PURE FUNCTION of P written with gsap.set inside apply(P) — no
  * tweens, no captured start values, so scrubbing BACK restores the exact frame.
- * The scroll target eases toward the seek on its own rAF loop with the door's time
+ * The scroll target eases toward the frame on its own rAF loop with the door's time
  * constant (TAU_MS), giving the whole film one weighty glide — Lenis' page lerp
  * (SmoothScrollProvider) feeds it an already-smooth scroll position. Dual pin:
  * GSAP pin on a mouse, native `position: sticky` on touch (Lenis keeps native
@@ -47,77 +48,145 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * The header is withheld for the whole film via lib/cinema and returns only once
  * the brand has resolved.
  *
- * There is no static interior plate any more — the ceiling video IS the backdrop the
+ * There is no static interior plate any more — the ceiling frames ARE the backdrop the
  * brand resolves on (a static ceiling poster stands in only under reduced motion).
  * Legibility (client mandate): a warm veil + a clean brand-halo field sit between the
  * marble and the type so the copy always reads and the brand never looks pasted-on.
  */
 
-// -- the film: "final - 1 -60fps.mp4" (client's fresh graded master, ONE continuous
-//    take, 9.82s @ 60fps, native 1928×1072): closed brass doors in the marble gate
-//    (0-1s) → doors swing open onto the golden sanctum, real god-rays baked in
-//    (1-2.5s) → walk-in through the pillared hall toward the shrine (2.5-7s) →
-//    camera cranes UP to the carved golden ceiling (7-9.82s). The last frame
-//    (settled ceiling) is the brand's backdrop. Encoded ALL-INTRA (every frame a
-//    keyframe) so every seek is a single-frame decode — instant; 60fps gives the
-//    slow-mo scrub twice the temporal granularity of the old 24fps cut.
-//    Scrubbed by SEEKING currentTime — hardware-decoded, native-sharp, low-memory. --
-const FILM = "/door/film.mp4";
-const FILM_SM = "/door/film-960.mp4"; // 960w 30fps cut for phones / frugal links
-const FILM_DURATION = 9.82; // seconds — overridden by video.duration once known
+// -- the film, rooted in the client's graded master (film.mp4, 9.82s, 1600×890):
+//    closed brass doors in the marble gate → doors swing open onto the golden
+//    sanctum with real god-rays baked in → slow walk-in through the pillared hall
+//    toward the shrine → camera cranes UP the carved golden ceiling, settling on
+//    the full flat-on lotus-medallion shot — the brand's backdrop.
+//    BAKED to a WebP FRAME SEQUENCE and drawn on a canvas — NOT scrubbed as a
+//    <video>. Seeking video.currentTime has resolution-dependent decode latency
+//    and coalesces under continuous input, so slow scrolling read as laggy /
+//    inconsistent (measured); drawing a pre-decoded frame in one synchronous
+//    drawImage per rAF is frame-perfect at ANY scroll speed. This is the
+//    architecture CLAUDE.md prescribes ("bake frames, don't re-animate live";
+//    never <video> currentTime-seeking). Re-bake recipe: scripts in git history /
+//    the segment map below — door from film.mp4 at fps=20, walk-in + crane from
+//    the archived Kling clips at fps=7.5, all `-c:v libwebp -quality 82` (+ a
+//    scale=800 pass for the phone tier); then keep FRAME_COUNT in sync. --
+// The film is now THREE chained segments baked into ONE sequence (Kling 2.5
+// extensions generated FROM the client's own frames — doors→walk-in→crane are
+// keyframe-pinned to the master, so every shot is the client's):
+//   f 000-049  door approach + swing  — client master 0-2.5s baked at 20fps
+//   f 050-124  slow walk-in           — generated 10s (start = master's
+//                                       doors-open frame), Magnific-upscaled to 1600w
+//   f 125-199  ceiling crane          — generated 10s at 1080p (start = walk-in's
+//                                       last frame, END pinned to the master's
+//                                       settled-ceiling frame), baked at 7.5fps
+const FRAME_COUNT = 200; // MUST match the bake in public/door/seq/*
+const FRAME_TIERS = [800, 1600] as const; // phone tier, desktop (native) tier
+const frameSrc = (tier: number, i: number) =>
+  `/door/seq/${tier}/f-${String(i).padStart(3, "0")}.webp`;
 const POSTER = "/door/door-open-poster.jpg";
 const CEIL_POSTER = "/door/ceiling-poster.jpg"; // reduced-motion fallback backdrop
 const GOLD = "var(--color-gold)";
 
 // The whole film (doors → walk-in → ceiling crane) scrubs across P 0→FILM_END;
 // past it the settled ceiling frame HOLDS while the brand resolves on it, then
-// "Our Works" lands. There is no dome image any more — the ceiling video is it.
-const FILM_END = 0.62;
+// "Our Works" lands. There is no dome image any more — the ceiling frames are it.
+const FILM_END = 0.68;
 
 // Scrub pacing — control points [filmProgress fp, frameFraction], retimed to the
-// NEW master's beats (doors part 0–2.5s = frac 0–0.255; walk-in 2.5–7s = 0.255–
-// 0.713; ceiling crane 7–9.82s = 0.713–1). The door-swing gets the biggest slice
-// of scroll — the slow-mo payoff the client keeps asking for — then the walk-in
-// and the ceiling glide at a steady, even rate. Piecewise linear.
+// EXTENDED film's segment boundaries (door frames 0-49 = frac 0-0.245; walk-in
+// 50-124 = 0.25-0.62; crane 125-199 = 0.625-1). Every act plays SLOW: the door
+// swing gets a third of the film's scroll (the slow-mo payoff), then the walk-in
+// lingers through the hall, then the crane glides up the ceiling — all at a
+// steady, unhurried rate. Piecewise linear.
 const PACE: ReadonlyArray<readonly [number, number]> = [
   [0.0, 0.0],
-  [0.14, 0.09], // up to the first crack of gold between the doors
-  [0.5, 0.255], // the swing itself in slow-mo — fully open exactly at fp 0.5
-  [0.78, 0.713], // the walk-in through the pillared hall to the shrine
-  [1.0, 1.0], // ceiling crane settles — the brand's backdrop
+  [0.16, 0.08], // the approach — SLOWEST beat, dwelling on the closed doors
+  [0.42, 0.246], // the swing itself in slow-mo (door frames end at 49/199)
+  [0.72, 0.623], // the lingering walk-in to the shrine (walk-in ends at 124/199)
+  [0.89, 0.88], // the crane lifts up the ceiling
+  [1.0, 1.0], // ...and EASES to rest on the full ceiling — the brand's backdrop
 ];
-const paceMap = (fp: number): number => {
-  for (let i = 1; i < PACE.length; i++) {
-    if (fp <= PACE[i][0]) {
-      const [f0, v0] = PACE[i - 1];
-      const [f1, v1] = PACE[i];
-      return v0 + ((v1 - v0) * (fp - f0)) / (f1 - f0);
+
+// Monotone-cubic (Fritsch–Carlson) interpolation of PACE, NOT piecewise linear.
+// Linear made the playback SPEED a step function — the camera audibly "changed
+// gear" at every control point (slopes jumped 0.55 → 0.79 → 1.04 → 1.27), which
+// is the opposite of a cinema shot. A monotone cubic is C1-continuous, so speed
+// varies smoothly and the move now reads as one unbroken ease-in → sustain →
+// settle. Monotone (not a plain spline) matters: the film must never overshoot
+// and run backwards mid-scrub.
+const PACE_X = PACE.map((p) => p[0]);
+const PACE_Y = PACE.map((p) => p[1]);
+const PACE_M = (() => {
+  const n = PACE_X.length;
+  const d: number[] = [];
+  for (let i = 0; i < n - 1; i++)
+    d.push((PACE_Y[i + 1] - PACE_Y[i]) / (PACE_X[i + 1] - PACE_X[i]));
+  const m: number[] = new Array(n);
+  m[0] = d[0];
+  m[n - 1] = d[n - 2];
+  for (let i = 1; i < n - 1; i++)
+    m[i] = d[i - 1] * d[i] <= 0 ? 0 : (d[i - 1] + d[i]) / 2;
+  for (let i = 0; i < n - 1; i++) {
+    if (d[i] === 0) {
+      m[i] = 0;
+      m[i + 1] = 0;
+      continue;
+    }
+    const a = m[i] / d[i];
+    const b = m[i + 1] / d[i];
+    const s = a * a + b * b;
+    if (s > 9) {
+      const t = 3 / Math.sqrt(s);
+      m[i] = t * a * d[i];
+      m[i + 1] = t * b * d[i];
     }
   }
-  return 1;
+  return m;
+})();
+
+const paceMap = (fp: number): number => {
+  const x = gsap.utils.clamp(0, 1, fp);
+  let i = PACE_X.length - 2;
+  for (let k = 1; k < PACE_X.length; k++)
+    if (x <= PACE_X[k]) {
+      i = k - 1;
+      break;
+    }
+  const h = PACE_X[i + 1] - PACE_X[i];
+  const t = (x - PACE_X[i]) / h;
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return (
+    (2 * t3 - 3 * t2 + 1) * PACE_Y[i] +
+    (t3 - 2 * t2 + t) * h * PACE_M[i] +
+    (-2 * t3 + 3 * t2) * PACE_Y[i + 1] +
+    (t3 - t2) * h * PACE_M[i + 1]
+  );
 };
 
-/** Door-open light, in FILM progress fp — the doors swing SLOWLY over fp≈0.14…0.5,
- *  so the light pours out for the length of the open, then eases as we step in. */
+/** Door-open light, in FILM progress fp — the doors swing SLOWLY over fp≈0.10…0.34
+ *  (the swing ends earlier in the longer film), so the light pours out for the
+ *  length of the open, then eases off through the walk-in. */
 const D = {
-  cueOut: 0.12, // "scroll to open" holds through the approach, fades as doors near
-  raysIn: 0.22, raysLen: 0.28, raysFade: 0.56, raysFadeLen: 0.16,
-  bloomIn: 0.26, bloomLen: 0.24, bloomFade: 0.54, bloomFadeLen: 0.15,
+  cueOut: 0.08, // "scroll to open" holds through the approach, fades as doors near
+  // (the raysIn/bloomIn timings that used to live here went with the synthetic
+  //  god-ray + gold-bloom overlays — the footage supplies that light itself)
 };
 
 /** Interior veil + brand + works, in GLOBAL progress P. The film settles on the
  *  ceiling at FILM_END; the brand resolves just after, over that held frame. */
 const B = {
-  veilIn: 0.28, veilLen: 0.16, // warm legibility veil eases in as we go inside
-  lineIn: 0.28, lineInLen: 0.08, lineOut: 0.4, lineOutLen: 0.08,
-  markIn: 0.58, markLen: 0.13,
-  wordIn: 0.64, wordLen: 0.11,
-  divIn: 0.68, divLen: 0.09,
-  tagIn: 0.71, tagLen: 0.09,
-  brandDone: 0.8, // brand fully formed → the header may return
-  brandOut: 0.86, brandOutLen: 0.08,
-  blurIn: 0.87, blurLen: 0.1,
-  worksIn: 0.9, worksLen: 0.09,
+  // The walk-in now spans P≈0.23-0.48 (fp 0.34-0.70 × FILM_END) — the veil and
+  // the "1968" line ride that stretch; everything after shifts with FILM_END.
+  veilIn: 0.24, veilLen: 0.14, // warm legibility veil eases in as we go inside
+  lineIn: 0.26, lineInLen: 0.08, lineOut: 0.42, lineOutLen: 0.08,
+  markIn: 0.64, markLen: 0.13,
+  wordIn: 0.7, wordLen: 0.1,
+  divIn: 0.74, divLen: 0.08,
+  tagIn: 0.77, tagLen: 0.08,
+  brandDone: 0.84, // brand fully formed → the header may return
+  brandOut: 0.88, brandOutLen: 0.07,
+  blurIn: 0.89, blurLen: 0.09,
+  worksIn: 0.91, worksLen: 0.08,
 };
 
 // Global progress at which the brand is fully resolved (header returns after this).
@@ -125,8 +194,11 @@ const GLOBAL_BRAND_DONE = B.brandDone;
 
 const BLUR_PX = 5;
 const WASH_MAX = 0.42;
-const TAU_MS = 115; // the glide's time constant — weighty but tight enough that the
-//                     video tracks the scroll (higher felt "draggy/laggy")
+const TAU_MS = 150; // the glide's time constant — the "sticky" weight. Raised from
+//                     115 once the film became frame-perfect: the old draggy feel
+//                     came from VIDEO seek latency stacking on top of this, not
+//                     from the glide. With sub-frame blending the extra weight now
+//                     reads as a camera settling, not as lag.
 
 const MASK_STYLE: React.CSSProperties = {
   WebkitMaskImage: "url(/brand/a-mark-white.png)",
@@ -147,141 +219,19 @@ const seg = (p: number, from: number, len: number) =>
 export default function HomeFilm() {
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
-  const filmVideo = useRef<HTMLVideoElement>(null);
-  const raysCv = useRef<HTMLCanvasElement>(null);
+  const filmCanvas = useRef<HTMLCanvasElement>(null);
   const motesCv = useRef<HTMLCanvasElement>(null);
 
-  // ---------------------------------------------------------------- god-rays --
-  // A live additive light layer over the door film: soft shafts radiating from
-  // the sunburst (50% 44%) and spilling OUT through the opening. Its STRENGTH is
-  // scroll-driven (set in apply); its shimmer is time-driven on this rAF loop —
-  // the same split as the dust motes. NOT a crossing-gradient (that read as a
-  // diamond lattice); discrete irregular soft beams read as natural god-rays.
-  const rayStrength = useRef(0);
+  // NOTE: a synthetic god-ray layer (a live additive canvas of soft beams) and a
+  // gold BLOOM used to sit over the doorway here. Both were REMOVED — together
+  // they washed the marble carving out in a bright haze exactly as the doors
+  // parted (bloom peaked at 0.78 opacity, scaled 2.07x). The film's own god-rays
+  // are baked into the footage, so the light pouring through the opening is now
+  // the REAL thing rather than two overlays on top of it. Restore from git
+  // history if the synthetic version is ever wanted again.
   // timestamp of the last scroll tick — while scrolling, ambient effects (dust
   // motes) pause so the whole frame budget goes to the film scrub + overlays.
   const scrollActive = useRef(0);
-  useIsomorphicLayoutEffect(() => {
-    const cv = raysCv.current;
-    if (!cv) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const ctx = cv.getContext("2d");
-    if (!ctx) return;
-
-    const dpr = 1; // soft additive light layer — retina is wasted here
-    let w = 0;
-    let h = 0;
-    // Irregular beams — varied angle, width, length, shimmer — so they never form
-    // a regular lattice. Weighted to fan outward and downward (light falls out of
-    // the opening), with a few long ones reaching the screen edges.
-    // Long soft shafts that pour OUT of the door opening (the mid) and reach PAST
-    // the frame — a fan across the whole lower arc and the sides, so the light
-    // spills toward the viewer as the doors part rather than haloing evenly around.
-    const N = 13;
-    const beams = Array.from({ length: N }, (_, i) => {
-      const t = i / (N - 1); // 0..1 across the fan
-      return {
-        // centred on straight-down (π/2), spread ±~1.6rad → lower hemisphere + sides
-        ang: Math.PI / 2 + (t - 0.5) * 3.2 + ((i % 3) - 1) * 0.09,
-        half: (0.7 + ((i * 37) % 10) / 10) * 0.1, // half-angle width (rad)
-        len: 1.1 + (((i * 53) % 10) / 10) * 0.8, // reach past the frame, in max-dims
-        base: 0.06 + (((i * 29) % 10) / 10) * 0.06, // per-beam brightness
-        tw: 0.5 + (((i * 17) % 10) / 10) * 1.4, // shimmer speed
-        ph: i * 1.7, // shimmer phase
-      };
-    });
-
-    const resize = () => {
-      const nw = cv.clientWidth;
-      const nh = cv.clientHeight;
-      if (nw === w && nh === h) return;
-      w = nw;
-      h = nh;
-      cv.width = Math.round(w * dpr);
-      cv.height = Math.round(h * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    resize();
-    window.addEventListener("resize", resize);
-
-    let raf = 0;
-    let running = false;
-    let t = 0;
-    let cleared = false;
-    const tick = () => {
-      const s = rayStrength.current;
-      // Rays only exist during the door-opening (a small slice of the film). For
-      // the rest, clear ONCE then idle — no full-canvas clear+composite per frame.
-      if (s <= 0.002) {
-        if (!cleared) {
-          ctx.clearRect(0, 0, w, h);
-          cleared = true;
-        }
-        raf = requestAnimationFrame(tick);
-        return;
-      }
-      cleared = false;
-      t += 0.016;
-      ctx.clearRect(0, 0, w, h);
-      {
-        const cx = w * 0.5;
-        const cy = h * 0.48; // the door opening — rays pour from mid, down & out
-        const R = Math.hypot(w, h);
-        ctx.globalCompositeOperation = "lighter";
-        for (const bm of beams) {
-          const a = s * bm.base * (0.55 + 0.45 * Math.sin(t * bm.tw + bm.ph));
-          if (a < 0.002) continue;
-          const ang = bm.ang + Math.sin(t * 0.2 + bm.ph) * 0.02; // gentle sway
-          const len = R * bm.len;
-          const x1 = cx + Math.cos(ang - bm.half) * len;
-          const y1 = cy + Math.sin(ang - bm.half) * len;
-          const x2 = cx + Math.cos(ang + bm.half) * len;
-          const y2 = cy + Math.sin(ang + bm.half) * len;
-          const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, len);
-          g.addColorStop(0, `rgba(255,246,214,${a})`);
-          g.addColorStop(0.28, `rgba(255,238,188,${a * 0.5})`);
-          g.addColorStop(1, "rgba(255,236,180,0)");
-          ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          ctx.lineTo(x1, y1);
-          ctx.lineTo(x2, y2);
-          ctx.closePath();
-          ctx.fill();
-        }
-        // warm core glow at the source
-        const core = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.24);
-        core.addColorStop(0, `rgba(255,249,226,${s * 0.5})`);
-        core.addColorStop(1, "rgba(255,244,206,0)");
-        ctx.fillStyle = core;
-        ctx.fillRect(0, 0, w, h);
-        ctx.globalCompositeOperation = "source-over";
-      }
-      raf = requestAnimationFrame(tick);
-    };
-    const start = () => {
-      if (running || document.hidden) return;
-      running = true;
-      raf = requestAnimationFrame(tick);
-    };
-    const stop = () => {
-      running = false;
-      cancelAnimationFrame(raf);
-    };
-    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), {
-      threshold: 0,
-    });
-    io.observe(cv);
-    const onVis = () => (document.hidden ? stop() : start());
-    document.addEventListener("visibilitychange", onVis);
-    start();
-    return () => {
-      stop();
-      io.disconnect();
-      document.removeEventListener("visibilitychange", onVis);
-      window.removeEventListener("resize", resize);
-    };
-  }, []);
 
   // ----------------------------------------------------------- dust motes --
   useIsomorphicLayoutEffect(() => {
@@ -388,9 +338,14 @@ export default function HomeFilm() {
   useIsomorphicLayoutEffect(() => {
     const rootEl = root.current;
     const stageEl = stage.current;
-    const video = filmVideo.current;
-    if (!rootEl || !stageEl || !video) return;
-    video.style.opacity = "0";
+    const canvas = filmCanvas.current;
+    if (!rootEl || !stageEl || !canvas) return;
+    // alpha:false — the film always covers the full canvas, so an opaque backing
+    // lets the compositor skip per-pixel blending of a fullscreen layer (matters
+    // on retina). The poster behind it covers until the first frame draws.
+    const c2d = canvas.getContext("2d", { alpha: false });
+    if (!c2d) return;
+    canvas.style.opacity = "0";
 
     let disposed = false;
     let firedOpen = false;
@@ -401,71 +356,113 @@ export default function HomeFilm() {
       openDoors();
     };
 
-    // ---- the film <video>: SEEKED by scroll, never played ----
-    // One concatenated H.264 clip with dense keyframes, so setting currentTime is a
-    // near-instant single-frame decode — buttery scrubbing at native resolution
-    // with the browser managing memory (no bitmap store to blur or thrash).
-    type NetInfo = { saveData?: boolean; effectiveType?: string };
-    const net = (navigator as Navigator & { connection?: NetInfo }).connection;
-    const frugal =
-      net?.saveData === true || /^(slow-)?2g$|^3g$/.test(net?.effectiveType ?? "");
-    // Only PHONES get the light cut — key off width so desktops (even short ones)
-    // always get the sharp 1928 film. This is what the "blurry" complaint was:
-    // the old min-dimension test handed short desktops the low-res version.
-    const smallScreen = window.innerWidth < 800;
+    // ---- the film: a BAKED FRAME SEQUENCE drawn on a canvas ----
+    // Scroll progress picks a frame index; the nearest DECODED frame is drawn
+    // object-cover in ONE synchronous drawImage per rAF. There is no video seek and
+    // no async decode gating, so the film tracks the scroll frame-for-frame at any
+    // speed — the fix for the slow-scroll lag/inconsistency of the old <video>
+    // scrub. Frames decode OFF the main thread (createImageBitmap), coarse-to-fine,
+    // so the whole film is scrubbable within a breath and the tail fills in behind
+    // the cursor; nearest() covers any not-yet-landed frame.
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const dprCap = Math.min(window.devicePixelRatio || 1, 2);
+    // Tier + a memory-safe decode width, sized to the ACTUAL painted size (the stage
+    // is full-viewport). Phones take the light 800 tier; everything else the sharp
+    // 1600 source, decoded DOWN to a cap so the whole-film bitmap store stays light
+    // (the store holds every frame — decoding native 1600 for all 200 would be
+    // ~0.7GB). Capping decode — not the source — keeps it sharp AND light; decoding
+    // the *source* too small is what made the team's earlier frame film look blurry.
+    const cssW = canvas.clientWidth || window.innerWidth;
+    const backingW = Math.round(cssW * dprCap);
+    const tier = backingW > 900 ? FRAME_TIERS[1] : FRAME_TIERS[0];
+    // 200 frames now (was 128) — decode caps trimmed to keep the whole-film
+    // bitmap store near the same memory envelope (~500MB desktop / ~230MB phone).
+    const decodeWidth = Math.min(backingW, tier === 1600 ? 1080 : 720);
 
-    let duration = FILM_DURATION;
-    let ready = false;
-    let target = 0; // the video time the scrub currently wants
-    let lastSeek = -1;
-    let seeking = false;
-    let seekStartT = 0;
-    // Scrub the video ONE seek at a time. While a seek is still decoding we just
-    // remember the latest target and fire it the instant `seeked` lands — this
-    // PACES seeks to the decoder instead of piling them up, which is the fix for
-    // the fast/draggy/laggy stutter. The video then tracks the scroll as fast as
-    // it can, smoothly, never queuing behind itself. Clamp off the very last frame
-    // so the settled ceiling holds cleanly. A 300ms watchdog self-heals if a seek
-    // ever stalls (e.g. a dropped `seeked`), so the film can never freeze.
-    const seek = (t: number) => {
-      if (!ready) return;
-      target = Math.min(duration - 0.05, Math.max(0, t));
-      if (seeking && performance.now() - seekStartT < 300) return;
-      if (Math.abs(target - lastSeek) < 0.008) return;
-      lastSeek = target;
-      seeking = true;
-      seekStartT = performance.now();
-      try {
-        video.currentTime = target;
-      } catch {
-        seeking = false; // not seekable yet — the next tick retries
+    let currentIdx = 0; // the FRACTIONAL frame the scrub currently wants
+    // What is actually painted, packed into ONE number (j0, j1, blend step) so the
+    // hot path allocates nothing — a template-string key here would mint a fresh
+    // string every rAF, i.e. ~60 short-lived objects a second feeding the GC.
+    let drawnKey = -1;
+    const LAST = FRAME_COUNT - 1;
+    const BLEND_STEPS = 24; // sub-frame resolution of the cross-dissolve
+    // SUB-FRAME CROSS-DISSOLVE — this is what makes it read as film rather than a
+    // flipbook. `renderedP` is a continuous float, but snapping it to one of 200
+    // frames threw that smoothness away: scrolling slowly advanced the film only
+    // ~3-4 frames a second, which is exactly the "steppy, not slow-mo" feel. We
+    // now blend the two NEIGHBOURING frames by the fractional part, so the image
+    // drifts continuously instead of stepping, and the blend doubles as a gentle
+    // motion blur. Cost is two drawImage calls (~1.3ms laptop / 4ms retina) inside
+    // a 16.7ms budget. The blend is quantised so a parked scrub stops repainting.
+    const drawFilm = (idx: number) => {
+      currentIdx = idx;
+      const cw = canvas.width;
+      const ch = canvas.height;
+      if (!cw || !ch) return;
+      const i0 = Math.min(LAST, Math.floor(idx));
+      const q = Math.round((idx - i0) * BLEND_STEPS);
+      const j0 = seq.nearest(i0);
+      if (j0 < 0) return;
+      const j1 = q > 0 ? seq.nearest(Math.min(LAST, i0 + 1)) : j0;
+      const key = (j0 * FRAME_COUNT + j1) * (BLEND_STEPS + 1) + q;
+      if (key === drawnKey) return;
+      const paint = (frame: Frame, alpha: number) => {
+        const { w: iw, h: ih } = frameSize(frame);
+        const s = Math.max(cw / iw, ch / ih); // cover-fit, centred
+        const dw = iw * s;
+        const dh = ih * s;
+        if (alpha < 1) c2d.globalAlpha = alpha;
+        c2d.drawImage(frame, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
+        if (alpha < 1) c2d.globalAlpha = 1;
+      };
+      const f0 = seq.get(j0);
+      if (!f0) return;
+      paint(f0, 1); // the base frame, fully opaque (the canvas is alpha:false)
+      if (j1 !== j0) {
+        const f1 = seq.get(j1);
+        if (f1) paint(f1, q / BLEND_STEPS); // ...the next one dissolved over it
+      }
+      drawnKey = key;
+    };
+
+    // Backing store follows the painted size × dpr (capped). A resize clears it, so
+    // repaint the current frame after.
+    const fitCanvas = () => {
+      const w = Math.round((canvas.clientWidth || window.innerWidth) * dprCap);
+      const h = Math.round((canvas.clientHeight || window.innerHeight) * dprCap);
+      if (w && h && (canvas.width !== w || canvas.height !== h)) {
+        canvas.width = w;
+        canvas.height = h;
+        drawnKey = -1;
+        drawFilm(currentIdx);
       }
     };
-    const onSeeked = () => {
-      seeking = false;
-      if (Math.abs(target - lastSeek) >= 0.008) seek(target); // chase a target that moved mid-seek
-    };
-    const onMeta = () => {
-      if (Number.isFinite(video.duration) && video.duration > 0) duration = video.duration;
-    };
-    const onReady = () => {
-      if (ready || disposed) return;
-      ready = true;
-      video.style.opacity = "1"; // crossfades over the poster (same closed door)
-      lastSeek = -1;
-      seek(target);
-    };
+
+    const seq = createFrameSequence({
+      count: FRAME_COUNT,
+      src: (i) => frameSrc(tier, i),
+      // 16→…→1: the whole span is coarsely scrubbable after a handful of decodes.
+      strides: [16, 8, 4, 2, 1],
+      // Deliberately LOW. createImageBitmap decodes off-thread, but each finished
+      // bitmap still lands on the main thread (GPU upload), so N decodes finishing
+      // together punch a hole in the scrub. At 200 frames a concurrency of 6 cost
+      // an ~80ms hitch mid-scrub; 3 keeps the handoffs trickling. The tail simply
+      // arrives a little later, which nearest() already covers invisibly.
+      concurrency: 3,
+      wrap: false, // a FILM, not a loop — a gap falls back to the nearest side
+      decodeWidth,
+      onFrame: (_i, first) => {
+        if (first) canvas.style.opacity = "1"; // crossfade over the poster (closed doors)
+        drawFilm(currentIdx); // a newly-landed frame may better match where we're parked
+      },
+    });
+
+    let onResize: (() => void) | undefined;
     if (!reducedMotion) {
-      video.muted = true;
-      video.defaultMuted = true;
-      video.playsInline = true;
-      video.preload = "auto";
-      video.addEventListener("loadedmetadata", onMeta);
-      video.addEventListener("loadeddata", onReady);
-      video.addEventListener("seeked", onSeeked);
-      video.src = frugal || smallScreen ? FILM_SM : FILM;
-      video.load();
+      fitCanvas();
+      onResize = () => fitCanvas();
+      window.addEventListener("resize", onResize, { passive: true });
+      seq.start();
     }
 
     const ctx = gsap.context(() => {
@@ -473,12 +470,10 @@ export default function HomeFilm() {
       // door overlays
       const zoomEl = q(".hf-zoom");
       const dvignetteEl = q(".hf-dvignette");
-      const dbloomEl = q(".hf-dbloom");
       const dcueEl = q(".hf-dcue");
       // interior + brand + works
       const interiorEl = q(".hv-interior");
       const lineEl = q(".hv-line");
-      const eyebrowEl = q(".hv-eyebrow");
       const markEl = q(".hv-markimg");
       const wordEl = q(".hv-word");
       const divEl = q(".hv-div");
@@ -493,7 +488,6 @@ export default function HomeFilm() {
       const veilEl = q(".hv-veil");
 
       if (zoomEl) gsap.set(zoomEl, { transformOrigin: "50% 44%" });
-      if (dbloomEl) gsap.set(dbloomEl, { transformOrigin: "50% 44%" });
       if (bloomEl) gsap.set(bloomEl, { transformOrigin: "50% 50%" });
       if (brandveilEl) gsap.set(brandveilEl, { transformOrigin: "50% 50%" });
 
@@ -507,30 +501,25 @@ export default function HomeFilm() {
 
       const apply = (P: number) => {
         // ---------------- THE FILM (fp) ----------------
-        // one continuous scrub: doorscroll (approach → doors open → walk into the
-        // sanctum hall) then ceilingvideo (crane up to the carved ceiling). paceMap
-        // lingers on the door-swing and the ceiling reveal; past FILM_END the seek
-        // holds the settled-ceiling frame as the brand resolves on it.
+        // one continuous scrub: the approach → doors open → walk into the sanctum
+        // hall → crane up to the carved ceiling. paceMap lingers on the door-swing
+        // and the ceiling reveal; past FILM_END the last frame holds the settled
+        // ceiling as the brand resolves on it.
         const fp = seg(P, 0, FILM_END);
-        seek(paceMap(fp) * duration);
+        drawFilm(paceMap(fp) * (FRAME_COUNT - 1)); // fractional — see drawFilm
         if (dcueEl) gsap.set(dcueEl, { opacity: 1 - easeIn(seg(fp, D.cueOut, 0.14)) });
 
         // ---- door-open light + cinematic push (fp) ----
         // a slow synthetic zoom INTO the doorway across the approach and the swing,
-        // layered on the video's own dolly for a deeper, cinematic push-in.
-        if (zoomEl) gsap.set(zoomEl, { scale: 1 + 0.12 * smooth(seg(fp, 0, 0.52)) });
-        // god-rays POUR OUT of the opening as the doors swing, then dissolve inside
-        rayStrength.current =
-          0.9 *
-          smooth(seg(fp, D.raysIn, D.raysLen)) *
-          (1 - smooth(seg(fp, D.raysFade, D.raysFadeLen)));
-        // warm gold bloom swells through the opening then eases so the hall reads clean
-        const db =
-          smooth(seg(fp, D.bloomIn, D.bloomLen)) *
-          (1 - smooth(seg(fp, D.bloomFade, D.bloomFadeLen)));
-        if (dbloomEl) gsap.set(dbloomEl, { opacity: 0.8 * db, scale: 1 + 1.1 * db });
-        if (dvignetteEl) gsap.set(dvignetteEl, { opacity: 0.4 + 0.42 * (1 - db) });
-        if (fp >= 0.5) fireDoorsOpen();
+        // layered on the film's own dolly for a deeper, cinematic push-in.
+        if (zoomEl) gsap.set(zoomEl, { scale: 1 + 0.12 * smooth(seg(fp, 0, 0.35)) });
+        // No synthetic light over the doorway any more — the god-ray canvas and the
+        // gold bloom that used to swell here were removed (they hazed the carving
+        // out); the footage carries its own rays. The vignette is now a STEADY
+        // filmic edge-darkening instead of breathing against the bloom it used to
+        // counterweight — held mid-way between its old 0.40 and 0.82 extremes.
+        if (dvignetteEl) gsap.set(dvignetteEl, { opacity: 0.52 });
+        if (fp >= 0.34) fireDoorsOpen();
 
         // ---------------- VEIL / TYPE / BRAND / WORKS (P) ----------------
         const inside = smooth(seg(P, B.veilIn, B.veilLen));
@@ -569,7 +558,6 @@ export default function HomeFilm() {
             scale: 1.16 - 0.16 * m,
             filter: `blur(${(18 * (1 - m)).toFixed(2)}px)`,
           });
-        rise(eyebrowEl, easeOut(seg(P, B.markIn - 0.04, 0.11)));
         rise(wordEl, easeOut(seg(P, B.wordIn, B.wordLen)));
         rise(divEl, easeOut(seg(P, B.divIn, B.divLen)), 16);
         rise(tagEl, easeOut(seg(P, B.tagIn, B.tagLen)));
@@ -612,14 +600,14 @@ export default function HomeFilm() {
         fireDoorsOpen();
         gsap.set(rootEl, { height: "auto" });
         gsap.set(stageEl, { height: "auto", display: "block", paddingTop: "7rem", paddingBottom: "7rem" });
-        gsap.set([".hf-zoom", ".hf-dvignette", ".hf-dbloom", ".hf-dcue"], { opacity: 0 });
+        gsap.set([".hf-zoom", ".hf-dvignette", ".hf-dcue"], { opacity: 0 });
         gsap.set(".hv-interior", { opacity: 1 });
         gsap.set(".hv-ceiling", { opacity: 1, backgroundImage: `url(${CEIL_POSTER})` }); // static ceiling backdrop
         gsap.set(".hv-wash", { opacity: 0.3 });
         gsap.set(".hv-veil", { opacity: 0.85 });
         gsap.set(".hv-line", { opacity: 0 });
         gsap.set(".hv-markimg", { opacity: 1, scale: 1, filter: "blur(0px)" });
-        gsap.set([".hv-eyebrow", ".hv-word", ".hv-div", ".hv-tag"], { opacity: 1, y: 0 });
+        gsap.set([".hv-word", ".hv-div", ".hv-tag"], { opacity: 1, y: 0 });
         gsap.set(".hv-brand", { opacity: 1, y: 0, pointerEvents: "auto" });
         gsap.set(".hv-brandveil", { opacity: 0.92, scale: 1 });
         gsap.set(".hv-bloom", { scale: 1, opacity: 0.4 });
@@ -630,6 +618,20 @@ export default function HomeFilm() {
       });
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // The sticky site header reserves a `--pm-bar-bottom` (65px) flow slot at
+        // the top of the body. For the whole film the header is lifted away
+        // (html.pm-intro), but its slot REMAINS — leaving a cream strip of body
+        // background above the doors (the intro wasn't full-bleed). Pull the film,
+        // and with it the page, up by exactly the bar height so the doors run
+        // full-bleed from the very top. Set ONCE (static) so there's no layout jump
+        // when the header glides back in after the film, and scoped to this branch
+        // so reduced motion — where the header stays visible — keeps its slot.
+        // (Restores the full-bleed the old DoorScroll had via `marginTop: -gap`;
+        // it was dropped in the rewrite to HomeFilm.) Must run before the scroll
+        // geometry below is measured. A raw `.hf{}` rule in globals.css can't do
+        // this — Tailwind v4's Lightning CSS silently drops it.
+        gsap.set(rootEl, { marginTop: "calc(-1 * var(--pm-bar-bottom))" });
+
         // one glide loop — renderedP eases toward targetP, one weighty slow-mo
         let targetP = 0;
         let renderedP = 0;
@@ -718,11 +720,8 @@ export default function HomeFilm() {
     return () => {
       disposed = true;
       holdHeader("film", false);
-      video.removeEventListener("loadedmetadata", onMeta);
-      video.removeEventListener("loadeddata", onReady);
-      video.removeEventListener("seeked", onSeeked);
-      video.removeAttribute("src");
-      video.load();
+      if (onResize) window.removeEventListener("resize", onResize);
+      seq.dispose(); // cancel in-flight decodes + free the ImageBitmaps
       ctx.revert();
       ScrollTrigger.refresh();
     };
@@ -732,12 +731,12 @@ export default function HomeFilm() {
     <section
       ref={root}
       // ONE pinned span for the WHOLE film — doors → walk-in → ceiling → brand →
-      // works. Sized so the film plays through in ~3.5-4 screen-heights of scroll:
-      // short enough that a modest scroll carries it start-to-finish, long enough
-      // that it never whips (the first short cut at 320-400svh read "very fast" —
-      // client). Lenis' lerp + the TAU_MS glide supply the smoothness on top.
-      // FILM_END splits scrub from hold; ScrollTrigger reads this.
-      className="hf relative bg-cream h-[550svh] md:h-[640svh] lg:h-[720svh]"
+      // works. The span sets how much scroll each film-second costs, i.e. the
+      // slow-mo: more span = the camera moves less per notch of wheel. Widened
+      // again for the cinema pass; sub-frame blending is what lets it go this slow
+      // without the frames stepping. Lenis' lerp + the TAU_MS glide supply the
+      // weight on top. FILM_END splits scrub from hold; ScrollTrigger reads this.
+      className="hf relative bg-cream h-[900svh] md:h-[1050svh] lg:h-[1200svh]"
     >
       <div
         ref={stage}
@@ -750,19 +749,16 @@ export default function HomeFilm() {
           style={{ backgroundImage: `url(${POSTER})` }}
           aria-hidden
         />
-        {/* the film + the god-rays layer over the opening. The <video> is scrubbed
-            by scroll (currentTime), never played — hardware-decoded and native-sharp. */}
+        {/* the film. Nothing is layered over the doorway any more — the light
+            coming through the opening is the footage's own baked god-rays. */}
         <div className="hf-zoom pointer-events-none absolute inset-0 z-[2]" aria-hidden>
-          <video
-            ref={filmVideo}
-            className="absolute inset-0 h-full w-full object-cover opacity-0"
-            poster={POSTER}
-            muted
-            playsInline
-            preload="auto"
-            tabIndex={-1}
+          {/* the scrubbed film — a baked WebP frame sequence drawn object-cover on
+              a canvas (scroll picks the frame), crossfading over the poster (closed
+              doors) once the first frame lands */}
+          <canvas
+            ref={filmCanvas}
+            className="absolute inset-0 h-full w-full opacity-0"
           />
-          <canvas ref={raysCv} className="absolute inset-0 h-full w-full" />
         </div>
         {/* filmic vignette */}
         <div
@@ -771,15 +767,6 @@ export default function HomeFilm() {
           style={{
             background:
               "radial-gradient(130% 105% at 50% 45%, rgba(0,0,0,0) 52%, rgba(28,20,8,0.10) 78%, rgba(24,16,6,0.26) 100%)",
-          }}
-        />
-        {/* warm gold bloom from the sunburst */}
-        <div
-          className="hf-dbloom pointer-events-none absolute inset-0 z-[4] opacity-0 will-change-[transform,opacity]"
-          aria-hidden
-          style={{
-            background:
-              "radial-gradient(closest-side circle at 50% 45%, #FFFDF6 0%, #FFF4D2 28%, rgb(var(--gold-rgb) / 0.5) 46%, rgb(var(--gold-rgb) / 0) 70%)",
           }}
         />
         {/* door scroll cue */}
@@ -796,8 +783,8 @@ export default function HomeFilm() {
         {/* ===================== ACTS 2–4 — INSIDE ===================== */}
         <div className="pointer-events-none absolute inset-0 z-[10] overflow-hidden" aria-hidden>
           <div className="hv-interior absolute inset-0 opacity-0">
-            {/* static ceiling backdrop for REDUCED MOTION only — the scrubbed
-                <video> supplies the moving ceiling in the normal experience, so the
+            {/* static ceiling backdrop for REDUCED MOTION only — the scrubbed frame
+                sequence supplies the moving ceiling in the normal experience, so the
                 poster is loaded lazily via the reduced-motion branch (backgroundImage). */}
             <div className="hv-ceiling absolute inset-0 bg-cover bg-center opacity-0" />
             <div
@@ -866,11 +853,15 @@ export default function HomeFilm() {
           </p>
         </div>
 
-        {/* the brand */}
-        <div className="hv-brand relative z-[20] flex flex-col items-center px-6 text-center">
-          <p className="hv-eyebrow mb-9 font-display text-[11px] tracking-[0.34em] text-maroon uppercase opacity-0">
-            {SITE.name} · Since {SITE.since}
-          </p>
+        {/* the brand — sits a touch BELOW the stage's centre line so the lockup
+            rests with the ceiling's carved medallion instead of straddling it.
+            Offset with `top` (not a transform) because apply() drives `y` on this
+            block via gsap; the two would fight over the transform. There is no
+            eyebrow line any more — "A Paramount Engineering Works · Since 1968"
+            was removed: at 11px in maroon it could not clear 4.5:1 against ANY
+            backdrop (max ≈3.6:1 even on solid cream), and the wordmark already
+            says the name. */}
+        <div className="hv-brand relative top-[6svh] z-[20] flex flex-col items-center px-6 text-center">
           <div className="hv-mark relative aspect-[269/234] h-32 sm:h-44">
             <Image src="/brand/a-mark-olive.png" alt="A Paramount" fill priority sizes="200px" className="hv-markimg object-contain opacity-0" />
             <div className="pointer-events-none absolute inset-0" style={MASK_STYLE}>

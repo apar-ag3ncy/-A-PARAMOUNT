@@ -104,32 +104,41 @@ export default function FeaturedGallery() {
           repeat: -1,
         });
         layout();
-        let ticking = false;
-        const start = () => {
-          if (ticking) return;
-          gsap.ticker.add(layout);
-          ticking = true;
+        // This gallery is ACT 4 inside HomeFilm's PINNED stage: it sits in the
+        // viewport (at opacity 0) for the WHOLE film, so IntersectionObserver
+        // alone would keep the drift + the per-frame arc layout (16 rect reads +
+        // 16 transform writes) running while the doors/walk-in/crane scrub —
+        // invisible work stealing frame budget from the film (measured as
+        // sporadic dropped frames mid-scrub). Gate ALL of it on the `.hv-works`
+        // overlay actually being faded in; HomeFilm writes that opacity as an
+        // INLINE style via gsap.set, so reading it back is a plain string read —
+        // no style recalc, no layout flush. Standalone use (no overlay) is
+        // always "visible".
+        const overlay = rootEl.closest(".hv-works") as HTMLElement | null;
+        const overlayVisible = () =>
+          !overlay || parseFloat(overlay.style.opacity || "1") > 0.005;
+        let onScreen = false;
+        let active = false;
+        const tick = () => {
+          const want = onScreen && overlayVisible();
+          if (want !== active) {
+            active = want;
+            if (want) drift.current?.play();
+            else drift.current?.pause();
+          }
+          if (active) layout();
         };
-        const stop = () => {
-          if (!ticking) return;
-          gsap.ticker.remove(layout);
-          ticking = false;
-        };
+        drift.current.pause(); // starts hidden behind the film; tick() resumes it
+        gsap.ticker.add(tick);
         const io = new IntersectionObserver(
           ([e]) => {
-            if (e.isIntersecting) {
-              drift.current?.play();
-              start();
-            } else {
-              drift.current?.pause();
-              stop();
-            }
+            onScreen = e.isIntersecting;
           },
           { threshold: 0 },
         );
         io.observe(rootEl);
         return () => {
-          stop();
+          gsap.ticker.remove(tick);
           io.disconnect();
         };
       });
@@ -140,7 +149,34 @@ export default function FeaturedGallery() {
         layout();
       });
     }, rootEl);
-    return () => ctx.revert();
+
+    // Pre-decode every card photo once the page is GENUINELY idle, so the works
+    // landing never pays a synchronous first-paint image decode mid-film
+    // (measured as a ~170ms hitch right where "Our Works" fades in). No idle
+    // TIMEOUT on purpose: a forced deadline made this fire during the initial
+    // load rush (film frames + fonts still streaming) and jammed the main
+    // thread; if the page never goes idle the images simply decode at paint,
+    // which is the old behavior — strictly no worse. Decodes are CHAINED one at
+    // a time so the raster work trickles instead of bursting 16-wide.
+    let cancelled = false;
+    const preDecode = async () => {
+      for (const img of Array.from(rootEl.querySelectorAll("img"))) {
+        if (cancelled) return;
+        await img.decode().catch(() => {}); // best-effort; a miss decodes at paint
+      }
+    };
+    // Safari still lacks requestIdleCallback — typeof-guard, not a lib assumption.
+    const hasIdle = typeof window.requestIdleCallback === "function";
+    const idleId = hasIdle
+      ? window.requestIdleCallback(() => void preDecode())
+      : (setTimeout(() => void preDecode(), 6000) as unknown as number);
+
+    return () => {
+      cancelled = true;
+      if (hasIdle) window.cancelIdleCallback(idleId);
+      else clearTimeout(idleId);
+      ctx.revert();
+    };
   }, []);
 
   if (ITEMS.length < 5) return null;
