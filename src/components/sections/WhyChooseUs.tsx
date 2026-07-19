@@ -32,11 +32,12 @@ const ITEMS: Item[] = [
 ];
 
 /**
- * WhyChooseUs — the deck's p11–p12 spread: an olive band carrying a giant faint
- * arch-A watermark, with a rounded cream pill card floating on it. Inside the
- * pill: a filled-olive circular badge + "WHY CHOOSE US", then the four promise
- * items — each a small brand mark in a taupe circle ABOVE a centred title and
- * a line of copy, separated by hairline dividers.
+ * WhyChooseUs — the deck's p11–p12 spread: a plain olive band with a rounded
+ * cream pill card floating on it. Inside the pill: a filled-olive circular badge
+ * + "WHY CHOOSE US", then the four promise items — each a small brand mark in a
+ * taupe circle ABOVE a centred title and a line of copy, separated by hairline
+ * dividers. (The band used to carry a giant ghosted arch-A; it was a hand-drawn
+ * approximation at the wrong proportion and the client had it removed.)
  *
  * Server component; the only motion is the existing ScrollReveal fade-up.
  */
@@ -46,14 +47,9 @@ export default function WhyChooseUs() {
       aria-label="Why choose us"
       className="relative overflow-hidden bg-olive py-20 sm:py-28"
     >
-      {/* Giant faint arch-A watermark behind the card, as on the deck band */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[38%] text-olive-deep"
-        style={{ opacity: 0.28 }}
-      >
-        <ArchMark className="h-[36rem] w-[26.5rem]" />
-      </span>
+      {/* (A giant ghosted arch-A watermark used to sit here. It was a hand-drawn
+          approximation of the logo at the wrong proportion, and the client asked
+          for it gone - only the deck's own elements are to appear. Removed.) */}
 
       <div className="relative mx-auto max-w-7xl px-6">
         <ScrollReveal>

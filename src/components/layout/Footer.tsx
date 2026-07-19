@@ -1,113 +1,131 @@
 import Link from "next/link";
 import Image from "next/image";
-import { SITE, CONTACT, FAMILIES } from "@/lib/constants";
-import Wordmark from "@/components/ui/Wordmark";
+import { SITE, CONTACT } from "@/lib/constants";
 
 /**
- * Footer — a plain, compact colophon on flat brand velvet.
+ * Footer — a full-bleed architectural plate with the wordmark cut into the base.
  *
- * This deliberately carries NO background art. It used to stack seven decorative
- * layers (the mandir corridor photo under a velvet scrim, a bottom fade, the
- * deck's back-page damask, a gold bloom, a 520px ghosted arch-"A", and a gradient
- * hairline) and stood 949px tall — taller than a laptop viewport, so it ran off
- * the screen. Client asked for it plain in the brand colour and sized to fit, so
- * the ground is now ONE flat velvet fill and the content is pared to what a
- * colophon actually needs: the closing line, the lockup, collections, enquiries,
- * copyright.
+ * The plate is the client's own Derasar entrance (their brass-studded door in
+ * carved Makrana marble) — an existing asset, not a new render. It is heavily
+ * scrimmed: white marble is far too bright to carry cream type, so a top-down
+ * ramp plus a base pool sink it to a dark ground.
  *
- * Removed with it: the "· Est. 1968" eyebrow (the wordmark already says the name
- * and the baseline already says the year), the ornament divider, and the
- * "Crafted in Mumbai · Since 1968" baseline note (the address line and the
- * copyright covered it twice over).
+ * Everything above the wordmark is CENTRED on one axis, and the arch-"A" is
+ * centred to match how the lockup sits on the landing page (`.hv-brand` is
+ * `flex-col items-center text-center` there) rather than tucked into a corner.
  *
- * Text stays cream/gold/pista — the house rule for type on dark velvet.
+ * Content is deliberately thin: the mark, one caps line, the three things a
+ * visitor actually needs to reach us, and the CTA. The Menu and Collections
+ * columns were removed — the header already carries that navigation, and
+ * repeating it here made the panel read as a link dump.
+ *
+ * Type is brand-only: Storica (font-display) for the wordmark, the caps line and
+ * the CTA; Inter (font-body) for the contact lines. No third face.
  */
 export default function Footer() {
-  const year = new Date().getFullYear();
-
   return (
-    <footer
-      className="pm-footer relative text-cream"
-      style={{ background: "var(--color-velvet-400)" }}
-    >
-      {/* ---- centre: the closing line + brand lockup ---- */}
-      <div className="mx-auto flex w-full max-w-3xl flex-col items-center px-6 py-12 text-center sm:py-14">
-        {/* deck p30 — the emotional centre. Set in Inter (the brand's only
-            lowercase face; Storica is caps-only), light, so it reads as a soft
-            sentence-case murmur rather than a shout. */}
-        <p className="pm-h3 max-w-2xl font-body font-light text-cream/95">
-          Shaped by devotion, destined to inspire generations.
-        </p>
+    <footer className="pm-footer relative isolate overflow-hidden bg-[#171208] text-cream">
+      {/* ---- the plate ----
+          A CSS background, not next/image, on purpose: it is purely decorative
+          (aria-hidden), the two tiers are already baked to the exact sizes we
+          need, so the optimizer adds nothing — and a background paints with the
+          element instead of arriving late behind a lazy observer, which for the
+          footer's defining visual would read as a broken pop-in. */}
+      <div
+        aria-hidden
+        className="absolute inset-0 -z-10 bg-cover bg-center bg-no-repeat bg-[url('/footer/derasar-1280.webp')] lg:bg-[url('/footer/derasar-2400.webp')]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            "linear-gradient(180deg, rgba(15,11,5,0.86) 0%, rgba(17,13,6,0.72) 34%, rgba(18,14,7,0.80) 62%, rgba(12,9,4,0.94) 100%)",
+        }}
+      />
 
-        {/* brand lockup */}
-        <div className="mt-8 flex flex-col items-center">
+      <div className="relative mx-auto flex max-w-2xl flex-col items-center px-6 pt-14 text-center sm:pt-16">
+        {/* the mark — centred, as it is on the landing page */}
+        <Link href="/" aria-label={SITE.name}>
           <Image
             src="/brand/a-mark-white.png"
             alt=""
             aria-hidden
             width={269}
             height={234}
-            className="h-11 w-auto opacity-90 sm:h-12"
+            className="h-16 w-auto opacity-95 sm:h-20"
           />
-          <Wordmark ariaLabel={SITE.name} className="pm-h3 mt-4 text-cream opacity-95" />
-          <p className="pm-small mt-3 font-body text-cream/75">{SITE.tagline}</p>
-        </div>
+        </Link>
+
+        <p className="pm-label mt-7 font-display text-cream/90">
+          {SITE.tagline} · Since {SITE.since}
+        </p>
+
+        <span aria-hidden className="mt-8 mb-8 block h-px w-16 bg-cream/25" />
+
+        <ul className="space-y-2.5">
+          <li>
+            <a
+              href={`mailto:${CONTACT.email}`}
+              className="pm-small font-body text-cream/85 transition-colors hover:text-gold"
+            >
+              {CONTACT.email}
+            </a>
+          </li>
+          <li>
+            <a
+              href={`tel:${CONTACT.people[0].phone.replace(/\s/g, "")}`}
+              className="pm-small font-body text-cream/85 transition-colors hover:text-gold"
+            >
+              {CONTACT.people[0].phone}
+            </a>
+          </li>
+          {/* /75 not /60: against the brightest marble under this row the dimmer
+              value measured 4.40:1, just shy of the 4.5:1 bar. */}
+          <li className="pm-small font-body text-cream/75">Sakinaka, Mumbai</li>
+        </ul>
+
+        <Link
+          href="/contact"
+          className="pm-label mt-9 inline-flex items-center rounded-full border border-cream/35 px-6 py-2.5 font-display text-cream transition-colors hover:border-gold hover:text-gold"
+        >
+          Send a message
+        </Link>
       </div>
 
-      {/* ---- slim colophon: collections · enquiries ---- */}
-      <div className="border-t border-cream/10 px-6 py-8">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-7 lg:flex-row lg:items-start">
-          {/* collections */}
-          <nav aria-label="Collections" className="text-center lg:text-left">
-            <h3 className="pm-label mb-2.5 font-display text-gold">Collections</h3>
-            <ul className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 lg:justify-start">
-              {FAMILIES.map((f) => (
-                <li key={f.slug}>
-                  <Link
-                    href={`/products/${f.slug}`}
-                    className="pm-small font-body text-cream/70 transition-colors hover:text-gold"
-                  >
-                    {f.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-
-          {/* contact essentials — full directory on /contact */}
-          <div className="text-center lg:text-right">
-            <h3 className="pm-label mb-2.5 font-display text-gold">Enquiries</h3>
-            <div className="pm-small space-y-1.5 font-body text-cream/70">
-              <p>
-                <a
-                  href={`mailto:${CONTACT.email}`}
-                  className="underline-offset-4 transition-colors hover:text-gold hover:underline"
-                >
-                  {CONTACT.email}
-                </a>
-              </p>
-              <p>
-                <a
-                  href={`tel:${CONTACT.people[0].phone.replace(/\s/g, "")}`}
-                  className="transition-colors hover:text-gold"
-                >
-                  {CONTACT.people[0].phone}
-                </a>
-                <span className="mx-2 text-cream/30">·</span>
-                <Link href="/contact" className="transition-colors hover:text-gold">
-                  Full directory
-                </Link>
-              </p>
-              <p className="text-cream/50">Sakinaka, Andheri East · Mumbai, India</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ---- baseline ---- */}
-      <div className="border-t border-cream/10 px-6 py-4 text-center">
-        <p className="pm-micro font-display text-cream/45">
-          © {year} {SITE.name}
+      {/* ---- the name, cut into the base ----
+          Deliberately OUTSIDE the max-w container so it spans the plate edge to
+          edge; inside it, it only reached ~85% of the width. Set in Storica and
+          sized off the VIEWPORT so it always fills the span. `background-clip:
+          text` fades it downward into the scrim, and the negative bottom margin
+          lets the footer's overflow crop the baseline. */}
+      <div className="relative mt-12 px-4 sm:px-6 lg:mt-14">
+        <p
+          aria-hidden
+          className="pm-footer-word font-display whitespace-nowrap select-none"
+          style={{
+            // 11.6vw, NOT 18vw. Storica typesets "A PARAMOUNT" at ~819px of width
+            // per 100px of font-size, so 18vw ran 1884px wide on a 1280px screen —
+            // half a viewport of overflow, clipped off the right edge. 11.6vw lands
+            // the word at ~95% of the viewport at every width.
+            fontSize: "clamp(2.4rem, 11.6vw, 18rem)",
+            lineHeight: 0.8,
+            letterSpacing: "-0.005em",
+            // POSITIVE, deliberately. `line-height: 0.8` makes the line box
+            // shorter than the glyphs, so the letters already spill ~0.085em past
+            // their own box before any margin. At -0.05em that compounded and
+            // buried 16% of the letter height below the fold. +0.04em lifts it so
+            // only ~5% is cropped — the reference's "cut into the base" feel
+            // without the name looking like it fell off the page.
+            marginBottom: "0.04em",
+            backgroundImage:
+              "linear-gradient(180deg, rgba(254,244,218,0.97) 0%, rgba(254,244,218,0.66) 46%, rgba(254,244,218,0.16) 76%, rgba(254,244,218,0) 96%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
+        >
+          A PARAMOUNT
         </p>
       </div>
     </footer>
