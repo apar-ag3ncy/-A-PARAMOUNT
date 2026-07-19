@@ -738,9 +738,18 @@ export default function HomeFilm() {
       // weight on top. FILM_END splits scrub from hold; ScrollTrigger reads this.
       className="hf relative bg-cream h-[900svh] md:h-[1050svh] lg:h-[1200svh]"
     >
+      {/* 100lvh, NOT 100svh. On a phone the page loads with the URL bar showing
+          (viewport == svh) but the bar RETRACTS the moment you scroll — which is
+          exactly when the film plays — and the viewport grows to lvh. At 100svh
+          the stage stayed short and the extra strip showed the section's cream
+          through, as a blank band under the film. lvh is the LARGEST state, so the
+          plate covers in both. dvh would track the change exactly but resizes the
+          pinned stage mid-scrub, which re-fits the canvas and re-measures
+          ScrollTrigger every time the bar moves — the one thing this film cannot
+          afford. Stable height, always covered. */}
       <div
         ref={stage}
-        className="hf-pin relative flex h-[100svh] w-full items-center justify-center overflow-hidden bg-cream"
+        className="hf-pin relative flex h-[100lvh] w-full items-center justify-center overflow-hidden bg-cream"
       >
         {/* ===================== ACT 1 — THE DOORS ===================== */}
         {/* poster, so the doors are on screen from the first paint */}
@@ -769,8 +778,15 @@ export default function HomeFilm() {
               "radial-gradient(130% 105% at 50% 45%, rgba(0,0,0,0) 52%, rgba(28,20,8,0.10) 78%, rgba(24,16,6,0.26) 100%)",
           }}
         />
-        {/* door scroll cue */}
-        <div className="hf-dcue pointer-events-none absolute bottom-8 left-1/2 z-[6] flex -translate-x-1/2 flex-col items-center gap-3">
+        {/* door scroll cue — anchored to the SMALL viewport, not the stage bottom.
+            The stage is 100lvh, so on a phone with the URL bar still showing its
+            bottom edge sits below the fold; a `bottom-8` cue would load off-screen,
+            which is precisely when this cue has a job to do. Positioning it from
+            the top at 100svh keeps it a fixed gap above the fold in both states. */}
+        <div
+          className="hf-dcue pointer-events-none absolute left-1/2 z-[6] flex -translate-x-1/2 flex-col items-center gap-3"
+          style={{ top: "calc(100svh - 5.25rem)" }}
+        >
           <span className="font-display text-[10px] tracking-[0.3em] text-cream/70 uppercase">
             Scroll to open
           </span>

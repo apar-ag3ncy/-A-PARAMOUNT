@@ -5,29 +5,25 @@ interface Props {
   width?: "sm" | "md" | "lg";
 }
 
-/*
- * One wing (drawn for the left side, mirrored for the right): a single hairline
- * running from the edge in toward the medallion, fading a touch toward the tip.
- * Stroke-based. (The old 4-point diamond flourishes were dropped — they were not
- * part of the brand ornament; only the arch-A monogram is.)
- */
-const wing = (
-  <>
-    <path d="M2 12 H62" opacity={0.5} />
-    <path d="M62 12 H70" opacity={0.85} />
-  </>
-);
-
 /**
- * OrnamentDivider — the deck's universal rule: a thin hairline running left and
- * right from a centered composition of `· ✦ · (arch-A medallion) · ✦ ·`. Traced to
- * the rule under "Elegance" (p04) and under "ABOUT US" / between the stat blocks
- * (p07).
+ * OrnamentDivider - the deck's universal rule, EXTRACTED from the client's brand
+ * deck rather than redrawn by eye.
  *
- * Stroke-based and drawn in `currentColor`, so the parent sets the tint via a
- * text-* utility (e.g. `text-gold/70` gold, `text-olive/50`). Pass `width`
- * to scale the overall length: "sm" (~w-32) · "md" (~w-48, default) · "lg" (~w-64).
- * `className` still overrides sizing/spacing as before (drop-in compatible).
+ * The geometry below is lifted verbatim from "APARAMOUNT 27June.pdf" p07 (the rule
+ * under "ABOUT US"), read straight out of the PDF's vector layer. The pattern is
+ * hairline, dot, four-petal floret, dot, arch-"A" medallion - mirrored about the
+ * centre. Hairlines and dots are re-expressed as rect/circle (they were 40-segment
+ * beziers in the source, and a circle is a circle); the florets and the medallion
+ * keep the deck's own path data untouched, because those are the actual brand art.
+ *
+ * This replaces a hand-drawn approximation that had quietly lost the dots and the
+ * florets entirely - a previous pass deleted them believing they "were not part of
+ * the brand ornament". They are: they are right there on p07. Do NOT redraw this by
+ * eye again; re-extract from the deck if it ever needs to change.
+ *
+ * Filled in `currentColor`, so the parent tints it with a text-* utility
+ * (`text-olive/50`, `text-gold/70`, ...). `width` scales the rule: "sm" (w-32),
+ * "md" (w-48, default), "lg" (w-64); height follows the deck's own 19:1 aspect.
  */
 export default function OrnamentDivider({ className, width = "md" }: Props) {
   const widthClass =
@@ -35,27 +31,12 @@ export default function OrnamentDivider({ className, width = "md" }: Props) {
 
   return (
     <svg
-      viewBox="0 0 172 24"
-      className={cn("h-6", widthClass, className)}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={1}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      viewBox="0 0 126.46 6.65"
+      className={cn("h-auto", widthClass, className)}
+      fill="currentColor"
       aria-hidden
     >
-      {/* left wing */}
-      <g>{wing}</g>
-      {/* right wing (mirrored about the centre, 172) */}
-      <g transform="matrix(-1 0 0 1 172 0)">{wing}</g>
-
-      {/* central arch-A medallion — a small ogee arch enclosing a crossbarred A,
-          inlined so it inherits currentColor and scales with the rule */}
-      <g strokeWidth={0.9}>
-        <path d="M80 20 L80 12 C80 8.4 81.6 6 86 3.6 C90.4 6 92 8.4 92 12 L92 20" />
-        <path d="M83.4 20 L86 8.8 L88.6 20" strokeWidth={0.8} />
-        <path d="M84.4 15.6 L87.6 15.6" strokeWidth={0.75} />
-      </g>
+      <rect x="42.38" y="3.56" width="15.06" height="0.27"/><rect x="32.19" y="3.56" width="7.67" height="0.27"/><rect x="69.01" y="3.56" width="15.06" height="0.27"/><rect x="86.59" y="3.56" width="7.67" height="0.27"/><rect x="10.18" y="3.56" width="15.06" height="0.27"/><rect x="-0.0" y="3.56" width="7.67" height="0.27"/><rect x="101.21" y="3.56" width="15.06" height="0.27"/><rect x="118.79" y="3.56" width="7.67" height="0.27"/><circle cx="41.12" cy="3.69" r="0.37"/><circle cx="85.33" cy="3.69" r="0.37"/><circle cx="28.72" cy="3.69" r="0.15"/><circle cx="8.92" cy="3.69" r="0.37"/><circle cx="97.73" cy="3.69" r="0.15"/><circle cx="117.53" cy="3.69" r="0.37"/><path d="M60.57 4.82C60.96 3.19 61.97 1.76 63.41 0.87C64.84 1.77 65.86 3.19 66.25 4.85C66.39 5.46 66.41 6.04 66.41 6.65L67.15 6.65L67.11 5.48C66.86 3.18 65.46 1.09 63.4 0.0C61.67 0.94 60.39 2.56 59.89 4.47C59.7 5.2 59.65 5.92 59.67 6.65L60.41 6.65C60.39 6.02 60.44 5.43 60.57 4.82Z"/><path d="M63.41 2.87C63.6 3.03 63.74 3.2 63.87 3.39C64.14 3.74 64.36 4.1 64.5 4.54L62.32 4.54C62.54 3.89 62.91 3.35 63.41 2.87M62.07 5.27L65.49 5.27C65.25 3.92 64.51 2.71 63.41 1.85C61.94 2.98 61.11 4.79 61.25 6.65L61.99 6.65C61.95 6.19 61.99 5.74 62.07 5.27Z"/><path d="M29.64 4.38C29.34 4.27 29.04 4.01 28.89 3.87C28.9 3.87 28.91 3.87 28.92 3.87C29.01 3.85 29.05 3.78 29.08 3.75C29.08 3.75 29.08 3.75 29.08 3.75C29.09 3.74 29.1 3.73 29.11 3.72C29.12 3.7 29.14 3.69 29.14 3.69C29.14 3.69 29.13 3.69 29.11 3.67C29.1 3.66 29.09 3.65 29.08 3.64C29.08 3.64 29.08 3.63 29.08 3.63C29.06 3.6 29.01 3.54 28.93 3.52C28.92 3.52 28.91 3.52 28.89 3.52L28.89 3.52C28.9 3.51 28.9 3.51 28.9 3.51C29.05 3.37 29.35 3.11 29.64 3.0C30.05 2.84 30.45 3.07 30.71 3.25C30.96 3.44 31.3 3.69 31.3 3.69C31.3 3.69 30.96 3.94 30.71 4.13C30.45 4.32 30.05 4.54 29.64 4.38Z"/><path d="M26.73 4.13C26.47 3.94 26.13 3.69 26.13 3.69C26.13 3.69 26.47 3.44 26.73 3.25C26.98 3.07 27.39 2.84 27.8 3.0C28.08 3.11 28.37 3.35 28.52 3.49C28.53 3.5 28.53 3.51 28.54 3.52L28.54 3.52L28.54 3.52C28.53 3.52 28.52 3.52 28.51 3.52C28.43 3.54 28.38 3.6 28.36 3.63L28.35 3.63C28.35 3.65 28.34 3.66 28.33 3.67C28.31 3.68 28.3 3.69 28.3 3.69C28.3 3.69 28.31 3.7 28.32 3.71C28.33 3.72 28.34 3.73 28.35 3.75C28.35 3.75 28.35 3.75 28.36 3.75C28.38 3.78 28.42 3.85 28.5 3.86C28.51 3.87 28.53 3.87 28.54 3.87L28.54 3.87C28.54 3.87 28.53 3.88 28.53 3.88C28.38 4.02 28.08 4.27 27.8 4.38C27.39 4.54 26.98 4.32 26.73 4.13Z"/><path d="M28.72 6.28C28.72 6.28 28.46 5.94 28.28 5.68C28.09 5.43 27.87 5.02 28.02 4.61C28.14 4.32 28.39 4.03 28.53 3.88C28.53 3.88 28.54 3.87 28.54 3.87L28.54 3.87C28.54 3.88 28.54 3.89 28.54 3.9C28.56 3.98 28.62 4.03 28.66 4.05C28.66 4.05 28.66 4.05 28.66 4.05C28.67 4.06 28.68 4.07 28.69 4.08C28.71 4.1 28.72 4.11 28.72 4.11C28.72 4.11 28.72 4.1 28.74 4.09C28.75 4.08 28.76 4.07 28.77 4.06C28.77 4.06 28.77 4.06 28.78 4.05C28.81 4.03 28.87 3.99 28.89 3.91C28.89 3.9 28.89 3.88 28.89 3.87C29.03 4.01 29.29 4.32 29.41 4.61C29.57 5.02 29.34 5.43 29.15 5.68C28.97 5.94 28.72 6.28 28.72 6.28Z"/><path d="M28.54 3.52L28.54 3.52C28.53 3.51 28.53 3.5 28.52 3.49C28.38 3.34 28.13 3.05 28.02 2.77C27.87 2.36 28.09 1.96 28.28 1.7C28.46 1.45 28.72 1.11 28.72 1.11C28.72 1.11 28.97 1.45 29.15 1.7C29.34 1.96 29.57 2.36 29.41 2.77C29.29 3.06 29.04 3.36 28.9 3.51C28.9 3.51 28.9 3.51 28.89 3.52L28.89 3.52C28.89 3.51 28.89 3.49 28.89 3.48C28.87 3.4 28.81 3.36 28.78 3.33C28.78 3.33 28.78 3.33 28.78 3.33C28.76 3.32 28.75 3.31 28.74 3.3C28.73 3.29 28.72 3.27 28.72 3.27C28.72 3.27 28.71 3.28 28.7 3.3C28.69 3.31 28.68 3.32 28.66 3.33C28.66 3.33 28.66 3.33 28.66 3.33C28.63 3.35 28.56 3.4 28.55 3.48C28.54 3.49 28.54 3.5 28.54 3.52L28.54 3.52Z"/><path d="M96.81 4.38C97.11 4.27 97.41 4.01 97.56 3.87C97.55 3.87 97.54 3.87 97.53 3.87C97.44 3.85 97.4 3.78 97.37 3.75C97.37 3.75 97.37 3.75 97.37 3.75C97.36 3.74 97.35 3.73 97.35 3.72C97.33 3.7 97.32 3.69 97.32 3.69C97.32 3.69 97.33 3.69 97.34 3.67C97.35 3.66 97.36 3.65 97.37 3.64C97.37 3.64 97.37 3.63 97.37 3.63C97.4 3.6 97.44 3.54 97.52 3.52C97.53 3.52 97.54 3.52 97.56 3.52L97.56 3.52C97.56 3.51 97.55 3.51 97.55 3.51C97.4 3.37 97.1 3.11 96.81 3.0C96.4 2.84 96.0 3.07 95.74 3.25C95.49 3.44 95.15 3.69 95.15 3.69C95.15 3.69 95.49 3.94 95.74 4.13C96.0 4.32 96.4 4.54 96.81 4.38Z"/><path d="M99.72 4.13C99.98 3.94 100.32 3.69 100.32 3.69C100.32 3.69 99.98 3.44 99.72 3.25C99.47 3.07 99.06 2.84 98.65 3.0C98.37 3.11 98.08 3.35 97.93 3.49C97.92 3.5 97.92 3.51 97.91 3.52L97.91 3.52L97.91 3.52C97.92 3.52 97.93 3.52 97.94 3.52C98.02 3.54 98.07 3.6 98.09 3.63L98.1 3.63C98.1 3.65 98.11 3.66 98.12 3.67C98.14 3.68 98.15 3.69 98.15 3.69C98.15 3.69 98.14 3.7 98.13 3.71C98.12 3.72 98.11 3.73 98.1 3.75C98.1 3.75 98.1 3.75 98.09 3.75C98.07 3.78 98.03 3.85 97.95 3.86C97.94 3.87 97.92 3.87 97.91 3.87L97.91 3.87C97.91 3.87 97.92 3.88 97.92 3.88C98.07 4.02 98.37 4.27 98.65 4.38C99.06 4.54 99.47 4.32 99.72 4.13Z"/><path d="M97.73 6.28C97.73 6.28 97.99 5.94 98.17 5.68C98.36 5.43 98.58 5.02 98.43 4.61C98.31 4.32 98.06 4.03 97.92 3.88C97.92 3.88 97.91 3.87 97.91 3.87L97.91 3.87C97.91 3.88 97.91 3.89 97.91 3.9C97.89 3.98 97.83 4.03 97.79 4.05C97.79 4.05 97.79 4.05 97.79 4.05C97.78 4.06 97.77 4.07 97.76 4.08C97.74 4.1 97.73 4.11 97.73 4.11C97.73 4.11 97.73 4.1 97.71 4.09C97.7 4.08 97.69 4.07 97.68 4.06C97.68 4.06 97.68 4.06 97.67 4.05C97.64 4.03 97.58 3.99 97.56 3.91C97.56 3.9 97.56 3.88 97.56 3.87C97.42 4.01 97.16 4.32 97.04 4.61C96.88 5.02 97.11 5.43 97.3 5.68C97.48 5.94 97.73 6.28 97.73 6.28Z"/><path d="M97.91 3.52L97.91 3.52C97.92 3.51 97.93 3.5 97.93 3.49C98.07 3.34 98.32 3.05 98.43 2.77C98.59 2.36 98.36 1.96 98.17 1.7C97.99 1.45 97.73 1.11 97.73 1.11C97.73 1.11 97.48 1.45 97.3 1.7C97.11 1.96 96.88 2.36 97.04 2.77C97.16 3.06 97.41 3.36 97.55 3.51C97.55 3.51 97.56 3.51 97.56 3.52L97.56 3.52C97.56 3.51 97.56 3.49 97.56 3.48C97.58 3.4 97.64 3.36 97.67 3.33C97.67 3.33 97.67 3.33 97.67 3.33C97.69 3.32 97.7 3.31 97.71 3.3C97.72 3.29 97.73 3.27 97.73 3.27C97.73 3.27 97.74 3.28 97.76 3.3C97.76 3.31 97.77 3.32 97.79 3.33C97.79 3.33 97.79 3.33 97.8 3.33C97.82 3.35 97.89 3.4 97.9 3.48C97.91 3.49 97.91 3.5 97.91 3.52L97.91 3.52Z"/>
     </svg>
   );
 }

@@ -240,7 +240,9 @@ export default function MegaMenu() {
                     </Link>
                     <div className="mt-2.5 mb-4 flex items-center gap-2 text-olive/45" aria-hidden>
                       <span className="h-px w-8 bg-current" />
-                      <ArchMark className="h-4 w-3 shrink-0" />
+                      {/* size by height only - the deck's mark is WIDER than it
+                          is tall, so pinning both axes (was h-4 w-3) squashed it */}
+                      <ArchMark className="h-3 w-auto shrink-0" />
                       <span className="h-px flex-1 bg-current opacity-40" />
                     </div>
                     <ul className="space-y-2.5">

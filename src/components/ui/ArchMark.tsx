@@ -5,38 +5,30 @@ interface Props {
 }
 
 /**
- * ArchMark — the brand's logo mark: a tall pointed (ogee) gothic arch enclosing
- * a small `A`, drawn as a double outline. Stroke-based and rendered in
- * `currentColor`, so tint it with a text-* utility on the parent
- * (e.g. `text-olive/40`, `text-gold/70`).
+ * ArchMark - the brand's logo mark, EXTRACTED from the client's deck.
  *
- * Traced to the deck watermark (p06) + damask column mark (p118): the legs rise
- * vertically, curve inward through an ogee shoulder and meet in a point; an inner
- * arch echoes the outer; a small crossbarred `A` sits inside.
+ * The two paths below are the deck's own vector art, read straight out of
+ * "APARAMOUNT 27June.pdf" p02 (the official lockup: monogram over A PARAMOUNT /
+ * ENGINEERING WORKS). It is a FILLED mark - a bold arch whose counter forms the
+ * "A" - on a 80.99 x 71.89 box, i.e. WIDER than it is tall.
+ *
+ * It replaces a hand-drawn approximation that was stroke-based, four paths, and
+ * 44 x 60 - taller than wide, the opposite proportion to the real mark. Do NOT
+ * redraw this by eye; re-extract from the deck if it ever needs to change.
+ *
+ * Filled in `currentColor`, so tint it from the parent with a text-* utility.
+ * Size it by HEIGHT and let the width follow (`h-16 w-auto`) so the deck's
+ * proportion is preserved - do not pin both axes.
  */
 export default function ArchMark({ className }: Props) {
   return (
     <svg
-      viewBox="0 0 44 60"
-      className={cn("h-[60px] w-[44px]", className)}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      viewBox="0 0 80.99 71.89"
+      className={cn("h-[60px] w-auto", className)}
+      fill="currentColor"
       aria-hidden
     >
-      {/* Outer ogee arch: up the left leg, ogee shoulder to the apex point,
-          ogee shoulder down to the right leg. Open feet at the bottom. */}
-      <path d="M4 58 L4 30 C4 18 9 10 22 3 C35 10 40 18 40 30 L40 58" />
-      {/* Inner ogee arch, echoing the outer (double-outline signature). */}
-      <path
-        d="M11 58 L11 31 C11 22 15 16 22 11 C29 16 33 22 33 31 L33 58"
-        strokeWidth={1.6}
-      />
-      {/* Crossbarred `A` inside the arch. */}
-      <path d="M16.5 50 L22 33 L27.5 50" strokeWidth={1.7} />
-      <path d="M18.7 43.2 L25.3 43.2" strokeWidth={1.5} />
+      <path d="M9.96 52.06C14.19 34.46 25.05 19.05 40.66 9.43C56.08 19.15 67.12 34.47 71.3 52.37C72.86 59.04 73.08 65.26 73.0 71.89L80.99 71.89L80.61 59.23C77.88 34.4 62.79 11.81 40.51 0.0C21.8 10.19 7.96 27.7 2.58 48.31C0.54 56.15 0.0 63.97 0.21 71.89L8.23 71.89C7.98 65.08 8.49 58.64 9.96 52.06Z"/><path d="M40.59 30.96C42.68 32.68 44.14 34.61 45.62 36.67C48.48 40.41 50.93 44.32 52.34 49.0L28.83 49.0C31.21 41.99 35.24 36.14 40.59 30.96M26.13 56.96L63.12 56.96C60.5 42.31 52.55 29.26 40.61 19.96C24.72 32.22 15.74 51.75 17.25 71.89L25.25 71.89C24.8 66.85 25.26 62.06 26.13 56.96Z"/>
     </svg>
   );
 }

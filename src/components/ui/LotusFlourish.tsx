@@ -5,36 +5,29 @@ interface Props {
 }
 
 /**
- * LotusFlourish — the brand's 4-petal lotus diamond: four pointed teardrop petals
- * (N / E / S / W) radiating from a tiny center diamond, the vertical petals a touch
- * longer than the horizontal ones. Filled in `currentColor`, so tint it with a
- * text-* utility on the parent (e.g. `text-olive`, `text-cream/80`).
+ * LotusFlourish - the brand's four-petal floret, EXTRACTED from the client's deck.
  *
- * Traced to the deck flourish (p64) + damask lotus mark (p118): each petal is a
- * teardrop, pointed at its outer tip and swelling toward the center where the four
- * meet around a small open diamond eye.
+ * The four petals and the centre dot below are the deck's own vector art, read
+ * straight out of "APARAMOUNT 27June.pdf" p07 (the floret that punctuates the rule
+ * under "ABOUT US"; the same mark sits under the lockup on p02). Square, on a
+ * 5.17 x 5.17 box.
+ *
+ * It replaces a hand-drawn approximation whose petals were plump teardrops on a
+ * 64 x 64 box with an open diamond "eye" at the centre - the deck's petals are
+ * narrower and the centre is a solid dot. Do NOT redraw this by eye; re-extract
+ * from the deck if it ever needs to change.
+ *
+ * Filled in `currentColor`, so tint it from the parent with a text-* utility.
  */
 export default function LotusFlourish({ className }: Props) {
   return (
     <svg
-      viewBox="0 0 64 64"
+      viewBox="0 0 5.17 5.17"
       className={cn("h-16 w-16", className)}
       fill="currentColor"
       aria-hidden
     >
-      {/* North petal — plump pointed teardrop, longer than the horizontal pair. */}
-      <path d="M32 31 C25.5 27 21.5 16 32 2 C42.5 16 38.5 27 32 31 Z" />
-      {/* South petal (mirror of North). */}
-      <path d="M32 33 C25.5 37 21.5 48 32 62 C42.5 48 38.5 37 32 33 Z" />
-      {/* West petal — plump teardrop, a touch shorter. */}
-      <path d="M31 32 C27 26 17 22.5 4 32 C17 41.5 27 38 31 32 Z" />
-      {/* East petal (mirror of West). */}
-      <path d="M33 32 C37 26 47 22.5 60 32 C47 41.5 37 38 33 32 Z" />
-      {/* Center diamond with an open eye (even-odd hole). */}
-      <path
-        fillRule="evenodd"
-        d="M32 25 L39 32 L32 39 L25 32 Z M32 29.2 L34.8 32 L32 34.8 L29.2 32 Z"
-      />
+      <path d="M3.507 3.274C3.211 3.159 2.908 2.896 2.762 2.759C2.773 2.759 2.784 2.758 2.794 2.756C2.877 2.741 2.924 2.675 2.947 2.645C2.947 2.644 2.948 2.644 2.948 2.643C2.957 2.632 2.967 2.621 2.975 2.612C2.992 2.595 3.005 2.584 3.005 2.584C3.005 2.584 2.995 2.576 2.982 2.563C2.974 2.554 2.963 2.543 2.954 2.531C2.951 2.528 2.949 2.525 2.947 2.523C2.925 2.493 2.88 2.431 2.803 2.413C2.79 2.41 2.776 2.408 2.762 2.408L2.762 2.407C2.765 2.404 2.768 2.401 2.772 2.397C2.921 2.258 3.218 2.004 3.507 1.891C3.916 1.733 4.321 1.96 4.577 2.145C4.834 2.331 5.174 2.583 5.174 2.583C5.174 2.583 4.834 2.834 4.577 3.02C4.321 3.206 3.916 3.433 3.507 3.274Z"/><path d="M0.596 3.019C0.339 2.833 -0.0 2.582 -0.0 2.582C-0.0 2.582 0.339 2.33 0.596 2.144C0.852 1.959 1.257 1.732 1.666 1.89C1.947 2.0 2.236 2.243 2.389 2.384C2.397 2.392 2.404 2.399 2.411 2.406L2.411 2.407L2.41 2.407C2.399 2.407 2.389 2.409 2.379 2.41C2.296 2.425 2.249 2.491 2.226 2.522L2.225 2.523C2.216 2.535 2.207 2.545 2.198 2.555C2.181 2.572 2.168 2.583 2.168 2.583C2.168 2.583 2.178 2.591 2.191 2.604C2.2 2.612 2.21 2.623 2.22 2.635C2.222 2.638 2.224 2.641 2.226 2.644C2.248 2.673 2.293 2.735 2.37 2.753C2.383 2.756 2.396 2.758 2.41 2.758L2.411 2.758C2.408 2.761 2.404 2.765 2.4 2.768C2.251 2.908 1.955 3.161 1.666 3.273C1.257 3.432 0.852 3.205 0.596 3.019Z"/><path d="M2.586 5.17C2.586 5.17 2.334 4.83 2.149 4.574C1.963 4.317 1.736 3.912 1.895 3.503C2.007 3.214 2.261 2.918 2.4 2.768C2.403 2.765 2.407 2.762 2.41 2.758L2.411 2.758C2.412 2.77 2.413 2.78 2.415 2.791C2.43 2.873 2.495 2.921 2.526 2.943C2.526 2.944 2.527 2.944 2.527 2.944C2.539 2.954 2.55 2.963 2.559 2.972C2.576 2.988 2.587 3.002 2.587 3.002C2.587 3.002 2.595 2.992 2.608 2.979C2.616 2.97 2.627 2.96 2.639 2.95C2.642 2.948 2.645 2.946 2.648 2.943C2.677 2.921 2.739 2.877 2.757 2.799C2.76 2.787 2.762 2.773 2.762 2.758C2.899 2.904 3.162 3.208 3.277 3.503C3.436 3.912 3.209 4.317 3.023 4.574C2.838 4.83 2.586 5.17 2.586 5.17Z"/><path d="M2.411 2.408L2.409 2.408C2.403 2.401 2.396 2.393 2.388 2.385C2.247 2.232 2.004 1.944 1.894 1.663C1.735 1.254 1.962 0.849 2.148 0.593C2.334 0.336 2.586 -0.004 2.586 -0.004C2.586 -0.004 2.837 0.336 3.023 0.593C3.209 0.849 3.436 1.254 3.277 1.663C3.164 1.951 2.911 2.248 2.772 2.397C2.768 2.401 2.765 2.404 2.762 2.408L2.762 2.406C2.762 2.396 2.76 2.385 2.759 2.375C2.744 2.293 2.678 2.246 2.647 2.223C2.647 2.222 2.647 2.222 2.646 2.222C2.634 2.213 2.623 2.203 2.614 2.194C2.597 2.178 2.586 2.165 2.586 2.165C2.586 2.165 2.578 2.174 2.565 2.187C2.557 2.196 2.546 2.206 2.534 2.216C2.531 2.218 2.528 2.221 2.525 2.223C2.496 2.245 2.434 2.289 2.416 2.367C2.413 2.379 2.411 2.392 2.411 2.406L2.411 2.408Z"/><circle cx="2.587" cy="2.583" r="0.151"/>
     </svg>
   );
 }
