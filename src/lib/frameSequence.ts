@@ -229,6 +229,13 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
       else break;
       queued.delete(i);
       if (frames[i]) continue; // already resident (or re-queued after eviction)
+      // With a retain window, NEVER decode what that window would immediately
+      // evict. Without this the bulk coarse-to-fine queue keeps marching over the
+      // whole film, so every decode is thrown away and the pool churns
+      // decode->evict->decode forever — measured as the scrub getting WORSE the
+      // longer the page sat (127 long tasks after 25s vs 41 after 2s). Past the
+      // window the queue simply drains; `focus()` is what pulls frames in after.
+      if (retain && dist(i) > Math.max(1, Math.ceil(retain / 2))) continue;
       inFlight++;
       void decode(i).finally(() => {
         inFlight--;
