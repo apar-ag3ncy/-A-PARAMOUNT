@@ -964,8 +964,11 @@ export default function HomeFilm() {
           <OrnamentDivider className="hv-div mt-9 opacity-0" />
           {/* Wordmark and OrnamentDivider inherit via currentColor from .hv-brand,
               which is pinned to the brand olive — the lockup is never white. */}
+          {/* All THREE words in Storica (client). "Elegance" used to be pinned to
+              font-body — the Inter accent the deck uses for italics — but there is no
+              italic here, so it just read as a different face mid-phrase. */}
           <p className="hv-tag mt-7 font-display text-2xl opacity-0 sm:text-4xl">
-            Crafting Divine <span className="font-body">Elegance</span>
+            Crafting Divine Elegance
           </p>
         </div>
 

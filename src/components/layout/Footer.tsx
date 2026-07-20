@@ -109,25 +109,26 @@ export default function Footer() {
           lets the footer's overflow crop the baseline. */}
       {/* No top margin: the column above is `flex-1`, so it already owns every
           pixel down to this line. */}
-      <div className="relative px-4 sm:px-6">
+      <div className="relative px-6 pb-7 sm:px-10 sm:pb-9">
         <p
           aria-hidden
-          className="pm-footer-word font-display whitespace-nowrap select-none"
+          className="pm-footer-word text-center font-display whitespace-nowrap select-none" /* text-center is REQUIRED now: the word no longer fills its box (it used to, at 96.8% of the viewport), so left-aligned it sat 40px from one edge and 177px from the other. */
           style={{
-            // 11.6vw, NOT 18vw. Storica typesets "A PARAMOUNT" at ~819px of width
-            // per 100px of font-size, so 18vw ran 1884px wide on a 1280px screen —
-            // half a viewport of overflow, clipped off the right edge. 11.6vw lands
-            // the word at ~95% of the viewport at every width.
-            fontSize: "clamp(2.4rem, 11.6vw, 18rem)",
+            // 10.3vw. Storica typesets "A PARAMOUNT" at ~819px of width per 100px of
+            // font-size. 18vw once ran 1884px on a 1280px screen — half a viewport of
+            // overflow. 11.6vw fixed the overflow but landed the word at 96.8% of the
+            // viewport with only 24px of air each side: nothing was actually clipped,
+            // but jammed hard against both edges it READ as cut off (client, twice).
+            // 10.3vw lands it near 86%, which leaves a visible margin on both sides.
+            fontSize: "clamp(2rem, 10.3vw, 16rem)",
             lineHeight: 0.8,
             letterSpacing: "-0.005em",
-            // POSITIVE, deliberately. `line-height: 0.8` makes the line box
-            // shorter than the glyphs, so the letters already spill ~0.085em past
-            // their own box before any margin. At -0.05em that compounded and
-            // buried 16% of the letter height below the fold. +0.04em lifts it so
-            // only ~5% is cropped — the reference's "cut into the base" feel
-            // without the name looking like it fell off the page.
-            marginBottom: "0.04em",
+            // ZERO. This used to be +0.04em to push the word down into the base for
+            // the "cut into the base" gesture, but combined with `line-height: 0.8`
+            // (which already lets the glyphs spill past their own box) it left only
+            // ~22px under the baseline. The wrapper's pb now owns that spacing, so
+            // the clearance is explicit and cannot be eaten by the line box.
+            marginBottom: "0",
             // The fade must never eat the LETTERFORMS (client: the name was reading
             // as cut off). It was not a crop — measured, the glyphs clear the footer
             // edge by 21px — it was this gradient: the old ramp hit 0.16 at 76% and
