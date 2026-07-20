@@ -25,11 +25,13 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * per rAF. This REPLACED a scrubbed <video> (seek video.currentTime): seeking has
  * resolution-dependent decode latency and coalesces under continuous input, so slow
  * scrolling read as laggy/inconsistent — a pre-decoded frame draw is frame-perfect
- * at any speed. The earlier frame film looked blurry because its SOURCE was
- * downscaled to save memory; here the source stays sharp and only the DECODE width
- * is capped (frameSequence.decodeWidth), so the bitmap store stays light without
- * softening. This is the architecture CLAUDE.md prescribes ("bake frames, don't
- * re-animate live"; never <video> currentTime-seeking).
+ * at any speed. Sharpness is set by the DECODED bitmap, not by the bake: that bitmap
+ * is what drawImage paints, so capping decode width below the canvas is a straight
+ * upscale and reads soft however good the source is — capping it "without softening"
+ * is not a thing, and believing otherwise is what left this film looking like 720p.
+ * Memory is held by frameSequence's `retain` window (how many frames stay resident),
+ * NOT by shrinking every frame. This is the architecture CLAUDE.md prescribes ("bake
+ * frames, don't re-animate live"; never <video> currentTime-seeking).
  *   [0 .. FILM_END]  a slow dolly IN to the carved marble doors, which swing open
  *                    (god-rays + gold bloom that ease off so it reads clean), then
  *                    we WALK THROUGH into the golden sanctum hall — the "1968" line
@@ -54,8 +56,8 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * marble and the type so the copy always reads and the brand never looks pasted-on.
  */
 
-// -- the film, rooted in the client's graded master (assets/door/final-1-60fps-
-//    master.mp4, 9.82s @60fps, 1928×1072): closed brass doors in the marble gate
+// -- the film, rooted in the client's graded master (assets/door/final-1-120fps-
+//    master.mp4, 9.89s @120fps, 1928×1072): closed brass doors in the marble gate
 //    → doors swing open onto the golden sanctum with real god-rays baked in →
 //    slow walk-in through the pillared hall toward the shrine → camera cranes UP
 //    to the carved ceiling, settling flat-on on the lotus medallion — the brand's
@@ -67,43 +69,36 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 //    pre-decoded frame in one synchronous drawImage per rAF is frame-perfect at
 //    ANY scroll speed. This is the architecture CLAUDE.md prescribes ("bake
 //    frames, don't re-animate live"; never <video> currentTime-seeking).
-//    RE-BAKE: scripts/bake-door-film.sh <master> <tail> 7.0 20 — then dedupe and
-//    set FRAME_COUNT to what it prints. --
-// Baked by scripts/bake-door-film.sh from TWO sources sampled at one 14fps and
-// renumbered consecutively — no video concat, so the client's master is never
-// re-encoded and the join carries no seam:
-//   f 000-091  the client's own graded master, 0 -> 6.6s, VERBATIM: the brass
-//              doors swing open and we walk in under the carved gold ceiling bay,
-//              down the pillared hall with the shrine glowing ahead. Real client
-//              footage — never regenerate it.
-//   f 092-231  Kling 3.0, 10s @1080p (native 1928x1072, so the join needs no
-//              rescale), START-pinned to the master's own frame at 6.6s and
-//              END-pinned to the client's real ceiling photograph
-//              (assets/door/ceiling-reference.png). It CONTINUES the passage —
-//              columns keep sweeping past and the shrine keeps approaching for
-//              several seconds — and only then begins one long unbroken rise to
-//              the ceiling. Both ends are the client's own material, so the shot
-//              can only start and land where the client's footage does.
+//    RE-BAKE: scripts/bake-home-film.sh — then set FRAME_COUNT to what it prints
+//    and retime the PACE fractions to the new master's act boundaries. --
+// Baked by scripts/bake-home-film.sh from ONE source — the client's 120fps master
+// (assets/door/final-1-120fps-master.mp4, 9.89s, 1928x1072) — sampled UNIFORMLY at
+// ~20fps, so every frame of the film is the client's own footage end to end:
+//   f 000-050  door approach + swing   0-2.5s     -> frac 0.000-0.253
+//   f 050-141  slow walk-in            2.5-7.0s   -> frac 0.253-0.708
+//   f 141-199  ceiling crane           7.0-9.89s  -> frac 0.708-1.000
+// Bake UNIFORMLY. An earlier cut chained the master's door act at 20fps to two
+// AI-generated extensions baked at 7.5fps; that 2.7x drop in temporal density
+// across the act boundary made the interior read as steppy under a slow scrub,
+// because the sub-frame cross-dissolve was interpolating across motion gaps nearly
+// three times larger than the door's. Even density matters more than film length.
 //
-// Cut at 6.6s, not later, ON PURPOSE: at 7.0s the master's camera has already
-// begun tilting up, and handing over mid-tilt is what made an earlier attempt's
-// roof transition feel abrupt (client: "the door scroll does not suit the roof
-// transition"). Cutting while the camera is still level lets the generated
-// segment own the ENTIRE rise and take its time over it.
-//
-// Chosen over a second candidate crane by motion profile: this one holds the
-// passage longer and has ZERO of 79 sampled intervals below 6% of peak motion,
-// where the other had 3. Dead frames are the one thing a scrubbed film must not
-// contain — they are scroll that produces no picture.
-const FRAME_COUNT = 232; // MUST match the bake in public/door/seq/*
+// SUPERSEDES the two-source bake (client master 0-6.6s + a Kling 3.0 crane pinned
+// to assets/door/ceiling-reference.png) that scripts/bake-door-film.sh builds. That
+// cut existed because the master's own last ~3s cranes into a dark angled ceiling
+// that is NOT this temple's actual ceiling; this bake restores the master verbatim,
+// its ending included, at the client's explicit instruction. If the ending is ever
+// judged wrong again, bake-door-film.sh and the reference photograph are still in
+// the tree and that is the route back.
+const FRAME_COUNT = 200; // MUST match the bake in public/door/seq/*
 // Phone tier, desktop tier. The desktop tier is 1200 — NOT the 1600 it used to
 // be — because createImageBitmap decodes the WHOLE source before it applies
-// resizeWidth, so a 1600w file costs 1600x890 of decode to produce an 1100px
-// bitmap we then paint at 1656px. Profiling the scrub put ~74% of the time in
+// resizeWidth, so a 1600w file costs 1600x890 of decode to produce a smaller
+// bitmap we then paint. Profiling the scrub put ~74% of the time in
 // browser-internal work (blob/fetch/createImageBitmap) and only 65ms in
 // drawImage — i.e. this film is decode-bound, not draw-bound, and the source
-// width IS the decode cost. 1200 is the smallest tier still >= decodeWidth, so
-// it is visually identical here and 44% cheaper to decode (and 34% smaller).
+// width IS the decode cost. decodeWidth now decodes this tier NATIVELY, so the
+// tier width is exactly the decode cost and not a byte of it is wasted.
 const FRAME_TIERS = [800, 1200] as const;
 const frameSrc = (tier: number, i: number) =>
   `/door/seq/${tier}/f-${String(i).padStart(3, "0")}.webp`;
@@ -116,22 +111,20 @@ const GOLD = "var(--color-gold)";
 // "Our Works" lands. There is no dome image any more — the ceiling frames are it.
 const FILM_END = 0.68;
 
-// Scrub pacing — control points [filmProgress fp, frameFraction]. This is now
-// almost a straight line ON PURPOSE. The old curve existed to re-time three
-// stitched clips whose internal speeds disagreed; the film is now the client's
-// own single continuous move plus a crane generated to continue it, and EVERY
-// baked frame carries real motion (the dead tail was trimmed before baking). So
-// the camera's own pacing is already right, and the honest mapping is to hand
-// the scroll straight to it — any curve here would re-introduce the "changing
-// gear" feel this map was fighting. Only the very ends are shaped: a gentle
-// ease off zero so the first flick of the wheel doesn't jump the doors, and a
-// slight settle into the final ceiling frame.
+// Scrub pacing — control points [filmProgress fp, frameFraction], timed to the
+// master's own act boundaries (doors stand open at 2.5s = frac 0.253; the walk-in
+// ends and the crane starts at 7.0s = frac 0.708 — both verified frame by frame).
+// The fp (scroll) column carries the art direction and is unchanged from the cut
+// the client approved: the door swing gets the first 42% of the film's scroll —
+// the slow-mo payoff — then the walk-in lingers through the hall, then the crane
+// glides up and settles. Only the frame column follows this bake.
 const PACE: ReadonlyArray<readonly [number, number]> = [
   [0.0, 0.0],
-  [0.08, 0.06], // eased entry — the doors take up the first scroll gently
-  [0.5, 0.5], // dead linear through the swing and the walk down the hall
-  [0.92, 0.945], // crane rising, still linear to the eye
-  [1.0, 1.0], // and settles onto the true ceiling — the brand's backdrop
+  [0.16, 0.082], // the approach — SLOWEST beat, dwelling on the closed doors
+  [0.42, 0.253], // the swing itself in slow-mo (doors open at 2.5s → f 50/199)
+  [0.72, 0.708], // the lingering walk-in to the shrine (ends 7.0s → f 141/199)
+  [0.89, 0.907], // the crane lifts up the ceiling
+  [1.0, 1.0], // ...and EASES to rest on the full ceiling — the brand's backdrop
 ];
 
 // Monotone-cubic (Fritsch–Carlson) interpolation of PACE, NOT piecewise linear.
@@ -401,20 +394,25 @@ export default function HomeFilm() {
     // 5.2M pixels per frame (the single biggest per-frame cost). 1.4 keeps the
     // upscale under 2x AND halves the fill, which is what makes the scrub smooth.
     const dprCap = Math.min(window.devicePixelRatio || 1, 1.15);
-    // Tier + a memory-safe decode width, sized to the ACTUAL painted size (the stage
-    // is full-viewport). Phones take the light 800 tier; everything else the sharp
-    // 1600 source, decoded DOWN to a cap so the whole-film bitmap store stays light
-    // (the store holds every frame — decoding native 1600 for all 200 would be
-    // ~0.7GB). Capping decode — not the source — keeps it sharp AND light; decoding
-    // the *source* too small is what made the team's earlier frame film look blurry.
+    // Tier, sized to the ACTUAL painted size (the stage is full-viewport). Phones
+    // take the light 800 tier; everything else the 1200 desktop tier. (This used to
+    // justify a decode cap by "the store holds every frame" — it no longer does:
+    // `retain` bounds residency instead, which is what makes the cap unnecessary.)
     const cssW = canvas.clientWidth || window.innerWidth;
     const backingW = Math.round(cssW * dprCap);
     const tier = backingW > 900 ? FRAME_TIERS[1] : FRAME_TIERS[0];
-    // Decode at (or just above) what is actually painted, never below it — an
-    // upscaled bitmap is the one blur the source quality cannot fix. With dprCap
-    // 1.4 a 1440 viewport backs 2016px, so 1280 keeps the upscale to ~1.6x while
-    // holding the whole-film store inside roughly the previous memory envelope.
-    const decodeWidth = Math.min(backingW, tier === 1200 ? 1100 : 700);
+    // Decode at what is actually painted, never below it — an upscaled bitmap is
+    // the one blur no amount of source quality can fix, and the extra cap on top of
+    // the tier was exactly that: 1100px stretched across a ~1660px backing store and
+    // then composited up again for a retina panel, which read as 720p (client).
+    // Removing the cap is FREE here, which is the useful consequence of the
+    // decode-bound finding above: createImageBitmap decodes the whole SOURCE before
+    // it applies resizeWidth, so decoding this 1200 tier to 1200 costs exactly what
+    // decoding it to 1100 cost — same file, same decode — and simply stops throwing
+    // the result away. It only spends a little more resident memory, which `retain`
+    // already bounds: 60 x 1200x668x4 ≈ 192MB, far inside the ~700MB that thrashed.
+    // Never ABOVE `tier` either — the baked file holds no more detail than that.
+    const decodeWidth = Math.min(backingW, tier);
 
     let currentIdx = 0; // the FRACTIONAL frame the scrub currently wants
     // What is actually painted, packed into ONE number (j0, j1, blend step) so the
