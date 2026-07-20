@@ -128,8 +128,16 @@ export default function Footer() {
             // only ~5% is cropped — the reference's "cut into the base" feel
             // without the name looking like it fell off the page.
             marginBottom: "0.04em",
+            // The fade must never eat the LETTERFORMS (client: the name was reading
+            // as cut off). It was not a crop — measured, the glyphs clear the footer
+            // edge by 21px — it was this gradient: the old ramp hit 0.16 at 76% and
+            // 0 by 96%, and the ink baseline sits at ~89% of the box, so the bottom
+            // of every letter was painted at ~6% alpha, i.e. invisible. The downward
+            // fade is kept as the deck's "cut into the base" gesture, but it now
+            // bottoms out at 0.82 — still a visible gradient, never a disappearance.
             backgroundImage:
-              "linear-gradient(180deg, rgba(254,244,218,0.97) 0%, rgba(254,244,218,0.66) 46%, rgba(254,244,218,0.16) 76%, rgba(254,244,218,0) 96%)",
+              "linear-gradient(180deg, rgba(254,244,218,1) 0%, rgba(254,244,218,0.95) 45%, rgba(254,244,218,0.87) 75%, rgba(254,244,218,0.82) 100%)",
+            backgroundRepeat: "no-repeat",
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",

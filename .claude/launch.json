@@ -11,6 +11,12 @@
         "CHOKIDAR_USEPOLLING": "true",
         "CHOKIDAR_INTERVAL": "300"
       }
+    },
+    {
+      "name": "paramount-prod",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["next", "start", "-p", "3001"],
+      "port": 3001
     }
   ]
 }

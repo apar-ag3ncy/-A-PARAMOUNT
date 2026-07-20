@@ -50,10 +50,13 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * The header is withheld for the whole film via lib/cinema and returns only once
  * the brand has resolved.
  *
- * There is no static interior plate any more — the ceiling frames ARE the backdrop the
- * brand resolves on (a static ceiling poster stands in only under reduced motion).
- * Legibility (client mandate): a warm veil + a clean brand-halo field sit between the
- * marble and the type so the copy always reads and the brand never looks pasted-on.
+ * There is no static interior plate any more — the film IS the backdrop the brand
+ * resolves on (a static ceiling poster stands in only under reduced motion).
+ * Legibility: the type is WHITE and sits directly on the footage. The cream veil,
+ * wash, bloom and brand-halo that used to sit between the marble and the type were
+ * all removed at the client's request — they washed the film out. Only the dark edge
+ * gradient remains, which is what keeps white type off a blown-out highlight. If a
+ * legibility problem ever comes back, darken THAT rather than reintroducing cream.
  */
 
 // -- the film, rooted in the client's graded master (assets/door/final-1-120fps-
@@ -204,14 +207,28 @@ const B = {
   // the "1968" line ride that stretch; everything after shifts with FILM_END.
   veilIn: 0.24, veilLen: 0.14, // warm legibility veil eases in as we go inside
   lineIn: 0.26, lineInLen: 0.08, lineOut: 0.42, lineOutLen: 0.08,
-  markIn: 0.64, markLen: 0.13,
-  wordIn: 0.7, wordLen: 0.1,
-  divIn: 0.74, divLen: 0.08,
-  tagIn: 0.77, tagLen: 0.08,
-  brandDone: 0.84, // brand fully formed → the header may return
-  brandOut: 0.88, brandOutLen: 0.07,
-  blurIn: 0.89, blurLen: 0.09,
-  worksIn: 0.91, worksLen: 0.08,
+  // NOTHING starts until the film has finished and its last frame has been left
+  // ALONE for a beat (client). The film scrubs 0 → FILM_END (0.68); 0.68 → 0.74 is a
+  // clean hold on the settled ceiling with no overlay and no lockup over it, and only
+  // then does the white begin. That hold is ~0.7 of a screen-height of scrolling at
+  // the lg span, so it reads as a deliberate pause rather than a stall.
+  // The WHOLE lockup still resolves while the overlay grows 0→50%, so every beat here
+  // lands before B.whiteIn + B.whiteLen (0.87).
+  markIn: 0.755, markLen: 0.045,
+  wordIn: 0.787, wordLen: 0.04,
+  divIn: 0.815, divLen: 0.03,
+  tagIn: 0.835, tagLen: 0.03,
+  brandDone: 0.87, // whole logo revealed, exactly as the overlay reaches 50%
+  brandOut: 0.885, brandOutLen: 0.04, // then the lockup fades OUT…
+  blurIn: 0.92, blurLen: 0.06,
+  worksIn: 0.955, worksLen: 0.045, // …and only then do the works fade in
+  // THE WHITE GROUND — TWO stages, and scale and opacity are deliberately NOT in
+  // step (client). Stage 1 grows the disc 0→50% while holding it at 40% opacity: the
+  // lockup reveals against that, so the footage still reads through it. Stage 2 only
+  // begins once the lockup has FADED OUT, and then does both at once — 50%→100% size
+  // and 40%→100% opacity — closing to a solid white page for "Our Works".
+  whiteIn: 0.74, whiteLen: 0.13, // stage 1: 0→50% size, opacity → 74% (after the hold)
+  whiteFull: 0.925, whiteFullLen: 0.045, // stage 2: 50→100% size, 74→100% opacity
 };
 
 // Global progress at which the brand is fully resolved (header returns after this).
@@ -464,12 +481,16 @@ export default function HomeFilm() {
       const raysEl = q(".hv-rays");
       const cueEl = q(".hv-cue");
       const brandEl = q(".hv-brand");
+      const whiteEl = q(".hv-white");
+      const sheetEl = q(".hv-sheet");
       const brandveilEl = q(".hv-brandveil");
       const worksEl = q(".hv-works");
       const washEl = q(".hv-wash");
       const veilEl = q(".hv-veil");
 
       if (zoomEl) gsap.set(zoomEl, { transformOrigin: "50% 44%" });
+      // set once: apply() only drives opacity + scale, and GSAP composes these with it
+      if (whiteEl) gsap.set(whiteEl, { xPercent: -50, yPercent: -50 });
       if (bloomEl) gsap.set(bloomEl, { transformOrigin: "50% 50%" });
       if (brandveilEl) gsap.set(brandveilEl, { transformOrigin: "50% 50%" });
 
@@ -524,14 +545,28 @@ export default function HomeFilm() {
           gsap.set(lineEl, { opacity: i * (1 - o), y: 22 * (1 - i) - 18 * o });
         }
 
-        // a clean warm glow field behind the brand — the ornate ceiling frames it
-        // at the edges while the type reads on a still, lit centre
-        if (brandveilEl)
-          gsap.set(brandveilEl, { opacity: brandInP * (1 - 0.55 * works), scale: 0.9 + 0.1 * brandInP });
-        // divine glow behind the brand mark, on the ceiling (subtle, under the field)
-        if (bloomEl)
-          gsap.set(bloomEl, { opacity: 0.5 * brandInP * (1 - 0.9 * works), scale: 0.55 + 0.45 * brandInP });
-        if (raysEl) gsap.set(raysEl, { opacity: 0.18 * brandInP * (1 - 0.85 * works) });
+        // THE WHITE GROUND, in two stages that move on DIFFERENT axes.
+        //   stage 1 (grow1): size 0 → 50%, opacity settling at 40%. The lockup
+        //     resolves against this, so the ceiling still reads through the wash.
+        //   stage 2 (grow2): starts only after the lockup has gone, taking size
+        //     50% → 100% and opacity 40% → 100% together, closing to solid white.
+        // Opacity reaches its 40% plateau in the first quarter of stage 1 (x4) so the
+        // disc reads as light arriving, not as a wash slowly gaining density; size
+        // keeps growing for the rest of it under the logo.
+        const grow1 = smooth(seg(P, B.whiteIn, B.whiteLen));
+        const grow2 = smooth(seg(P, B.whiteFull, B.whiteFullLen));
+        if (whiteEl)
+          gsap.set(whiteEl, {
+            // FULL element opacity, so the gradient above is what shapes the falloff
+            // rather than being scaled down by it: the centre composites to a true
+            // 100% and the logo's own area never drops under 75%. (It used to be
+            // capped at 0.74 here, which pulled the centre down with it.)
+            opacity: Math.min(1, grow1 * 4),
+            scale: 0.05 + 0.45 * grow1 + 0.5 * grow2,
+          });
+        // squared so the flat fill lags the disc and only closes at the very end
+        if (sheetEl) gsap.set(sheetEl, { opacity: grow2 * grow2 });
+        if (raysEl) gsap.set(raysEl, { opacity: 0.18 * brandInP * (1 - grow1) });
 
         const m = easeOut(seg(P, B.markIn, B.markLen));
         if (markEl)
@@ -585,15 +620,14 @@ export default function HomeFilm() {
         gsap.set([".hf-zoom", ".hf-dvignette", ".hf-dcue"], { opacity: 0 });
         gsap.set(".hv-interior", { opacity: 1 });
         gsap.set(".hv-ceiling", { opacity: 1, backgroundImage: `url(${CEIL_POSTER})` }); // static ceiling backdrop
-        gsap.set(".hv-wash", { opacity: 0.3 });
-        gsap.set(".hv-veil", { opacity: 0.85 });
         gsap.set(".hv-line", { opacity: 0 });
+        // reduced motion lands on the FINISHED state: white ground fully expanded,
+        // lockup revealed on it in the brand olive.
+        gsap.set([".hv-white", ".hv-sheet"], { opacity: 1, scale: 1 }); // reduced motion: closed, solid
         gsap.set(".hv-markimg", { opacity: 1, scale: 1, filter: "blur(0px)" });
         gsap.set([".hv-word", ".hv-div", ".hv-tag"], { opacity: 1, y: 0 });
         gsap.set(".hv-brand", { opacity: 1, y: 0, pointerEvents: "auto" });
-        gsap.set(".hv-brandveil", { opacity: 0.92, scale: 1 });
-        gsap.set(".hv-bloom", { scale: 1, opacity: 0.4 });
-        gsap.set(".hv-rays", { opacity: 0.2 });
+        gsap.set(".hv-rays", { opacity: 0 });
         gsap.set(".hv-cue", { opacity: 0 });
         gsap.set(".hv-works", { position: "static", opacity: 1, y: 0, pointerEvents: "auto", marginTop: "5rem" });
         holdHeader("film", false);
@@ -798,13 +832,13 @@ export default function HomeFilm() {
                 sequence supplies the moving ceiling in the normal experience, so the
                 poster is loaded lazily via the reduced-motion branch (backgroundImage). */}
             <div className="hv-ceiling absolute inset-0 bg-cover bg-center opacity-0" />
-            <div
-              className="hv-veil absolute inset-0"
-              style={{
-                background:
-                  "radial-gradient(115% 88% at 50% 50%, rgba(254,244,218,0.80) 0%, rgba(254,244,218,0.56) 34%, rgba(254,244,218,0.26) 62%, rgba(254,244,218,0.06) 100%)",
-              }}
-            />
+            {/* The cream legibility veil and wash were REMOVED (client) — they
+                washed the footage out. They existed so dark maroon/olive type could
+                read over bright marble; the type is white now, so the film carries
+                itself. The dark edge gradient below stays: it costs the footage
+                nothing and is what keeps white type off a blown-out highlight.
+                (`.hv-veil` / `.hv-wash` drivers in apply() are `if (el)`-guarded, so
+                they simply no-op with the elements gone.) */}
             <div
               className="absolute inset-0"
               style={{
@@ -812,25 +846,11 @@ export default function HomeFilm() {
                   "radial-gradient(120% 100% at 50% 48%, rgba(46,35,19,0) 52%, rgba(46,35,19,0.16) 100%)",
               }}
             />
-            <div
-              className="hv-wash absolute inset-0 opacity-0"
-              style={{
-                background:
-                  "radial-gradient(130% 110% at 50% 45%, rgba(254,244,218,0.72) 0%, rgba(254,244,218,0.60) 45%, rgba(254,244,218,0.52) 100%)",
-              }}
-            />
           </div>
         </div>
 
-        <div className="pointer-events-none absolute inset-0 z-[11] grid place-items-center overflow-hidden" aria-hidden>
-          <div
-            className="hv-bloom h-[130vmin] w-[130vmin] rounded-full opacity-0"
-            style={{
-              background:
-                "radial-gradient(circle, #FFFBEF 0%, #FBF1D2 30%, rgb(var(--gold-rgb) / 0.32) 52%, rgba(138,127,74,0.10) 68%, rgba(138,127,74,0) 78%)",
-            }}
-          />
-        </div>
+        {/* the white/cream BLOOM behind the brand was removed with the veil (client)
+            — same reason: it lit the whole centre of the frame to near-white. */}
         <div className="pointer-events-none absolute inset-0 z-[11] grid place-items-center overflow-hidden" aria-hidden>
           <div
             className="hv-rays h-[120vmax] w-[120vmax] opacity-0 will-change-[opacity]"
@@ -844,23 +864,32 @@ export default function HomeFilm() {
         </div>
         <canvas ref={motesCv} className="pointer-events-none absolute inset-0 z-[12] h-full w-full" aria-hidden />
 
-        {/* clean warm field behind the brand — a soft halo of light so the brand
-            sits on a still centre while the ornate ceiling frames it at the edges
-            (fixes the "pasted on a busy ceiling" look). */}
-        <div className="hv-brandveil pointer-events-none absolute inset-0 z-[13] grid place-items-center opacity-0" aria-hidden>
-          <div
-            className="h-[112vmin] w-[112vmin] rounded-full"
-            style={{
-              background:
-                "radial-gradient(closest-side, rgba(254,247,227,0.94) 0%, rgba(254,245,220,0.8) 28%, rgba(253,239,210,0.48) 50%, rgba(252,234,198,0.17) 71%, rgba(252,234,198,0) 85%)",
-            }}
-          />
-        </div>
+        {/* the warm halo field behind the brand was REMOVED (client) — it was the
+            brightest of the cream layers, a near-opaque disc over the ceiling. It
+            existed to stop dark type looking "pasted on a busy ceiling"; white type
+            separates from the footage on its own. */}
 
         {/* the 1968 line */}
         <div className="hv-line pointer-events-none absolute inset-0 z-[20] grid place-items-center px-6 opacity-0">
-          <p className="pm-display max-w-[22ch] text-center font-display text-heading-brown">
-            The doors everyone has been opening since 1968.
+          {/* TWO lines at DELIBERATELY different sizes (client): the opening phrase
+              sits smaller and the payoff lands larger beneath it. Each size is a
+              clamp, so it is EXACTLY its target px on desktop and steps down on
+              phones rather than overflowing. No max-w in `ch` here — ch resolves
+              against the PARENT font-size, which these spans override, so it would
+              have computed off the inherited 16px and wrapped both lines. */}
+          <p className="max-w-[92vw] text-center font-display text-white">
+            <span
+              className="block"
+              style={{ fontSize: "clamp(1.5rem, 4.6vw, 45px)", lineHeight: 1.12 }}
+            >
+              The doors everyone have
+            </span>
+            <span
+              className="block"
+              style={{ fontSize: "clamp(2rem, 6.2vw, 60px)", lineHeight: 1.04 }}
+            >
+              been opening since 1968.
+            </span>
           </p>
         </div>
 
@@ -872,8 +901,52 @@ export default function HomeFilm() {
             was removed: at 11px in maroon it could not clear 4.5:1 against ANY
             backdrop (max ≈3.6:1 even on solid cream), and the wordmark already
             says the name. */}
-        <div className="hv-brand relative top-[6svh] z-[20] flex flex-col items-center px-6 text-center">
+        {/* THE WHITE GROUND — one disc, opening from the centre where the logo is
+            about to appear and expanding until it has covered the section, then
+            HOLDING. z-14: above the film (z-10..13), BELOW the brand (z-20) and the
+            works (z-30), so both are revealed ON it rather than hidden by it. The
+            solid core runs to 72% of the radius, so at full scale the section is
+            covered edge to edge and only the growing edge is ever feathered. */}
+        <div className="pointer-events-none absolute inset-0 z-[14] overflow-hidden" aria-hidden>
+          {/* Centred by left/top 50% + a -50% translate (applied in apply() via
+              xPercent/yPercent), NOT by grid centring: CSS Grid does not centre a
+              child LARGER than its container — place-items-center left this disc
+              anchored off-screen to the bottom-right, so the expansion opened from
+              the wrong point entirely. */}
+          <div
+            className="hv-white absolute top-1/2 left-1/2 h-[170vmax] w-[170vmax] rounded-full opacity-0"
+            /* 170vmax is chosen so the SOLID core (0.72 x 170vmax) only just
+               exceeds the viewport diagonal at scale 1. Oversize it — 220vmax was —
+               and the core already covers the screen by ~scale 0.54, which makes the
+               whole 50%→100% stage invisible and leaves only the opacity change
+               reading. At this size, 50% is genuinely a half-grown disc. */
+            style={{
+              background:
+                // Profiled against the LOCKUP, not picked by eye (client): solid white
+                // at the centre, never below 75% anywhere the logo actually sits, then
+                // depleting to nothing at the rim. The 62% stop is measured — at the
+                // point the lockup is fully revealed its furthest corner is 379px from
+                // the disc centre against a 612px radius, i.e. 0.62 — so that stop is
+                // where the guaranteed floor has to land. The 0.78 stop sits at 64%,
+                // deliberately PAST the lockup and above the floor, so r=0.62 samples
+                // ~0.80 with margin; putting 0.75 exactly at 0.62 measured 0.745 once
+                // interpolated, i.e. fractionally under the floor. Re-measure if the
+                // lockup is ever resized, or the type will drift past it.
+                "radial-gradient(closest-side, #fff 0%, #fff 36%, rgba(255,255,255,0.92) 52%, rgba(255,255,255,0.78) 64%, rgba(255,255,255,0.45) 76%, rgba(255,255,255,0.16) 89%, rgba(255,255,255,0) 100%)",
+            }}
+          />
+          {/* Because the disc now feathers to nothing at its rim it can NEVER cover
+              the section on its own, however large it grows. This solid sheet closes
+              the last of stage 2 so "Our Works" still lands on flat white. It is
+              eased quadratically so the disc's growth reads first and the fill only
+              rushes at the very end. */}
+          <div className="hv-sheet absolute inset-0 bg-white opacity-0" />
+        </div>
+
+        <div className="hv-brand relative top-[6svh] z-[20] flex flex-col items-center px-6 text-center text-heading-brown">
           <div className="hv-mark relative aspect-[269/234] h-32 sm:h-44">
+            {/* ALWAYS the brand olive (client) — no crossfade. It reads because the
+                white ground is fully expanded before the mark is revealed. */}
             <Image src="/brand/a-mark-olive.png" alt="A Paramount" fill priority sizes="200px" className="hv-markimg object-contain opacity-0" />
             <div className="pointer-events-none absolute inset-0" style={MASK_STYLE}>
               <div
@@ -886,15 +959,19 @@ export default function HomeFilm() {
             </div>
           </div>
           <div className="hv-word mt-9 opacity-0">
-            <Wordmark className="text-[clamp(32px,7.4vw,54px)] text-heading-brown" />
+            <Wordmark className="text-[clamp(32px,7.4vw,54px)]" />
           </div>
-          <OrnamentDivider className="hv-div mt-9 text-olive/70 opacity-0" />
-          <p className="hv-tag mt-7 font-display text-2xl text-heading-brown opacity-0 sm:text-4xl">
-            Crafting Divine <span className="font-body text-maroon">Elegance</span>
+          <OrnamentDivider className="hv-div mt-9 opacity-0" />
+          {/* Wordmark and OrnamentDivider inherit via currentColor from .hv-brand,
+              which is pinned to the brand olive — the lockup is never white. */}
+          <p className="hv-tag mt-7 font-display text-2xl opacity-0 sm:text-4xl">
+            Crafting Divine <span className="font-body">Elegance</span>
           </p>
         </div>
 
-        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 font-display text-[10px] tracking-[0.34em] text-maroon/70 uppercase opacity-0">
+
+
+        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 font-display text-[10px] tracking-[0.34em] text-white/70 uppercase opacity-0">
           Scroll to continue
         </div>
 
