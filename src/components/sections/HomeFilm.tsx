@@ -96,7 +96,15 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 // where the other had 3. Dead frames are the one thing a scrubbed film must not
 // contain — they are scroll that produces no picture.
 const FRAME_COUNT = 232; // MUST match the bake in public/door/seq/*
-const FRAME_TIERS = [800, 1600] as const; // phone tier, desktop (native) tier
+// Phone tier, desktop tier. The desktop tier is 1200 — NOT the 1600 it used to
+// be — because createImageBitmap decodes the WHOLE source before it applies
+// resizeWidth, so a 1600w file costs 1600x890 of decode to produce an 1100px
+// bitmap we then paint at 1656px. Profiling the scrub put ~74% of the time in
+// browser-internal work (blob/fetch/createImageBitmap) and only 65ms in
+// drawImage — i.e. this film is decode-bound, not draw-bound, and the source
+// width IS the decode cost. 1200 is the smallest tier still >= decodeWidth, so
+// it is visually identical here and 44% cheaper to decode (and 34% smaller).
+const FRAME_TIERS = [800, 1200] as const;
 const frameSrc = (tier: number, i: number) =>
   `/door/seq/${tier}/f-${String(i).padStart(3, "0")}.webp`;
 const POSTER = "/door/door-open-poster.jpg";
@@ -406,7 +414,7 @@ export default function HomeFilm() {
     // upscaled bitmap is the one blur the source quality cannot fix. With dprCap
     // 1.4 a 1440 viewport backs 2016px, so 1280 keeps the upscale to ~1.6x while
     // holding the whole-film store inside roughly the previous memory envelope.
-    const decodeWidth = Math.min(backingW, tier === 1600 ? 1100 : 700);
+    const decodeWidth = Math.min(backingW, tier === 1200 ? 1100 : 700);
 
     let currentIdx = 0; // the FRACTIONAL frame the scrub currently wants
     // What is actually painted, packed into ONE number (j0, j1, blend step) so the
