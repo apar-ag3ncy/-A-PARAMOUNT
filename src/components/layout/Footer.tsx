@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
+import FooterHeaderHold from "@/components/layout/FooterHeaderHold";
 import { SITE, CONTACT } from "@/lib/constants";
 
 /**
- * Footer — a full-bleed architectural plate with the wordmark cut into the base.
+ * Footer — a full-VIEWPORT architectural plate with the wordmark cut into the base.
  *
  * The plate is the client's own Derasar entrance (their brass-studded door in
  * carved Makrana marble) — an existing asset, not a new render. It is heavily
@@ -21,10 +22,17 @@ import { SITE, CONTACT } from "@/lib/constants";
  *
  * Type is brand-only: Storica (font-display) for the wordmark, the caps line and
  * the CTA; Inter (font-body) for the contact lines. No third face.
+ *
+ * It stands a FULL SCREEN tall (`min-h-svh`, not a fixed `h-screen` — content must
+ * never be cut on a short phone) and the header is lifted away while it is on
+ * screen (`FooterHeaderHold`), so the closing plate is the whole frame with no
+ * chrome parked over it. The column above the wordmark therefore centres itself
+ * in whatever height is left rather than hanging off a fixed top padding.
  */
 export default function Footer() {
   return (
-    <footer className="pm-footer relative isolate overflow-hidden bg-[#171208] text-cream">
+    <footer className="pm-footer relative isolate flex min-h-svh flex-col overflow-hidden bg-[#171208] text-cream">
+      <FooterHeaderHold />
       {/* ---- the plate ----
           A CSS background, not next/image, on purpose: it is purely decorative
           (aria-hidden), the two tiers are already baked to the exact sizes we
@@ -44,7 +52,7 @@ export default function Footer() {
         }}
       />
 
-      <div className="relative mx-auto flex max-w-2xl flex-col items-center px-6 pt-14 text-center sm:pt-16">
+      <div className="relative mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 py-14 text-center sm:py-16">
         {/* the mark — centred, as it is on the landing page */}
         <Link href="/" aria-label={SITE.name}>
           <Image
@@ -99,7 +107,9 @@ export default function Footer() {
           sized off the VIEWPORT so it always fills the span. `background-clip:
           text` fades it downward into the scrim, and the negative bottom margin
           lets the footer's overflow crop the baseline. */}
-      <div className="relative mt-12 px-4 sm:px-6 lg:mt-14">
+      {/* No top margin: the column above is `flex-1`, so it already owns every
+          pixel down to this line. */}
+      <div className="relative px-4 sm:px-6">
         <p
           aria-hidden
           className="pm-footer-word font-display whitespace-nowrap select-none"
