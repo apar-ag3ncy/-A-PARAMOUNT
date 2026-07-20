@@ -69,31 +69,33 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 //    frames, don't re-animate live"; never <video> currentTime-seeking).
 //    RE-BAKE: scripts/bake-door-film.sh <master> <tail> 7.0 20 — then dedupe and
 //    set FRAME_COUNT to what it prints. --
-// TWO segments baked into ONE consecutive sequence by scripts/bake-door-film.sh.
-// The client's master is kept VERBATIM for everything it does well; only its
-// ending was replaced, because the master craned into a dark, angled, all-gold
-// ceiling that is not this temple's actual ceiling (the real one is flat-on and
-// symmetrical: white marble bracket capitals radiating around a centred gold
-// coffered panel with a lotus medallion — see assets/door/ceiling-reference.png).
-//   f 000-130  BODY — client master 0→7.0s, untouched: the doors swing open and
-//              we walk down the pillared hall. Real client footage; never regenerate.
-//   f 131-222  TAIL — Kling 3.0, 8s @1080p, generated FROM the master's own frame
-//              at 7.0s and END-pinned to the real ceiling photograph, so it
-//              continues the master's existing upward tilt and lands on the true
-//              ceiling. Trimmed to its live 4.5s: measured frame-difference showed
-//              motion decaying to noise after ~4.5s, and dead frames are the one
-//              thing a scrubbed film must not contain (scroll with no picture change).
-// Both sampled at 20fps and renumbered consecutively — no video concat, so the
-// master is never re-encoded and the join carries no seam (verified: the frames
-// straddling it show one continuous tilt, with no difference spike at 130/131).
+// Baked by scripts/bake-door-film.sh from TWO sources sampled at one 14fps and
+// renumbered consecutively — no video concat, so the client's master is never
+// re-encoded and the join carries no seam:
+//   f 000-091  the client's own graded master, 0 -> 6.6s, VERBATIM: the brass
+//              doors swing open and we walk in under the carved gold ceiling bay,
+//              down the pillared hall with the shrine glowing ahead. Real client
+//              footage — never regenerate it.
+//   f 092-231  Kling 3.0, 10s @1080p (native 1928x1072, so the join needs no
+//              rescale), START-pinned to the master's own frame at 6.6s and
+//              END-pinned to the client's real ceiling photograph
+//              (assets/door/ceiling-reference.png). It CONTINUES the passage —
+//              columns keep sweeping past and the shrine keeps approaching for
+//              several seconds — and only then begins one long unbroken rise to
+//              the ceiling. Both ends are the client's own material, so the shot
+//              can only start and land where the client's footage does.
 //
-// Then DEDUPED: any frame within 5% of peak motion of the previous KEPT frame is
-// dropped, because the master itself holds nearly still for ~0.45s in the hall
-// and those frames were scroll that produced no picture. 232 baked → 223 kept;
-// minimum frame-to-frame motion rose 0.17 → 0.97, i.e. every frame now moves.
-// Same principle as bake-kalash-orbit.py resampling at equal-ROTATION steps:
-// a scrubbed sequence wants equal MOTION per frame, not equal time per frame.
-const FRAME_COUNT = 223; // MUST match the bake in public/door/seq/*
+// Cut at 6.6s, not later, ON PURPOSE: at 7.0s the master's camera has already
+// begun tilting up, and handing over mid-tilt is what made an earlier attempt's
+// roof transition feel abrupt (client: "the door scroll does not suit the roof
+// transition"). Cutting while the camera is still level lets the generated
+// segment own the ENTIRE rise and take its time over it.
+//
+// Chosen over a second candidate crane by motion profile: this one holds the
+// passage longer and has ZERO of 79 sampled intervals below 6% of peak motion,
+// where the other had 3. Dead frames are the one thing a scrubbed film must not
+// contain — they are scroll that produces no picture.
+const FRAME_COUNT = 232; // MUST match the bake in public/door/seq/*
 const FRAME_TIERS = [800, 1600] as const; // phone tier, desktop (native) tier
 const frameSrc = (tier: number, i: number) =>
   `/door/seq/${tier}/f-${String(i).padStart(3, "0")}.webp`;
@@ -383,7 +385,14 @@ export default function HomeFilm() {
     // so the whole film is scrubbable within a breath and the tail fills in behind
     // the cursor; nearest() covers any not-yet-landed frame.
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const dprCap = Math.min(window.devicePixelRatio || 1, 2);
+    // DPR is capped LOW on purpose. The bitmap store can only hold every frame if
+    // each is decoded well under native, so the painted canvas must not be much
+    // wider than that decode — otherwise every frame is upscaled and the film
+    // looks soft no matter how sharp the source is. At DPR 2 a 1440 viewport
+    // paints 2880px from a 1080px bitmap (2.7x upscale = the blur), and fills
+    // 5.2M pixels per frame (the single biggest per-frame cost). 1.4 keeps the
+    // upscale under 2x AND halves the fill, which is what makes the scrub smooth.
+    const dprCap = Math.min(window.devicePixelRatio || 1, 1.15);
     // Tier + a memory-safe decode width, sized to the ACTUAL painted size (the stage
     // is full-viewport). Phones take the light 800 tier; everything else the sharp
     // 1600 source, decoded DOWN to a cap so the whole-film bitmap store stays light
@@ -393,9 +402,11 @@ export default function HomeFilm() {
     const cssW = canvas.clientWidth || window.innerWidth;
     const backingW = Math.round(cssW * dprCap);
     const tier = backingW > 900 ? FRAME_TIERS[1] : FRAME_TIERS[0];
-    // 200 frames now (was 128) — decode caps trimmed to keep the whole-film
-    // bitmap store near the same memory envelope (~500MB desktop / ~230MB phone).
-    const decodeWidth = Math.min(backingW, tier === 1600 ? 1080 : 720);
+    // Decode at (or just above) what is actually painted, never below it — an
+    // upscaled bitmap is the one blur the source quality cannot fix. With dprCap
+    // 1.4 a 1440 viewport backs 2016px, so 1280 keeps the upscale to ~1.6x while
+    // holding the whole-film store inside roughly the previous memory envelope.
+    const decodeWidth = Math.min(backingW, tier === 1600 ? 1100 : 700);
 
     let currentIdx = 0; // the FRACTIONAL frame the scrub currently wants
     // What is actually painted, packed into ONE number (j0, j1, blend step) so the
@@ -417,6 +428,9 @@ export default function HomeFilm() {
       const cw = canvas.width;
       const ch = canvas.height;
       if (!cw || !ch) return;
+      // Keep the retain window centred on the playhead. Cheap (it early-outs
+      // unless the rounded index actually moved), so calling it per draw is fine.
+      seq.focus(idx);
       const i0 = Math.min(LAST, Math.floor(idx));
       const q = Math.round((idx - i0) * BLEND_STEPS);
       const j0 = seq.nearest(i0);
@@ -469,6 +483,15 @@ export default function HomeFilm() {
       concurrency: 3,
       wrap: false, // a FILM, not a loop — a gap falls back to the nearest side
       decodeWidth,
+      // Bounded bitmap store. Holding the WHOLE film resident is what actually
+      // made the scrub stutter: measured, scrolling AFTER the film had fully
+      // landed was worse than during loading (136 long tasks / 21.8s vs 90 /
+      // 8.6s) because ~700MB of ImageBitmaps thrashes. A window that follows the
+      // playhead keeps it near ~90 frames (~230MB at this decode width) no matter
+      // how long the film gets, so the frames can stay SHARP without the store
+      // ever getting big enough to hurt. Frames outside it are closed and
+      // re-fetched (nearest() covers the instant before one lands).
+      retain: 60,
       onFrame: (_i, first) => {
         if (first) canvas.style.opacity = "1"; // crossfade over the poster (closed doors)
         drawFilm(currentIdx); // a newly-landed frame may better match where we're parked

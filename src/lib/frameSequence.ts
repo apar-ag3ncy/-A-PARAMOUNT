@@ -44,6 +44,19 @@ export interface FrameSequenceOptions {
    * larger than the canvas ever draws. Omit to decode at native size.
    */
   decodeWidth?: number;
+  /**
+   * Max decoded frames kept resident. Omit to keep every frame forever (the
+   * turntable does — 96 small frames is nothing).
+   *
+   * A long film cannot: an ImageBitmap costs w*h*4 bytes of GPU-side memory that
+   * the GC will not reclaim, so ~200 frames at a sharp decode width is ~700MB
+   * resident. MEASURED consequence: scrubbing after the whole film had landed
+   * was WORSE than scrubbing while it was still loading (136 long tasks / 21.8s
+   * vs 90 / 8.6s) — the browser was thrashing, not decoding. Retaining a window
+   * around `focus()` and closing the rest bounds that, so the film can be decoded
+   * SHARP without the store ever growing big enough to thrash.
+   */
+  retain?: number;
   /** Fired when a frame lands. `first` is true only for the very first one. */
   onFrame?: (index: number, first: boolean) => void;
 }
@@ -55,6 +68,13 @@ export interface FrameSequence {
   nearest(index: number): number;
   /** Begin fetching. Idempotent — later calls are no-ops. */
   start(): void;
+  /**
+   * Tell the sequence where the playhead is, so a `retain` window can follow it:
+   * frames near `index` are fetched first (and re-fetched if they were evicted),
+   * frames far from it are closed. No-op without `retain`. Cheap enough to call
+   * every frame of a scrub.
+   */
+  focus(index: number): void;
   /** Cancel in-flight work, suppress further callbacks, free the bitmaps. */
   dispose(): void;
 }
@@ -117,6 +137,7 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
     concurrency = 6,
     wrap = false,
     decodeWidth,
+    retain,
     onFrame,
   } = opts;
 
@@ -127,6 +148,26 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
   let disposed = false;
   let started = false;
   let landed = 0;
+
+  // ---- retain window (only when `retain` is set) ----
+  const at = (i: number) => ((i % count) + count) % count;
+  /** Signed-shortest distance, so a wrapped turntable measures across the seam. */
+  const dist = (i: number) => {
+    const d = Math.abs(i - focusIdx);
+    return wrap ? Math.min(d, count - d) : d;
+  };
+  let focusIdx = 0;
+  let resident = 0;
+  const urgent: number[] = []; // jumped-to frames, decoded before the bulk queue
+  const queued = new Set<number>();
+
+  const release = (i: number) => {
+    const f = frames[i];
+    if (!f) return;
+    if ("close" in f) f.close(); // GPU memory the GC will not reclaim on its own
+    frames[i] = null;
+    resident--;
+  };
 
   const decode = async (i: number): Promise<void> => {
     if (frames[i] || disposed) return;
@@ -152,18 +193,46 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
       }
     }
     if (disposed || !frames[i]) return;
+    resident++;
     onFrame?.(i, landed++ === 0);
+  };
+
+  /** Close whatever now sits outside the window, nearest-to-focus surviving. */
+  const evict = () => {
+    if (!retain || resident <= retain) return;
+    const half = Math.max(1, Math.ceil(retain / 2));
+    for (let i = 0; i < count && resident > retain; i++) {
+      if (frames[i] && dist(i) > half) release(i);
+    }
+    // Still over budget (a tight window, or a huge jump): drop the farthest.
+    if (resident > retain) {
+      const held = [];
+      for (let i = 0; i < count; i++) if (frames[i]) held.push(i);
+      held.sort((a, b) => dist(b) - dist(a));
+      for (const i of held) {
+        if (resident <= retain) break;
+        release(i);
+      }
+    }
   };
 
   // A worker pool rather than fixed batches: a slow frame never stalls the rest.
   const pump = () => {
     if (disposed) return;
     started = true;
-    while (inFlight < concurrency && cursor < queue.length) {
-      const i = queue[cursor++];
+    while (inFlight < concurrency) {
+      // Frames the playhead is ON always beat the bulk coarse-to-fine queue,
+      // otherwise a scrub into evicted territory waits behind the whole film.
+      let i: number;
+      if (urgent.length) i = urgent.shift() as number;
+      else if (cursor < queue.length) i = queue[cursor++];
+      else break;
+      queued.delete(i);
+      if (frames[i]) continue; // already resident (or re-queued after eviction)
       inFlight++;
       void decode(i).finally(() => {
         inFlight--;
+        evict();
         pump();
       });
     }
@@ -175,6 +244,27 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
     // Idempotent: callers may start it from a matchMedia branch that re-runs.
     start: () => {
       if (!started) pump();
+    },
+    focus: (index) => {
+      if (!retain || disposed) return;
+      const next = wrap ? at(Math.round(index)) : Math.max(0, Math.min(count - 1, Math.round(index)));
+      if (next === focusIdx) return;
+      focusIdx = next;
+      // Re-request anything missing inside the window, nearest first, so a scrub
+      // that outruns the loader refills from where the eye actually is.
+      const half = Math.max(1, Math.ceil(retain / 2));
+      for (let d = 0; d <= half; d++) {
+        for (const raw of d === 0 ? [focusIdx] : [focusIdx + d, focusIdx - d]) {
+          const i = wrap ? at(raw) : raw;
+          if (i < 0 || i >= count) continue;
+          if (!frames[i] && !queued.has(i)) {
+            queued.add(i);
+            urgent.push(i);
+          }
+        }
+      }
+      evict();
+      pump();
     },
     dispose: () => {
       disposed = true;
