@@ -54,31 +54,46 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * marble and the type so the copy always reads and the brand never looks pasted-on.
  */
 
-// -- the film, rooted in the client's graded master (film.mp4, 9.82s, 1600×890):
-//    closed brass doors in the marble gate → doors swing open onto the golden
-//    sanctum with real god-rays baked in → slow walk-in through the pillared hall
-//    toward the shrine → camera cranes UP the carved golden ceiling, settling on
-//    the full flat-on lotus-medallion shot — the brand's backdrop.
+// -- the film, rooted in the client's graded master (assets/door/final-1-60fps-
+//    master.mp4, 9.82s @60fps, 1928×1072): closed brass doors in the marble gate
+//    → doors swing open onto the golden sanctum with real god-rays baked in →
+//    slow walk-in through the pillared hall toward the shrine → camera cranes UP
+//    to the carved ceiling, settling flat-on on the lotus medallion — the brand's
+//    backdrop.
 //    BAKED to a WebP FRAME SEQUENCE and drawn on a canvas — NOT scrubbed as a
 //    <video>. Seeking video.currentTime has resolution-dependent decode latency
 //    and coalesces under continuous input, so slow scrolling read as laggy /
-//    inconsistent (measured); drawing a pre-decoded frame in one synchronous
-//    drawImage per rAF is frame-perfect at ANY scroll speed. This is the
-//    architecture CLAUDE.md prescribes ("bake frames, don't re-animate live";
-//    never <video> currentTime-seeking). Re-bake recipe: scripts in git history /
-//    the segment map below — door from film.mp4 at fps=20, walk-in + crane from
-//    the archived Kling clips at fps=7.5, all `-c:v libwebp -quality 82` (+ a
-//    scale=800 pass for the phone tier); then keep FRAME_COUNT in sync. --
-// The film is now THREE chained segments baked into ONE sequence (Kling 2.5
-// extensions generated FROM the client's own frames — doors→walk-in→crane are
-// keyframe-pinned to the master, so every shot is the client's):
-//   f 000-049  door approach + swing  — client master 0-2.5s baked at 20fps
-//   f 050-124  slow walk-in           — generated 10s (start = master's
-//                                       doors-open frame), Magnific-upscaled to 1600w
-//   f 125-199  ceiling crane          — generated 10s at 1080p (start = walk-in's
-//                                       last frame, END pinned to the master's
-//                                       settled-ceiling frame), baked at 7.5fps
-const FRAME_COUNT = 200; // MUST match the bake in public/door/seq/*
+//    inconsistent (measured: 237ms per scrub seek at 1928 CABAC); drawing a
+//    pre-decoded frame in one synchronous drawImage per rAF is frame-perfect at
+//    ANY scroll speed. This is the architecture CLAUDE.md prescribes ("bake
+//    frames, don't re-animate live"; never <video> currentTime-seeking).
+//    RE-BAKE: scripts/bake-door-film.sh <master> <tail> 7.0 20 — then dedupe and
+//    set FRAME_COUNT to what it prints. --
+// TWO segments baked into ONE consecutive sequence by scripts/bake-door-film.sh.
+// The client's master is kept VERBATIM for everything it does well; only its
+// ending was replaced, because the master craned into a dark, angled, all-gold
+// ceiling that is not this temple's actual ceiling (the real one is flat-on and
+// symmetrical: white marble bracket capitals radiating around a centred gold
+// coffered panel with a lotus medallion — see assets/door/ceiling-reference.png).
+//   f 000-130  BODY — client master 0→7.0s, untouched: the doors swing open and
+//              we walk down the pillared hall. Real client footage; never regenerate.
+//   f 131-222  TAIL — Kling 3.0, 8s @1080p, generated FROM the master's own frame
+//              at 7.0s and END-pinned to the real ceiling photograph, so it
+//              continues the master's existing upward tilt and lands on the true
+//              ceiling. Trimmed to its live 4.5s: measured frame-difference showed
+//              motion decaying to noise after ~4.5s, and dead frames are the one
+//              thing a scrubbed film must not contain (scroll with no picture change).
+// Both sampled at 20fps and renumbered consecutively — no video concat, so the
+// master is never re-encoded and the join carries no seam (verified: the frames
+// straddling it show one continuous tilt, with no difference spike at 130/131).
+//
+// Then DEDUPED: any frame within 5% of peak motion of the previous KEPT frame is
+// dropped, because the master itself holds nearly still for ~0.45s in the hall
+// and those frames were scroll that produced no picture. 232 baked → 223 kept;
+// minimum frame-to-frame motion rose 0.17 → 0.97, i.e. every frame now moves.
+// Same principle as bake-kalash-orbit.py resampling at equal-ROTATION steps:
+// a scrubbed sequence wants equal MOTION per frame, not equal time per frame.
+const FRAME_COUNT = 223; // MUST match the bake in public/door/seq/*
 const FRAME_TIERS = [800, 1600] as const; // phone tier, desktop (native) tier
 const frameSrc = (tier: number, i: number) =>
   `/door/seq/${tier}/f-${String(i).padStart(3, "0")}.webp`;
@@ -91,19 +106,22 @@ const GOLD = "var(--color-gold)";
 // "Our Works" lands. There is no dome image any more — the ceiling frames are it.
 const FILM_END = 0.68;
 
-// Scrub pacing — control points [filmProgress fp, frameFraction], retimed to the
-// EXTENDED film's segment boundaries (door frames 0-49 = frac 0-0.245; walk-in
-// 50-124 = 0.25-0.62; crane 125-199 = 0.625-1). Every act plays SLOW: the door
-// swing gets a third of the film's scroll (the slow-mo payoff), then the walk-in
-// lingers through the hall, then the crane glides up the ceiling — all at a
-// steady, unhurried rate. Piecewise linear.
+// Scrub pacing — control points [filmProgress fp, frameFraction]. This is now
+// almost a straight line ON PURPOSE. The old curve existed to re-time three
+// stitched clips whose internal speeds disagreed; the film is now the client's
+// own single continuous move plus a crane generated to continue it, and EVERY
+// baked frame carries real motion (the dead tail was trimmed before baking). So
+// the camera's own pacing is already right, and the honest mapping is to hand
+// the scroll straight to it — any curve here would re-introduce the "changing
+// gear" feel this map was fighting. Only the very ends are shaped: a gentle
+// ease off zero so the first flick of the wheel doesn't jump the doors, and a
+// slight settle into the final ceiling frame.
 const PACE: ReadonlyArray<readonly [number, number]> = [
   [0.0, 0.0],
-  [0.16, 0.08], // the approach — SLOWEST beat, dwelling on the closed doors
-  [0.42, 0.246], // the swing itself in slow-mo (door frames end at 49/199)
-  [0.72, 0.623], // the lingering walk-in to the shrine (walk-in ends at 124/199)
-  [0.89, 0.88], // the crane lifts up the ceiling
-  [1.0, 1.0], // ...and EASES to rest on the full ceiling — the brand's backdrop
+  [0.08, 0.06], // eased entry — the doors take up the first scroll gently
+  [0.5, 0.5], // dead linear through the swing and the walk down the hall
+  [0.92, 0.945], // crane rising, still linear to the eye
+  [1.0, 1.0], // and settles onto the true ceiling — the brand's backdrop
 ];
 
 // Monotone-cubic (Fritsch–Carlson) interpolation of PACE, NOT piecewise linear.
