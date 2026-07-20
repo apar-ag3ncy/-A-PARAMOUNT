@@ -140,7 +140,7 @@ export default function Footer() {
           href="/contact"
           className="pm-label mt-10 inline-flex items-center rounded-full border border-cream/35 px-6 py-2.5 font-display text-cream transition-colors hover:border-gold hover:text-gold"
         >
-          Send a message
+          Let&apos;s Connect Today
         </Link>
       </div>
 
