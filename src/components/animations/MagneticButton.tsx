@@ -1,84 +1,68 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, type ReactNode } from "react";
-import { gsap } from "@/lib/gsap";
+import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 interface Props {
   children: ReactNode;
   href?: string;
   onClick?: () => void;
   className?: string;
-  strength?: number;
   /** "dark" for use on the velvet/dark editorial pages (gold outline → gold fill). */
   tone?: "light" | "dark";
 }
 
 /**
- * Cursor-attracted button (PARAMOUNT_SCROLL_UI_PROMPT.md §4.7). The wrapper span
- * translates toward the cursor within a radius, with a soft elastic settle.
- * Touch devices skip the effect entirely.
+ * The primary call-to-action pill.
+ *
+ * THE NAME IS HISTORICAL — this is NOT magnetic any more, and it should not be made
+ * so again without reading this. It used to translate toward the cursor via
+ * `gsap.quickTo` on pointermove (PARAMOUNT_SCROLL_UI_PROMPT.md §4.7). That never
+ * worked: probed on the PRODUCTION build, the pointer handler fired on every move
+ * and passed its guard every time, and the element never translated once — the
+ * quickTo setter was inert, so the effect had silently done nothing since it was
+ * written and no visitor ever saw it. It was fragile by construction too: the
+ * coarse-pointer test was an early return evaluated ONCE at mount against a
+ * `[strength]` dep list, so a query answering "coarse" before the viewport settled
+ * disabled the button permanently with no way to re-evaluate.
+ *
+ * Removed at the client's call in favour of a hover that is entirely CSS: a fill
+ * sweeps in from the left, the label recolours, a gold hairline draws along the
+ * base, the arrow slides in, and the pill lifts slightly. Every one of those is a
+ * transition on transform/opacity/colour — declarative, compositor-friendly, and
+ * incapable of silently no-opping the way the magnet did. No JS on the interaction
+ * path at all.
+ *
+ * ALIGNMENT, do not regress: the arrow is ABSOLUTE. Inline it sat in flow at
+ * opacity 0 and still reserved its 16px plus a 12px gap, pushing the label 14px off
+ * the pill's centre — 33px of space to its left against 61px to its right. Out of
+ * flow the label centres properly (measured 37/37) and the arrow fades in over the
+ * right padding instead of shoving the copy sideways.
  */
 export default function MagneticButton({
   children,
   href,
   onClick,
   className,
-  strength = 0.4,
   tone = "light",
 }: Props) {
   const dark = tone === "dark";
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useIsomorphicLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (window.matchMedia("(pointer: coarse)").matches) return;
-
-    const xTo = gsap.quickTo(el, "x", { duration: 0.6, ease: "elastic.out(1, 0.5)" });
-    const yTo = gsap.quickTo(el, "y", { duration: 0.6, ease: "elastic.out(1, 0.5)" });
-
-    // Rect is measured ONCE on pointerenter and reused for every pointermove —
-    // no per-event getBoundingClientRect (layout thrash during smooth-scroll).
-    // Any drift from ScrollSmoother movement while hovering is negligible.
-    let rect: DOMRect | null = null;
-
-    const enter = () => {
-      rect = el.getBoundingClientRect();
-    };
-    const move = (e: PointerEvent) => {
-      const r = rect ?? (rect = el.getBoundingClientRect());
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      xTo((e.clientX - cx) * strength);
-      yTo((e.clientY - cy) * strength);
-    };
-    const leave = () => {
-      rect = null;
-      xTo(0);
-      yTo(0);
-    };
-
-    el.addEventListener("pointerenter", enter);
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerleave", leave);
-    return () => {
-      el.removeEventListener("pointerenter", enter);
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerleave", leave);
-    };
-  }, [strength]);
 
   const inner = cn(
-    // Premium fill-wipe: a panel sweeps in from the left, the label recolours, and
-    // a hairline + arrow slide in — far less flat than a plain colour swap.
-    // Everything is transform/opacity, so it stays 60fps.
-    "group relative inline-flex items-center justify-center gap-3 overflow-hidden rounded-full border px-8 py-4 font-display text-sm tracking-[0.2em] uppercase transition-[color,border-color,box-shadow] duration-500 ease-out",
+    // No `gap` here — see the alignment note above.
+    // `shrink-0 whitespace-nowrap` is load-bearing: every caller centres this inside
+    // a `flex justify-center` row, so with the old magnetic wrapper span gone the
+    // link became a direct FLEX ITEM and shrank below its content — the label wrapped
+    // to two lines and the pill collapsed from 315x54 to 164x94.
+    "group relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border px-9 py-4 font-display text-sm tracking-[0.2em] whitespace-nowrap uppercase",
+    // `transform` is in the transition list for the lift; everything animated here
+    // is transform/opacity/colour, so the hover stays cheap on the heaviest page.
+    "transition-[color,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5",
     dark
-      ? "border-gold/50 text-cream hover:border-gold hover:text-[#17110A] hover:shadow-[0_14px_34px_-16px_rgba(226,202,130,0.5)]"
-      : "border-olive text-maroon hover:border-olive-deep hover:text-cream hover:shadow-[0_14px_34px_-16px_rgba(79,71,40,0.6)]",
+      ? "border-gold/50 text-cream hover:border-gold hover:text-[#17110A] hover:shadow-[0_18px_38px_-16px_rgba(226,202,130,0.55)]"
+      : "border-olive text-maroon hover:border-olive-deep hover:text-cream hover:shadow-[0_18px_38px_-16px_rgba(79,71,40,0.62)]",
+    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
     className,
   );
 
@@ -88,7 +72,7 @@ export default function MagneticButton({
       <span
         aria-hidden
         className={cn(
-          "absolute inset-0 origin-left scale-x-0 transition-transform duration-500 ease-out group-hover:scale-x-100 bg-gradient-to-r",
+          "absolute inset-0 origin-left scale-x-0 bg-gradient-to-r transition-transform duration-500 ease-out group-hover:scale-x-100",
           dark ? "from-gold to-pista" : "from-olive-deep to-olive",
         )}
       />
@@ -101,7 +85,7 @@ export default function MagneticButton({
       <svg
         aria-hidden
         viewBox="0 0 24 24"
-        className="relative z-10 size-4 -translate-x-1 opacity-0 transition-all duration-500 ease-out group-hover:translate-x-0 group-hover:opacity-100"
+        className="absolute right-5 z-10 size-4 -translate-x-2 opacity-0 transition-all duration-500 ease-out group-hover:translate-x-0 group-hover:opacity-100"
         fill="none"
         stroke="currentColor"
         strokeWidth={1.6}
@@ -113,17 +97,13 @@ export default function MagneticButton({
     </>
   );
 
-  return (
-    <span ref={ref} className="inline-block">
-      {href ? (
-        <Link href={href} className={inner}>
-          {content}
-        </Link>
-      ) : (
-        <button type="button" onClick={onClick} className={inner}>
-          {content}
-        </button>
-      )}
-    </span>
+  return href ? (
+    <Link href={href} className={inner}>
+      {content}
+    </Link>
+  ) : (
+    <button type="button" onClick={onClick} className={inner}>
+      {content}
+    </button>
   );
 }

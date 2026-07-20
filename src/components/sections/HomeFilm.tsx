@@ -782,7 +782,16 @@ export default function HomeFilm() {
         />
         {/* the film. Nothing is layered over the doorway any more — the light
             coming through the opening is the footage's own baked god-rays. */}
-        <div className="hf-zoom pointer-events-none absolute inset-0 z-[2]" aria-hidden>
+        {/* will-change-transform: this layer wraps a 1928x1072 video AND is scaled by
+            apply() on every frame of the scrub. Without the hint the compositor has
+            no reason to keep that texture on the GPU across the scale, so it can
+            re-rasterise a full-screen video layer per frame — the most expensive
+            thing in the opening act by a wide margin, and the only per-frame work
+            here that is NOT cheap (apply() itself measures 0.29ms). */}
+        <div
+          className="hf-zoom pointer-events-none absolute inset-0 z-[2] will-change-transform"
+          aria-hidden
+        >
           {/* the scrubbed film — the client's master itself, scroll driving
               currentTime, crossfading over the poster (closed doors) once the first
               frame decodes. object-cover so it fills the stage exactly as the canvas
