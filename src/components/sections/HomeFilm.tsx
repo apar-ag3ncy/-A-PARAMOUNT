@@ -8,7 +8,6 @@ import Wordmark from "@/components/ui/Wordmark";
 import FeaturedGallery from "@/components/sections/FeaturedGallery";
 import { openDoors, resetDoors } from "@/lib/doors";
 import { holdHeader } from "@/lib/cinema";
-import { createFrameSequence, frameSize, type Frame } from "@/lib/frameSequence";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
 /**
@@ -19,19 +18,20 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * the merge: one section, one pin, one progress P 0→1, one slow-mo glide — so
  * there is no seam left to break.
  *
- * The film, in one unbroken scroll — the graded master baked to a WebP FRAME
- * SEQUENCE (200 frames per tier) and drawn on a canvas. Scroll progress picks a
- * frame; the nearest DECODED frame is painted object-cover in a single drawImage
- * per rAF. This REPLACED a scrubbed <video> (seek video.currentTime): seeking has
- * resolution-dependent decode latency and coalesces under continuous input, so slow
- * scrolling read as laggy/inconsistent — a pre-decoded frame draw is frame-perfect
- * at any speed. Sharpness is set by the DECODED bitmap, not by the bake: that bitmap
- * is what drawImage paints, so capping decode width below the canvas is a straight
- * upscale and reads soft however good the source is — capping it "without softening"
- * is not a thing, and believing otherwise is what left this film looking like 720p.
- * Memory is held by frameSequence's `retain` window (how many frames stay resident),
- * NOT by shrinking every frame. This is the architecture CLAUDE.md prescribes ("bake
- * frames, don't re-animate live"; never <video> currentTime-seeking).
+ * The film, in one unbroken scroll — the client's graded master PLAYED AS ITSELF,
+ * with scroll driving video.currentTime. It is deliberately NOT a baked frame
+ * sequence any more. Every bake pipeline resamples: WebP re-encodes at a tier width,
+ * decoded down again into an ImageBitmap and blitted, so the master's 1928x1072
+ * could not survive the trip and the film read soft ("1080p master but it looks like
+ * 720p"). Handing the file to the browser deletes every one of those stages.
+ *
+ * The known cost is that seeking is ASYNCHRONOUS and browsers coalesce seeks under
+ * continuous input, which is why this was a frame sequence for several iterations.
+ * Two things hold it together: the encode is ALL-INTRA, so a seek decodes exactly
+ * one frame with no GOP walk, and the scrubber keeps a single in-flight seek and
+ * re-targets on `seeked` rather than letting requests queue. See the encode block
+ * below. If the film ever reads LAGGY rather than soft, that is this trade coming
+ * due, and the bake scripts are still in the tree.
  *   [0 .. FILM_END]  a slow dolly IN to the carved marble doors, which swing open
  *                    (god-rays + gold bloom that ease off so it reads clean), then
  *                    we WALK THROUGH into the golden sanctum hall — the "1968" line
@@ -62,46 +62,50 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 //    slow walk-in through the pillared hall toward the shrine → camera cranes UP
 //    to the carved ceiling, settling flat-on on the lotus medallion — the brand's
 //    backdrop.
-//    BAKED to a WebP FRAME SEQUENCE and drawn on a canvas — NOT scrubbed as a
-//    <video>. Seeking video.currentTime has resolution-dependent decode latency
-//    and coalesces under continuous input, so slow scrolling read as laggy /
-//    inconsistent (measured: 237ms per scrub seek at 1928 CABAC); drawing a
-//    pre-decoded frame in one synchronous drawImage per rAF is frame-perfect at
-//    ANY scroll speed. This is the architecture CLAUDE.md prescribes ("bake
-//    frames, don't re-animate live"; never <video> currentTime-seeking).
-//    RE-BAKE: scripts/bake-home-film.sh — then set FRAME_COUNT to what it prints
-//    and retime the PACE fractions to the new master's act boundaries. --
-// Baked by scripts/bake-home-film.sh from ONE source — the client's 120fps master
-// (assets/door/final-1-120fps-master.mp4, 9.89s, 1928x1072) — sampled UNIFORMLY at
-// ~20fps, so every frame of the film is the client's own footage end to end:
-//   f 000-050  door approach + swing   0-2.5s     -> frac 0.000-0.253
-//   f 050-141  slow walk-in            2.5-7.0s   -> frac 0.253-0.708
-//   f 141-199  ceiling crane           7.0-9.89s  -> frac 0.708-1.000
-// Bake UNIFORMLY. An earlier cut chained the master's door act at 20fps to two
-// AI-generated extensions baked at 7.5fps; that 2.7x drop in temporal density
-// across the act boundary made the interior read as steppy under a slow scrub,
-// because the sub-frame cross-dissolve was interpolating across motion gaps nearly
-// three times larger than the door's. Even density matters more than film length.
+//    PLAYED AS THE VIDEO ITSELF, scrubbed by scroll — no frame bake, no canvas.
+//    The client's requirement is that the master render exactly as delivered and
+//    stay crystal clear, and every baked-frame pipeline necessarily resamples it:
+//    the frames were WebP re-encodes at a tier width (1200 latterly), decoded down
+//    again into an ImageBitmap and blitted, so the master's 1928x1072 could never
+//    reach the glass intact. Handing the file to the browser removes every one of
+//    those steps — the decoder feeds the compositor at native resolution, and the
+//    only scaling left is the GPU fitting 1928 to the viewport.
 //
-// SUPERSEDES the two-source bake (client master 0-6.6s + a Kling 3.0 crane pinned
-// to assets/door/ceiling-reference.png) that scripts/bake-door-film.sh builds. That
-// cut existed because the master's own last ~3s cranes into a dark angled ceiling
-// that is NOT this temple's actual ceiling; this bake restores the master verbatim,
-// its ending included, at the client's explicit instruction. If the ending is ever
-// judged wrong again, bake-door-film.sh and the reference photograph are still in
-// the tree and that is the route back.
-const FRAME_COUNT = 200; // MUST match the bake in public/door/seq/*
-// Phone tier, desktop tier. The desktop tier is 1200 — NOT the 1600 it used to
-// be — because createImageBitmap decodes the WHOLE source before it applies
-// resizeWidth, so a 1600w file costs 1600x890 of decode to produce a smaller
-// bitmap we then paint. Profiling the scrub put ~74% of the time in
-// browser-internal work (blob/fetch/createImageBitmap) and only 65ms in
-// drawImage — i.e. this film is decode-bound, not draw-bound, and the source
-// width IS the decode cost. decodeWidth now decodes this tier NATIVELY, so the
-// tier width is exactly the decode cost and not a byte of it is wasted.
-const FRAME_TIERS = [800, 1200] as const;
-const frameSrc = (tier: number, i: number) =>
-  `/door/seq/${tier}/f-${String(i).padStart(3, "0")}.webp`;
+//    THE TRADE, on the record. Seeking video.currentTime is asynchronous and
+//    browsers COALESCE seeks under continuous input, so a scroll handler asking for
+//    60 positions a second does not get 60 frames back — it gets the ones the
+//    decoder finishes, and the film can lag the hand. That is why this was a frame
+//    sequence for several iterations (measured then: 237ms per seek at 1928 CABAC,
+//    tuned to 58ms avg / 110ms max in software decode). Two things keep it honest
+//    here: the file is ALL-INTRA, so every seek decodes exactly one frame with no
+//    GOP to walk, and the scrubber below never issues a seek while one is in
+//    flight — it keeps only the latest wanted time and re-seeks on `seeked`, so
+//    seeks never queue up. If the film ever reads laggy again rather than soft,
+//    that is this trade coming due, and the frame-bake route is in git history
+//    (scripts/bake-home-film.sh, scripts/bake-door-film.sh).
+//
+//    RE-ENCODE (all-intra is what makes it seekable; it costs size, ~38MB desktop):
+//      ffmpeg -i <master> -an -vf fps=30 -c:v libx264 -preset slow -crf 20 \
+//        -coder 0 -tune fastdecode -x264opts keyint=1:min-keyint=1:no-scenecut \
+//        -pix_fmt yuv420p -movflags +faststart public/door/film.mp4
+//    CAVLC (-coder 0) over CABAC halves decode cost — measured on this footage —
+//    and +faststart puts the moov atom first so seeking works before a full load.
+//
+//    The acts, as fractions of the film's duration (PACE maps scroll onto these):
+//      0.000-0.253   door approach + swing   0-2.5s
+//      0.253-0.708   slow walk-in            2.5-7.0s
+//      0.708-1.000   ceiling crane           7.0-9.89s
+//
+//    This restores the master's OWN ending. A previous cut replaced its last ~3s
+//    (a Kling 3.0 crane pinned to assets/door/ceiling-reference.png) because that
+//    ending cranes into a dark angled ceiling that is not this temple's actual one.
+//    The client asked for the master verbatim; if that judgement flips again,
+//    scripts/bake-door-film.sh and the reference photograph are both still here. --
+const FILM_DESKTOP = "/door/film.mp4"; // 1928x1072, all-intra, native master res
+const FILM_MOBILE = "/door/film-960.mp4"; // 960w, all-intra
+// Below this CSS width the phone encode is used — it is the smaller download and
+// no phone paints anywhere near 1928 across.
+const FILM_MOBILE_MAX_W = 820;
 const POSTER = "/door/door-open-poster.jpg";
 const CEIL_POSTER = "/door/ceiling-poster.jpg"; // reduced-motion fallback backdrop
 const GOLD = "var(--color-gold)";
@@ -240,7 +244,7 @@ const seg = (p: number, from: number, len: number) =>
 export default function HomeFilm() {
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
-  const filmCanvas = useRef<HTMLCanvasElement>(null);
+  const filmVideo = useRef<HTMLVideoElement>(null);
   const motesCv = useRef<HTMLCanvasElement>(null);
 
   // NOTE: a synthetic god-ray layer (a live additive canvas of soft beams) and a
@@ -359,14 +363,9 @@ export default function HomeFilm() {
   useIsomorphicLayoutEffect(() => {
     const rootEl = root.current;
     const stageEl = stage.current;
-    const canvas = filmCanvas.current;
-    if (!rootEl || !stageEl || !canvas) return;
-    // alpha:false — the film always covers the full canvas, so an opaque backing
-    // lets the compositor skip per-pixel blending of a fullscreen layer (matters
-    // on retina). The poster behind it covers until the first frame draws.
-    const c2d = canvas.getContext("2d", { alpha: false });
-    if (!c2d) return;
-    canvas.style.opacity = "0";
+    const video = filmVideo.current;
+    if (!rootEl || !stageEl || !video) return;
+    video.style.opacity = "0"; // the poster covers until the first frame is decoded
 
     let disposed = false;
     let firedOpen = false;
@@ -377,140 +376,76 @@ export default function HomeFilm() {
       openDoors();
     };
 
-    // ---- the film: a BAKED FRAME SEQUENCE drawn on a canvas ----
-    // Scroll progress picks a frame index; the nearest DECODED frame is drawn
-    // object-cover in ONE synchronous drawImage per rAF. There is no video seek and
-    // no async decode gating, so the film tracks the scroll frame-for-frame at any
-    // speed — the fix for the slow-scroll lag/inconsistency of the old <video>
-    // scrub. Frames decode OFF the main thread (createImageBitmap), coarse-to-fine,
-    // so the whole film is scrubbable within a breath and the tail fills in behind
-    // the cursor; nearest() covers any not-yet-landed frame.
+    // ---- the film: the client's master, decoded by the BROWSER at native size ----
+    // Scroll progress maps to video.currentTime. Nothing is re-encoded, resampled or
+    // blitted on the way to the screen, which is the whole point: the master reaches
+    // the compositor at 1928x1072 and the GPU alone fits it to the viewport.
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // DPR is capped LOW on purpose. The bitmap store can only hold every frame if
-    // each is decoded well under native, so the painted canvas must not be much
-    // wider than that decode — otherwise every frame is upscaled and the film
-    // looks soft no matter how sharp the source is. At DPR 2 a 1440 viewport
-    // paints 2880px from a 1080px bitmap (2.7x upscale = the blur), and fills
-    // 5.2M pixels per frame (the single biggest per-frame cost). 1.4 keeps the
-    // upscale under 2x AND halves the fill, which is what makes the scrub smooth.
-    const dprCap = Math.min(window.devicePixelRatio || 1, 1.15);
-    // Tier, sized to the ACTUAL painted size (the stage is full-viewport). Phones
-    // take the light 800 tier; everything else the 1200 desktop tier. (This used to
-    // justify a decode cap by "the store holds every frame" — it no longer does:
-    // `retain` bounds residency instead, which is what makes the cap unnecessary.)
-    const cssW = canvas.clientWidth || window.innerWidth;
-    const backingW = Math.round(cssW * dprCap);
-    const tier = backingW > 900 ? FRAME_TIERS[1] : FRAME_TIERS[0];
-    // Decode at what is actually painted, never below it — an upscaled bitmap is
-    // the one blur no amount of source quality can fix, and the extra cap on top of
-    // the tier was exactly that: 1100px stretched across a ~1660px backing store and
-    // then composited up again for a retina panel, which read as 720p (client).
-    // Removing the cap is FREE here, which is the useful consequence of the
-    // decode-bound finding above: createImageBitmap decodes the whole SOURCE before
-    // it applies resizeWidth, so decoding this 1200 tier to 1200 costs exactly what
-    // decoding it to 1100 cost — same file, same decode — and simply stops throwing
-    // the result away. It only spends a little more resident memory, which `retain`
-    // already bounds: 60 x 1200x668x4 ≈ 192MB, far inside the ~700MB that thrashed.
-    // Never ABOVE `tier` either — the baked file holds no more detail than that.
-    const decodeWidth = Math.min(backingW, tier);
 
-    let currentIdx = 0; // the FRACTIONAL frame the scrub currently wants
-    // What is actually painted, packed into ONE number (j0, j1, blend step) so the
-    // hot path allocates nothing — a template-string key here would mint a fresh
-    // string every rAF, i.e. ~60 short-lived objects a second feeding the GC.
-    let drawnKey = -1;
-    const LAST = FRAME_COUNT - 1;
-    const BLEND_STEPS = 24; // sub-frame resolution of the cross-dissolve
-    // SUB-FRAME CROSS-DISSOLVE — this is what makes it read as film rather than a
-    // flipbook. `renderedP` is a continuous float, but snapping it to one of 200
-    // frames threw that smoothness away: scrolling slowly advanced the film only
-    // ~3-4 frames a second, which is exactly the "steppy, not slow-mo" feel. We
-    // now blend the two NEIGHBOURING frames by the fractional part, so the image
-    // drifts continuously instead of stepping, and the blend doubles as a gentle
-    // motion blur. Cost is two drawImage calls (~1.3ms laptop / 4ms retina) inside
-    // a 16.7ms budget. The blend is quantised so a parked scrub stops repainting.
-    const drawFilm = (idx: number) => {
-      currentIdx = idx;
-      const cw = canvas.width;
-      const ch = canvas.height;
-      if (!cw || !ch) return;
-      // Keep the retain window centred on the playhead. Cheap (it early-outs
-      // unless the rounded index actually moved), so calling it per draw is fine.
-      seq.focus(idx);
-      const i0 = Math.min(LAST, Math.floor(idx));
-      const q = Math.round((idx - i0) * BLEND_STEPS);
-      const j0 = seq.nearest(i0);
-      if (j0 < 0) return;
-      const j1 = q > 0 ? seq.nearest(Math.min(LAST, i0 + 1)) : j0;
-      const key = (j0 * FRAME_COUNT + j1) * (BLEND_STEPS + 1) + q;
-      if (key === drawnKey) return;
-      const paint = (frame: Frame, alpha: number) => {
-        const { w: iw, h: ih } = frameSize(frame);
-        const s = Math.max(cw / iw, ch / ih); // cover-fit, centred
-        const dw = iw * s;
-        const dh = ih * s;
-        if (alpha < 1) c2d.globalAlpha = alpha;
-        c2d.drawImage(frame, (cw - dw) / 2, (ch - dh) / 2, dw, dh);
-        if (alpha < 1) c2d.globalAlpha = 1;
-      };
-      const f0 = seq.get(j0);
-      if (!f0) return;
-      paint(f0, 1); // the base frame, fully opaque (the canvas is alpha:false)
-      if (j1 !== j0) {
-        const f1 = seq.get(j1);
-        if (f1) paint(f1, q / BLEND_STEPS); // ...the next one dissolved over it
-      }
-      drawnKey = key;
-    };
-
-    // Backing store follows the painted size × dpr (capped). A resize clears it, so
-    // repaint the current frame after.
-    const fitCanvas = () => {
-      const w = Math.round((canvas.clientWidth || window.innerWidth) * dprCap);
-      const h = Math.round((canvas.clientHeight || window.innerHeight) * dprCap);
-      if (w && h && (canvas.width !== w || canvas.height !== h)) {
-        canvas.width = w;
-        canvas.height = h;
-        drawnKey = -1;
-        drawFilm(currentIdx);
-      }
-    };
-
-    const seq = createFrameSequence({
-      count: FRAME_COUNT,
-      src: (i) => frameSrc(tier, i),
-      // 16→…→1: the whole span is coarsely scrubbable after a handful of decodes.
-      strides: [16, 8, 4, 2, 1],
-      // Deliberately LOW. createImageBitmap decodes off-thread, but each finished
-      // bitmap still lands on the main thread (GPU upload), so N decodes finishing
-      // together punch a hole in the scrub. At 200 frames a concurrency of 6 cost
-      // an ~80ms hitch mid-scrub; 3 keeps the handoffs trickling. The tail simply
-      // arrives a little later, which nearest() already covers invisibly.
-      concurrency: 3,
-      wrap: false, // a FILM, not a loop — a gap falls back to the nearest side
-      decodeWidth,
-      // Bounded bitmap store. Holding the WHOLE film resident is what actually
-      // made the scrub stutter: measured, scrolling AFTER the film had fully
-      // landed was worse than during loading (136 long tasks / 21.8s vs 90 /
-      // 8.6s) because ~700MB of ImageBitmaps thrashes. A window that follows the
-      // playhead keeps it near ~90 frames (~230MB at this decode width) no matter
-      // how long the film gets, so the frames can stay SHARP without the store
-      // ever getting big enough to hurt. Frames outside it are closed and
-      // re-fetched (nearest() covers the instant before one lands).
-      retain: 60,
-      onFrame: (_i, first) => {
-        if (first) canvas.style.opacity = "1"; // crossfade over the poster (closed doors)
-        drawFilm(currentIdx); // a newly-landed frame may better match where we're parked
-      },
-    });
-
-    let onResize: (() => void) | undefined;
-    if (!reducedMotion) {
-      fitCanvas();
-      onResize = () => fitCanvas();
-      window.addEventListener("resize", onResize, { passive: true });
-      seq.start();
+    // Source tier. Phones take the 960 encode — a smaller download, and no phone
+    // paints anywhere near 1928 across.
+    // Reduced motion never scrubs — the branch below lands on the static ceiling
+    // poster instead — so it must never pay for the film either. Leaving `src` unset
+    // is what keeps a 38MB all-intra download off that path entirely.
+    const src = window.innerWidth <= FILM_MOBILE_MAX_W ? FILM_MOBILE : FILM_DESKTOP;
+    if (!reducedMotion && video.getAttribute("src") !== src) {
+      video.src = src;
+      video.load();
     }
+
+    // The film's length in seconds, once metadata lands. PACE emits a FRACTION of
+    // the film, so nothing downstream needs to know the duration but this.
+    let duration = 0;
+    let primed = false;
+    const onMeta = () => {
+      duration = Number.isFinite(video.duration) ? video.duration : 0;
+      seek(); // the scroll may already be parked somewhere
+    };
+    const onReady = () => {
+      if (disposed) return;
+      video.style.opacity = "1"; // crossfade over the poster (closed doors)
+      // iOS will not paint a frame from a seek alone until the element has decoded
+      // once. A muted+playsInline play/pause primes it and is a no-op elsewhere.
+      if (!primed) {
+        primed = true;
+        void video.play().then(() => video.pause()).catch(() => {});
+      }
+    };
+    video.addEventListener("loadedmetadata", onMeta);
+    video.addEventListener("loadeddata", onReady);
+
+    // SELF-COALESCING SCRUBBER. A scroll handler wants a new time ~60x a second, but
+    // a seek is asynchronous — assigning currentTime while a seek is in flight makes
+    // the browser drop the intermediate requests, which is exactly the "film lags the
+    // hand" failure this architecture is known for. So keep only the LATEST wanted
+    // time, issue one seek at a time, and re-issue on `seeked` if the target moved
+    // while we waited. Seeks never queue, and the film always converges on where the
+    // scroll actually is rather than trailing through stale positions.
+    let wantT = 0;
+    let seeking = false;
+    const EPS = 1 / 60; // half a frame at 30fps — closer than this is already correct
+    const onSeeked = () => {
+      seeking = false;
+      if (disposed) return;
+      if (Math.abs(wantT - video.currentTime) > EPS) seek();
+    };
+    video.addEventListener("seeked", onSeeked);
+    const seek = () => {
+      if (disposed || seeking || !duration) return;
+      const t = Math.min(duration - EPS, Math.max(0, wantT));
+      if (Math.abs(video.currentTime - t) <= EPS) return;
+      seeking = true;
+      try {
+        video.currentTime = t;
+      } catch {
+        seeking = false; // not seekable yet; the next scroll tick retries
+      }
+    };
+    /** Called from apply() with the film fraction PACE produced. */
+    const scrubTo = (frac: number) => {
+      wantT = gsap.utils.clamp(0, 1, frac) * duration;
+      seek();
+    };
 
     const ctx = gsap.context(() => {
       const q = <T extends HTMLElement>(s: string) => rootEl.querySelector<T>(s);
@@ -553,7 +488,7 @@ export default function HomeFilm() {
         // and the ceiling reveal; past FILM_END the last frame holds the settled
         // ceiling as the brand resolves on it.
         const fp = seg(P, 0, FILM_END);
-        drawFilm(paceMap(fp) * (FRAME_COUNT - 1)); // fractional — see drawFilm
+        scrubTo(paceMap(fp)); // PACE emits a fraction of the film; see scrubTo
         if (dcueEl) gsap.set(dcueEl, { opacity: 1 - easeIn(seg(fp, D.cueOut, 0.14)) });
 
         // ---- door-open light + cinematic push (fp) ----
@@ -767,8 +702,14 @@ export default function HomeFilm() {
     return () => {
       disposed = true;
       holdHeader("film", false);
-      if (onResize) window.removeEventListener("resize", onResize);
-      seq.dispose(); // cancel in-flight decodes + free the ImageBitmaps
+      video.removeEventListener("loadedmetadata", onMeta);
+      video.removeEventListener("loadeddata", onReady);
+      video.removeEventListener("seeked", onSeeked);
+      // Drop the decoder and its buffers — without this a client-side nav away from
+      // "/" leaves a 38MB all-intra video resident and still buffering.
+      video.pause();
+      video.removeAttribute("src");
+      video.load();
       ctx.revert();
       ScrollTrigger.refresh();
     };
@@ -808,12 +749,19 @@ export default function HomeFilm() {
         {/* the film. Nothing is layered over the doorway any more — the light
             coming through the opening is the footage's own baked god-rays. */}
         <div className="hf-zoom pointer-events-none absolute inset-0 z-[2]" aria-hidden>
-          {/* the scrubbed film — a baked WebP frame sequence drawn object-cover on
-              a canvas (scroll picks the frame), crossfading over the poster (closed
-              doors) once the first frame lands */}
-          <canvas
-            ref={filmCanvas}
-            className="absolute inset-0 h-full w-full opacity-0"
+          {/* the scrubbed film — the client's master itself, scroll driving
+              currentTime, crossfading over the poster (closed doors) once the first
+              frame decodes. object-cover so it fills the stage exactly as the canvas
+              did. `src` is set in the effect, not here, so the phone tier can be
+              chosen before a byte is fetched. */}
+          <video
+            ref={filmVideo}
+            className="absolute inset-0 h-full w-full object-cover opacity-0"
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            aria-hidden
           />
         </div>
         {/* filmic vignette */}
