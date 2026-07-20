@@ -96,13 +96,42 @@ export default function FeaturedGallery() {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // row = [set][duplicate]; drifting exactly one set (-50%) loops seamlessly.
-        drift.current = gsap.to(row, {
-          xPercent: -50,
-          duration: 46,
-          ease: "none",
-          repeat: -1,
+        // The row is [set][duplicate], so ONE cycle must advance exactly one set's
+        // PITCH — the distance from card 0 to card N, gap included. That is NOT a
+        // percentage of the row, which is what `xPercent: -50` assumed: the row also
+        // carries `px-[14vw]` padding and a gap between every card, so half the row
+        // overshot one set by roughly 14vw minus half a gap (~190px at 1440 wide).
+        // Every cycle therefore jumped by that much — the visible break at the end.
+        // Measured from the elements instead, padding and gap cannot desync it.
+        const measurePitch = () =>
+          cards[ITEMS.length].offsetLeft - cards[0].offsetLeft;
+        let pitch = measurePitch();
+        let active = false;
+        const build = () => {
+          drift.current?.kill();
+          pitch = measurePitch();
+          if (!pitch) return;
+          drift.current = gsap.to(row, {
+            x: `-=${pitch}`,
+            duration: 46,
+            ease: "none",
+            repeat: -1,
+            // Wrap x into (-pitch, 0]. The distance alone already makes the restart
+            // invisible; this keeps float error from accumulating over a long idle
+            // loop, so it is still seamless on the hundredth pass.
+            modifiers: { x: (v) => `${parseFloat(v) % pitch}px` },
+          });
+          drift.current.pause(); // tick() decides when it may run
+          active = false;
+        };
+        build();
+        // The cards are viewport-HEIGHT sized (`h-[clamp(11rem,30vh,22rem)]`) and the
+        // padding is vw, so a resize changes the pitch and would desync the loop
+        // again. Re-measure and rebuild when it actually moves.
+        const ro = new ResizeObserver(() => {
+          if (Math.abs(measurePitch() - pitch) > 1) build();
         });
+        ro.observe(row);
         layout();
         // This gallery is ACT 4 inside HomeFilm's PINNED stage: it sits in the
         // viewport (at opacity 0) for the WHOLE film, so IntersectionObserver
@@ -118,7 +147,6 @@ export default function FeaturedGallery() {
         const overlayVisible = () =>
           !overlay || parseFloat(overlay.style.opacity || "1") > 0.005;
         let onScreen = false;
-        let active = false;
         const tick = () => {
           const want = onScreen && overlayVisible();
           if (want !== active) {
@@ -128,8 +156,7 @@ export default function FeaturedGallery() {
           }
           if (active) layout();
         };
-        drift.current.pause(); // starts hidden behind the film; tick() resumes it
-        gsap.ticker.add(tick);
+        gsap.ticker.add(tick); // build() left it paused; tick() resumes it
         const io = new IntersectionObserver(
           ([e]) => {
             onScreen = e.isIntersecting;
@@ -140,6 +167,7 @@ export default function FeaturedGallery() {
         return () => {
           gsap.ticker.remove(tick);
           io.disconnect();
+          ro.disconnect();
         };
       });
 
