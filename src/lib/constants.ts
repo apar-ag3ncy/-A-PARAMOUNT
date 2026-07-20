@@ -20,10 +20,10 @@ export const CONTACT = {
     "F-107, Ansa Industrial Estate, Saki Vihar Road, Sakinaka, Andheri East, Mumbai 400072",
   ],
   people: [
-    { name: "Suresh Zaveri", phone: "+91 93242 45830" },
-    { name: "Harshal Zaveri", phone: "+91 98210 44024" },
-    { name: "Nehal Zaveri", phone: "+91 98211 89666" },
-    { name: "Yesha Zaveri Shah", phone: "+91 98707 41412" },
+    { title: "Mr.", name: "Suresh Zaveri", phone: "+91 93242 45830" },
+    { title: "Mr.", name: "Harshal Zaveri", phone: "+91 98210 44024" },
+    { title: "Mr.", name: "Nehal Zaveri", phone: "+91 98211 89666" },
+    { title: "Mrs.", name: "Yesha Zaveri Shah", phone: "+91 98707 41412" },
   ],
 } as const;
 

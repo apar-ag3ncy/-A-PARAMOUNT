@@ -52,7 +52,7 @@ export default function Footer() {
         }}
       />
 
-      <div className="relative mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center px-6 py-14 text-center sm:py-16">
+      <div className="relative mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-6 py-10 text-center sm:py-12">
         {/* the mark — centred, as it is on the landing page */}
         <Link href="/" aria-label={SITE.name}>
           <Image
@@ -61,41 +61,76 @@ export default function Footer() {
             aria-hidden
             width={269}
             height={234}
-            className="h-16 w-auto opacity-95 sm:h-20"
+            className="h-14 w-auto opacity-95 sm:h-16"
           />
         </Link>
 
-        <p className="pm-label mt-7 font-display text-cream/90">
+        <p className="pm-label mt-6 font-display text-cream/90">
           {SITE.tagline} · Since {SITE.since}
         </p>
 
-        <span aria-hidden className="mt-8 mb-8 block h-px w-16 bg-cream/25" />
+        <span aria-hidden className="mt-6 mb-8 block h-px w-16 bg-cream/25" />
 
-        <ul className="space-y-2.5">
-          <li>
-            <a
-              href={`mailto:${CONTACT.email}`}
-              className="pm-small font-body text-cream/85 transition-colors hover:text-gold"
-            >
-              {CONTACT.email}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`tel:${CONTACT.people[0].phone.replace(/\s/g, "")}`}
-              className="pm-small font-body text-cream/85 transition-colors hover:text-gold"
-            >
-              {CONTACT.people[0].phone}
-            </a>
-          </li>
-          {/* /75 not /60: against the brightest marble under this row the dimmer
-              value measured 4.40:1, just shy of the 4.5:1 bar. */}
-          <li className="pm-small font-body text-cream/75">Sakinaka, Mumbai</li>
-        </ul>
+        {/* The full contact block. THREE columns rather than one stacked list:
+            this is ~12 lines of detail, and centred in a single column it doubled
+            the footer's height and pushed the wordmark off the screen. The address
+            column is given the extra width (1.4fr) because those two lines are by
+            far the longest and would otherwise wrap to four lines each while the
+            others sat half empty. Stacks to one column on a phone. */}
+        <div className="grid w-full gap-x-12 gap-y-8 text-center sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.1fr] lg:text-left">
+          <div>
+            <h2 className="pm-label font-display text-cream/60">Address</h2>
+            <ul className="mt-3 space-y-2">
+              {CONTACT.addresses.map((line) => (
+                /* /85 not /60: against the brightest marble under this block the
+                   dimmer value measured 4.40:1, just shy of the 4.5:1 bar. */
+                <li key={line} className="pm-small font-body text-cream/85">
+                  {line}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="pm-label font-display text-cream/60">Reach us</h2>
+            <ul className="mt-3 space-y-2">
+              <li>
+                <a
+                  href={`mailto:${CONTACT.email}`}
+                  className="pm-small font-body text-cream/85 transition-colors hover:text-gold"
+                >
+                  {CONTACT.email}
+                </a>
+              </li>
+              <li className="pm-small font-body text-cream/85">
+                Facebook / Instagram
+                <span className="mt-1 block text-cream/70">{CONTACT.social}</span>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h2 className="pm-label font-display text-cream/60">Speak to us</h2>
+            <ul className="mt-3 space-y-2">
+              {CONTACT.people.map((person) => (
+                <li key={person.phone} className="pm-small font-body text-cream/85">
+                  {person.title} {person.name}
+                  {" · "}
+                  <a
+                    href={`tel:${person.phone.replace(/\s/g, "")}`}
+                    className="tabular-nums whitespace-nowrap transition-colors hover:text-gold"
+                  >
+                    {person.phone}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
 
         <Link
           href="/contact"
-          className="pm-label mt-9 inline-flex items-center rounded-full border border-cream/35 px-6 py-2.5 font-display text-cream transition-colors hover:border-gold hover:text-gold"
+          className="pm-label mt-10 inline-flex items-center rounded-full border border-cream/35 px-6 py-2.5 font-display text-cream transition-colors hover:border-gold hover:text-gold"
         >
           Send a message
         </Link>
