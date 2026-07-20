@@ -87,17 +87,38 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 //    that is this trade coming due, and the frame-bake route is in git history
 //    (scripts/bake-home-film.sh, scripts/bake-door-film.sh).
 //
-//    RE-ENCODE (all-intra is what makes it seekable; it costs size, ~38MB desktop):
-//      ffmpeg -i <master> -an -vf fps=30 -c:v libx264 -preset slow -crf 20 \
-//        -coder 0 -tune fastdecode -x264opts keyint=1:min-keyint=1:no-scenecut \
+//    RE-ENCODE — the mpdecimate step is NOT optional, see below:
+//      ffmpeg -i assets/door/final-1-120fps-master.mp4 -an \
+//        -vf "mpdecimate=hi=896:lo=448:frac=0.25,setpts=N/(24*TB)" -r 24 \
+//        -c:v libx264 -preset medium -tune fastdecode -crf 20 \
+//        -x264-params keyint=1:min-keyint=1:scenecut=0 \
 //        -pix_fmt yuv420p -movflags +faststart public/door/film.mp4
-//    CAVLC (-coder 0) over CABAC halves decode cost — measured on this footage —
-//    and +faststart puts the moov atom first so seeking works before a full load.
+//    (+ the same with `,scale=960:-2:flags=lanczos` and -crf 23 for film-960.mp4)
+//    All-intra is what makes it seekable: one frame decoded per seek, no GOP walk.
+//    +faststart puts the moov atom first so seeking works before a full load.
+//
+//    WHY mpdecimate: the client's master is 120fps wrapping ~23fps of real content,
+//    so 4 of every 5 frames are exact duplicates — and it also FREEZES outright for
+//    ~0.43s at 5.90-6.33s, right before the camera tilts up. On a scroll-scrubbed
+//    film a duplicate frame is scroll that produces no picture, so the visitor
+//    pushed the wheel and nothing moved, then the shot lurched into the ceiling —
+//    which read as "the transition looks weird and fake, like a different video"
+//    (client). Measured on the previous 30fps encode: 70 of 297 frames were dead
+//    (23.6%), including a solid 13-frame stall. Decimating to unique frames only
+//    leaves 228 frames, 2 of them slow (0.9%), no frame-to-frame jump above 2.5x
+//    the median step, and the file is SMALLER (29MB vs 38MB). Cutting the stall is
+//    provably invisible: the image difference straight across it is 4.10 against a
+//    median frame step of 8.06 — i.e. less change than one ordinary frame.
+//    Do not re-encode this film with a plain `-vf fps=N`; that re-introduces the
+//    duplicates and the stall comes back.
 //
 //    The acts, as fractions of the film's duration (PACE maps scroll onto these):
-//      0.000-0.253   door approach + swing   0-2.5s
-//      0.253-0.708   slow walk-in            2.5-7.0s
-//      0.708-1.000   ceiling crane           7.0-9.89s
+//      0.000-0.263   door approach + swing   0-2.50s
+//      0.263-0.693   slow walk-in            2.50-6.58s
+//      0.693-1.000   ceiling crane           6.58-9.50s
+//    (Fractions re-derived after the DECIMATED re-encode below — the film is now
+//    9.50s, not 9.89s. They were located by frame-matching the master's own
+//    2.5s and 7.0s frames into the new file, match difference 0.57 and 0.48.)
 //
 //    This restores the master's OWN ending. A previous cut replaced its last ~3s
 //    (a Kling 3.0 crane pinned to assets/door/ceiling-reference.png) because that
@@ -119,18 +140,19 @@ const GOLD = "var(--color-gold)";
 const FILM_END = 0.68;
 
 // Scrub pacing — control points [filmProgress fp, frameFraction], timed to the
-// master's own act boundaries (doors stand open at 2.5s = frac 0.253; the walk-in
-// ends and the crane starts at 7.0s = frac 0.708 — both verified frame by frame).
+// master's own act boundaries (doors stand open at 2.50s = frac 0.263; the walk-in
+// ends and the crane starts at 6.58s = frac 0.693 — both located by frame-matching
+// the master's frames into the decimated encode, match difference 0.57 / 0.48).
 // The fp (scroll) column carries the art direction and is unchanged from the cut
 // the client approved: the door swing gets the first 42% of the film's scroll —
 // the slow-mo payoff — then the walk-in lingers through the hall, then the crane
 // glides up and settles. Only the frame column follows this bake.
 const PACE: ReadonlyArray<readonly [number, number]> = [
   [0.0, 0.0],
-  [0.16, 0.082], // the approach — SLOWEST beat, dwelling on the closed doors
-  [0.42, 0.253], // the swing itself in slow-mo (doors open at 2.5s → f 50/199)
-  [0.72, 0.708], // the lingering walk-in to the shrine (ends 7.0s → f 141/199)
-  [0.89, 0.907], // the crane lifts up the ceiling
+  [0.16, 0.085], // the approach — SLOWEST beat, dwelling on the closed doors
+  [0.42, 0.263], // the swing itself in slow-mo (doors stand open at 2.50s)
+  [0.72, 0.693], // the lingering walk-in to the shrine (crane starts 6.58s)
+  [0.89, 0.902], // the crane lifts up the ceiling
   [1.0, 1.0], // ...and EASES to rest on the full ceiling — the brand's backdrop
 ];
 
