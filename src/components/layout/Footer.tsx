@@ -121,7 +121,13 @@ export default function Footer() {
             // but jammed hard against both edges it READ as cut off (client, twice).
             // 10.3vw lands it near 86%, which leaves a visible margin on both sides.
             fontSize: "clamp(2rem, 10.3vw, 16rem)",
-            lineHeight: 0.8,
+            // 1, not 0.8. At 0.8 the line box (124px) was SHORTER than the glyphs
+            // (~128px), so the letters spilled ~17px out of their own box and up into
+            // the content column above — the word never occupied the space it was
+            // given, which is what read as it not fitting vertically. At 1 the box
+            // contains the ink, so the gaps above and below are the ones actually set
+            // here rather than whatever the overflow happened to leave.
+            lineHeight: 1,
             letterSpacing: "-0.005em",
             // ZERO. This used to be +0.04em to push the word down into the base for
             // the "cut into the base" gesture, but combined with `line-height: 0.8`
