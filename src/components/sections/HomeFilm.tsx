@@ -825,7 +825,7 @@ export default function HomeFilm() {
           className="hf-dcue pointer-events-none absolute left-1/2 z-[6] flex -translate-x-1/2 flex-col items-center gap-3"
           style={{ top: "calc(100svh - 5.25rem)" }}
         >
-          <span className="font-display text-[10px] tracking-[0.3em] text-cream/70 uppercase">
+          <span className="font-display text-[12px] tracking-[0.3em] text-cream/70 uppercase">
             Scroll to open
           </span>
           <span
@@ -976,14 +976,17 @@ export default function HomeFilm() {
           {/* All THREE words in Storica (client). "Elegance" used to be pinned to
               font-body — the Inter accent the deck uses for italics — but there is no
               italic here, so it just read as a different face mid-phrase. */}
-          <p className="hv-tag mt-7 font-display text-2xl opacity-0 sm:text-4xl">
+          {/* pm-h2, not text-2xl/sm:text-4xl. This tagline is a SUBHEADING under the
+              wordmark, and sm:text-4xl resolved to 36px — 6px over the 30px ceiling
+              the client set for subheadings. pm-h2 lands it 24 -> 30px. */}
+          <p className="hv-tag pm-h2 mt-7 font-display opacity-0">
             Crafting Divine Elegance
           </p>
         </div>
 
 
 
-        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 font-display text-[10px] tracking-[0.34em] text-white/70 uppercase opacity-0">
+        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 font-display text-[12px] tracking-[0.34em] text-white/70 uppercase opacity-0">
           Scroll to continue
         </div>
 

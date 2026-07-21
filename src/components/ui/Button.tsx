@@ -45,7 +45,7 @@ const VARIANT_DARK: Partial<Record<Variant, string>> = {
 };
 
 const SIZE: Record<Size, string> = {
-  sm: "px-4 py-2 text-[11px]",
+  sm: "px-4 py-2 text-[12px]", // 12px is the spec floor for small text
   md: "px-6 py-2.5 text-[12px]",
   lg: "px-8 py-3.5 text-[13px]",
 };

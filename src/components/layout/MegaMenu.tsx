@@ -194,7 +194,7 @@ export default function MegaMenu() {
                       <p className="text-center font-body text-sm text-maroon">
                         The Catalogue
                       </p>
-                      <p className="mt-0.5 text-center font-display text-[10px] tracking-[0.22em] text-maroon/60 uppercase">
+                      <p className="mt-0.5 text-center font-display text-[12px] tracking-[0.22em] text-maroon/60 uppercase">
                         50 sacred works →
                       </p>
                     </div>
@@ -210,7 +210,7 @@ export default function MegaMenu() {
                         {feature?.title}
                       </p>
                       {feature?.blurb && (
-                        <p className="mx-auto mt-1.5 max-w-[26ch] overflow-hidden text-center font-body text-[11.5px] leading-[1.5] text-maroon/70 [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [display:-webkit-box]">
+                        <p className="mx-auto mt-1.5 max-w-[26ch] overflow-hidden text-center font-body text-[12px] leading-[1.5] text-maroon/70 [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [display:-webkit-box]">
                           {feature.blurb}
                         </p>
                       )}
@@ -271,7 +271,7 @@ export default function MegaMenu() {
                     <Link
                       href={`/products/${f.slug}`}
                       onClick={() => setOpen(false)}
-                      className="mt-5 inline-block font-display text-[10px] tracking-[0.18em] text-maroon uppercase hover:text-maroon"
+                      className="mt-5 inline-block font-display text-[12px] tracking-[0.18em] text-maroon uppercase hover:text-maroon"
                     >
                       View all →
                     </Link>
