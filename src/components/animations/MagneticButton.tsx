@@ -34,11 +34,14 @@ interface Props {
  * incapable of silently no-opping the way the magnet did. No JS on the interaction
  * path at all.
  *
- * ALIGNMENT, do not regress: the arrow is ABSOLUTE. Inline it sat in flow at
- * opacity 0 and still reserved its 16px plus a 12px gap, pushing the label 14px off
- * the pill's centre — 33px of space to its left against 61px to its right. Out of
- * flow the label centres properly (measured 37/37) and the arrow fades in over the
- * right padding instead of shoving the copy sideways.
+ * ALIGNMENT, do not regress. TWO things centre this label, and both are load-bearing:
+ *  1. The arrow is ABSOLUTE. Inline it sat in flow at opacity 0 and still reserved
+ *     its 16px plus a 12px gap, pushing the label 14px off the pill's centre — 33px
+ *     of space to its left against 61px to its right.
+ *  2. The right padding is SHORTER than the left by exactly the tracking. Tracked
+ *     caps leave a space after the last glyph which sits inside the label's box but
+ *     carries no ink, so with a symmetric px-9 the visible text still sat 1.4px left
+ *     of centre. In em, so it stays correct if the tracking or size changes.
  */
 export default function MagneticButton({
   children,
@@ -55,7 +58,7 @@ export default function MagneticButton({
     // a `flex justify-center` row, so with the old magnetic wrapper span gone the
     // link became a direct FLEX ITEM and shrank below its content — the label wrapped
     // to two lines and the pill collapsed from 315x54 to 164x94.
-    "group relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border px-9 py-4 font-display text-sm tracking-[0.2em] whitespace-nowrap uppercase",
+    "group relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full border py-4 pl-9 pr-[calc(2.25rem-0.2em)] font-display text-sm tracking-[0.2em] whitespace-nowrap uppercase",
     // `transform` is in the transition list for the lift; everything animated here
     // is transform/opacity/colour, so the hover stays cheap on the heaviest page.
     "transition-[color,border-color,box-shadow,transform] duration-500 ease-out hover:-translate-y-0.5",

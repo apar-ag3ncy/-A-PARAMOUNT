@@ -138,7 +138,10 @@ export default function Footer() {
 
         <Link
           href="/contact"
-          className="pm-label mt-10 inline-flex items-center rounded-full border border-cream/35 px-6 py-2.5 font-display text-cream transition-colors hover:border-gold hover:text-gold"
+          /* pr shorter than pl by the tracking: pm-label sets 0.16em, and the space
+             after the last glyph is inside the box but carries no ink, so with
+             symmetric px-6 the label sat 0.96px left of the pill's centre. */
+          className="pm-label mt-10 inline-flex items-center rounded-full border border-cream/35 py-2.5 pl-6 pr-[calc(1.5rem-0.16em)] font-display text-cream transition-colors hover:border-gold hover:text-gold"
         >
           Let&apos;s Connect Today
         </Link>

@@ -72,7 +72,18 @@ function Inner({
   const showArrow = arrow ?? variant === "ghost";
   return (
     <>
-      <span className="relative z-10 inline-flex items-center gap-2">
+      {/* -me-[0.16em] compensates the TRAILING letter-space. BASE sets
+          tracking-[0.16em], and the space after the last glyph sits inside this
+          span's box while carrying no ink — so with the symmetric px-* padding the
+          visible label centred 1.04px left of the pill on a `lg`. Only when there is
+          no arrow: with one, the span already ENDS on the arrow's ink, so there is
+          no box/ink mismatch to correct and compensating would over-shift it. */}
+      <span
+        className={cn(
+          "relative z-10 inline-flex items-center gap-2",
+          !showArrow && "-me-[0.16em]",
+        )}
+      >
         {children}
         {showArrow && (
           <svg

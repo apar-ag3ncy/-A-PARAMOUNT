@@ -310,7 +310,12 @@ export default function FeaturedGallery() {
         </div>
       </div>
 
-      <div className="mt-[clamp(1rem,3vh,2.5rem)] flex justify-center">
+      {/* SAME clamp as the rail's own top margin, so the ribbon carries equal air
+          above and below it. They were 4vh above and 3vh below, which — once the
+          row's 24px py is added on both sides — put 60px between the copy and the
+          cards but only 51px between the cards and this button, and the rail read as
+          sitting low in its own space. */}
+      <div className="mt-[clamp(1.5rem,4vh,3rem)] flex justify-center">
         <Button variant="solid" size="lg" href="/products">
           View all collections
         </Button>
