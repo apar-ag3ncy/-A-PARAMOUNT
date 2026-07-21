@@ -881,21 +881,26 @@ export default function HomeFilm() {
         {/* the 1968 line */}
         <div className="hv-line pointer-events-none absolute inset-0 z-[20] grid place-items-center px-6 opacity-0">
           {/* TWO lines at DELIBERATELY different sizes (client): the opening phrase
-              sits smaller and the payoff lands larger beneath it. Each size is a
-              clamp, so it is EXACTLY its target px on desktop and steps down on
-              phones rather than overflowing. No max-w in `ch` here — ch resolves
-              against the PARENT font-size, which these spans override, so it would
-              have computed off the inherited 16px and wrapped both lines. */}
+              sits smaller and the payoff lands larger beneath it.
+              BRACKETED to the client's H1 spec, 32-48px. They were hand-set at 45/60
+              and the 60 sat 12px over the ceiling; both were scaled by 0.8 rather than
+              just capping the larger one, because capping alone would have left 45 vs
+              48 — a 3px difference that destroys the "much bigger" relationship that
+              was the point of splitting the line in two. 36 vs 48 holds the original
+              45:60 ratio exactly. Line-heights opened a touch as the sizes came down.
+              No max-w in `ch` here — ch resolves against the PARENT font-size, which
+              these spans override, so it would have computed off the inherited 16px
+              and wrapped both lines. */}
           <p className="max-w-[92vw] text-center font-display text-white">
             <span
               className="block"
-              style={{ fontSize: "clamp(1.5rem, 4.6vw, 45px)", lineHeight: 1.12 }}
+              style={{ fontSize: "clamp(2rem, 4.6vw, 36px)", lineHeight: 1.16 }}
             >
               The doors everyone have
             </span>
             <span
               className="block"
-              style={{ fontSize: "clamp(2rem, 6.2vw, 60px)", lineHeight: 1.04 }}
+              style={{ fontSize: "clamp(2rem, 6.2vw, 48px)", lineHeight: 1.08 }}
             >
               been opening since 1968.
             </span>
