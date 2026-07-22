@@ -223,13 +223,27 @@ export default function FeaturedGallery() {
       aria-label="Our works"
       className="flex w-full flex-col items-center text-center"
     >
-      <span className="pm-label inline-flex items-center rounded-full bg-cream/60 px-4 py-1.5 font-display text-maroon ring-1 ring-olive/20 backdrop-blur-sm">
+      {/* py-2, not py-1.5: at 12px caps with a 13.2px line box, 6px of padding left
+          the pill only 25px tall and the caps read as though they were touching its
+          edges. 8px gives 29px and lets them sit.
+          The right padding is SHORTER than the left by exactly the letter-spacing.
+          Tracked caps put a trailing space after the LAST glyph, which is inside the
+          content box but carries no ink, so the visible text sat 0.96px left of the
+          pill's centre. Taking 0.16em back off the right re-centres the glyphs, and
+          in em it stays correct if the tracking or size ever changes. */}
+      <span className="pm-label inline-flex items-center rounded-full bg-cream/60 py-2 pl-4 pr-[calc(1rem-0.16em)] font-display text-maroon ring-1 ring-olive/20 backdrop-blur-sm">
         Selected Works · Since 1968
       </span>
-      <h2 className="pm-display-lg font-display mt-5 text-heading-brown">
+      {/* 24 above the title, 20 below it — a DESCENDING rhythm, so the three read as
+          one titled group. They were 20 and 16: near enough to equal that the kicker,
+          title and body read as an evenly-spaced list with no hierarchy. Both were
+          tuned when this title was 72px; it is 48px since the type scale was bracketed
+          to the client's spec, and the smaller title needs relatively more air, not
+          the same absolute gap. */}
+      <h2 className="pm-display-lg font-display mt-6 text-heading-brown">
         Our Works
       </h2>
-      <p className="pm-body mx-auto mt-4 max-w-xl font-body text-maroon/80">
+      <p className="pm-body mx-auto mt-5 max-w-xl font-body text-maroon/80">
         Three generations of engineering and artistry, each piece handcrafted
         for Jain derasars and Hindu temples.
       </p>
@@ -296,7 +310,12 @@ export default function FeaturedGallery() {
         </div>
       </div>
 
-      <div className="mt-[clamp(1rem,3vh,2.5rem)] flex justify-center">
+      {/* SAME clamp as the rail's own top margin, so the ribbon carries equal air
+          above and below it. They were 4vh above and 3vh below, which — once the
+          row's 24px py is added on both sides — put 60px between the copy and the
+          cards but only 51px between the cards and this button, and the rail read as
+          sitting low in its own space. */}
+      <div className="mt-[clamp(1.5rem,4vh,3rem)] flex justify-center">
         <Button variant="solid" size="lg" href="/products">
           View all collections
         </Button>

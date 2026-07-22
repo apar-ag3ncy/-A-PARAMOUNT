@@ -804,7 +804,16 @@ export default function HomeFilm() {
         />
         {/* the film. Nothing is layered over the doorway any more — the light
             coming through the opening is the footage's own baked god-rays. */}
-        <div className="hf-zoom pointer-events-none absolute inset-0 z-[2]" aria-hidden>
+        {/* will-change-transform: this layer wraps a 1928x1072 video AND is scaled by
+            apply() on every frame of the scrub. Without the hint the compositor has
+            no reason to keep that texture on the GPU across the scale, so it can
+            re-rasterise a full-screen video layer per frame — the most expensive
+            thing in the opening act by a wide margin, and the only per-frame work
+            here that is NOT cheap (apply() itself measures 0.29ms). */}
+        <div
+          className="hf-zoom pointer-events-none absolute inset-0 z-[2] will-change-transform"
+          aria-hidden
+        >
           {/* the scrubbed film — the client's master itself, scroll driving
               currentTime, crossfading over the poster (closed doors) once the first
               frame decodes. object-cover so it fills the stage exactly as the canvas
@@ -838,7 +847,7 @@ export default function HomeFilm() {
           className="hf-dcue pointer-events-none absolute left-1/2 z-[6] flex -translate-x-1/2 flex-col items-center gap-3"
           style={{ top: "calc(100svh - 5.25rem)" }}
         >
-          <span className="font-display text-[10px] tracking-[0.3em] text-cream/70 uppercase">
+          <span className="font-display text-[12px] tracking-[0.3em] text-cream/70 uppercase">
             Scroll to open
           </span>
           <span
@@ -894,21 +903,26 @@ export default function HomeFilm() {
         {/* the 1968 line */}
         <div className="hv-line pointer-events-none absolute inset-0 z-[20] grid place-items-center px-6 opacity-0">
           {/* TWO lines at DELIBERATELY different sizes (client): the opening phrase
-              sits smaller and the payoff lands larger beneath it. Each size is a
-              clamp, so it is EXACTLY its target px on desktop and steps down on
-              phones rather than overflowing. No max-w in `ch` here — ch resolves
-              against the PARENT font-size, which these spans override, so it would
-              have computed off the inherited 16px and wrapped both lines. */}
+              sits smaller and the payoff lands larger beneath it.
+              BRACKETED to the client's H1 spec, 32-48px. They were hand-set at 45/60
+              and the 60 sat 12px over the ceiling; both were scaled by 0.8 rather than
+              just capping the larger one, because capping alone would have left 45 vs
+              48 — a 3px difference that destroys the "much bigger" relationship that
+              was the point of splitting the line in two. 36 vs 48 holds the original
+              45:60 ratio exactly. Line-heights opened a touch as the sizes came down.
+              No max-w in `ch` here — ch resolves against the PARENT font-size, which
+              these spans override, so it would have computed off the inherited 16px
+              and wrapped both lines. */}
           <p className="max-w-[92vw] text-center font-display text-white">
             <span
               className="block"
-              style={{ fontSize: "clamp(1.5rem, 4.6vw, 45px)", lineHeight: 1.12 }}
+              style={{ fontSize: "clamp(2rem, 4.6vw, 36px)", lineHeight: 1.16 }}
             >
               The doors everyone have
             </span>
             <span
               className="block"
-              style={{ fontSize: "clamp(2rem, 6.2vw, 60px)", lineHeight: 1.04 }}
+              style={{ fontSize: "clamp(2rem, 6.2vw, 48px)", lineHeight: 1.08 }}
             >
               been opening since 1968.
             </span>
@@ -989,14 +1003,17 @@ export default function HomeFilm() {
           {/* All THREE words in Storica (client). "Elegance" used to be pinned to
               font-body — the Inter accent the deck uses for italics — but there is no
               italic here, so it just read as a different face mid-phrase. */}
-          <p className="hv-tag mt-7 font-display text-2xl opacity-0 sm:text-4xl">
+          {/* pm-h2, not text-2xl/sm:text-4xl. This tagline is a SUBHEADING under the
+              wordmark, and sm:text-4xl resolved to 36px — 6px over the 30px ceiling
+              the client set for subheadings. pm-h2 lands it 24 -> 30px. */}
+          <p className="hv-tag pm-h2 mt-7 font-display opacity-0">
             Crafting Divine Elegance
           </p>
         </div>
 
 
 
-        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 font-display text-[10px] tracking-[0.34em] text-white/70 uppercase opacity-0">
+        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 font-display text-[12px] tracking-[0.34em] text-white/70 uppercase opacity-0">
           Scroll to continue
         </div>
 

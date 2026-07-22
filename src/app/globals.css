@@ -154,12 +154,20 @@
    (plain CSS, not @layer) so they always emit and reliably win over the Tailwind
    size utilities they replace. Colour + margins stay on the element as utilities.
    ============================================================================ */
-/* Display — Storica, reserved for hero / page H1 */
-  .pm-display    { font-size: clamp(2.25rem, 5vw, 3.75rem); line-height: 1.03; letter-spacing: 0.01em; }
-  .pm-display-lg { font-size: clamp(2.75rem, 6vw, 4.5rem);  line-height: 1.0;  letter-spacing: 0.01em; }
-  /* Section title (H2) and card / sub title (H3) */
-  .pm-h2 { font-size: clamp(1.875rem, 3.2vw, 2.5rem); line-height: 1.12; letter-spacing: 0.01em; }
-  .pm-h3 { font-size: 1.25rem; line-height: 1.3; letter-spacing: 0.01em; }
+/* Display — Storica, reserved for hero / page H1.
+     BRACKETED TO THE CLIENT'S SPEC: H1 32-48px. Both display steps used to run far
+     past it (60px and 72px), so each clamp now TOPS OUT at 48px and bottoms at 32.
+     The two steps are kept distinct inside the bracket — 42 vs 48 — because a
+     single value would have collapsed them into one role and lost the ramp between
+     a page header and a hero. Line-height opens up as the sizes come down: 1.03 was
+     tuned for 60px+ and reads cramped at 42. */
+  .pm-display    { font-size: clamp(2rem, 4.2vw, 2.625rem); line-height: 1.12; letter-spacing: 0.01em; }
+  .pm-display-lg { font-size: clamp(2rem, 5vw, 3rem);       line-height: 1.08; letter-spacing: 0.01em; }
+  /* Section title (H2) and card / sub title (H3) — spec: subheadings 24-30px.
+     h2 takes the top of the bracket, h3 the bottom, so the two stay distinct.
+     NOTE h3 goes UP (20 -> 24): it was the one role BELOW its bracket. */
+  .pm-h2 { font-size: clamp(1.5rem, 2.6vw, 1.875rem); line-height: 1.2; letter-spacing: 0.01em; }
+  .pm-h3 { font-size: 1.5rem; line-height: 1.3; letter-spacing: 0.01em; }
   /* Body ramp — lead / default / small. Pair with .pm-measure to cap the column. */
   .pm-lead  { font-size: 1.125rem; line-height: 1.75; }
   .pm-body  { font-size: 1rem;     line-height: 1.7; }
@@ -167,7 +175,10 @@
   /* Tracked-caps labels — the ONLY three: section eyebrow, UI label, tiny caption */
   .pm-eyebrow { font-size: 0.75rem;  font-weight: 500; line-height: 1;   letter-spacing: 0.28em; text-transform: uppercase; }
   .pm-label   { font-size: 0.75rem;  font-weight: 500; line-height: 1.1; letter-spacing: 0.16em; text-transform: uppercase; }
-  .pm-micro   { font-size: 0.625rem; font-weight: 500; line-height: 1;   letter-spacing: 0.2em;  text-transform: uppercase; }
+  /* 12px, not 10 — the spec floors small text at 12px. It now shares a SIZE with
+     eyebrow and label and is distinguished by tracking alone; that is deliberate,
+     the bracket simply is not wide enough to keep three separate sizes. */
+  .pm-micro   { font-size: 0.75rem;  font-weight: 500; line-height: 1;   letter-spacing: 0.2em;  text-transform: uppercase; }
   /* Structure helpers — cap prose measure, and one vertical section rhythm */
   .pm-measure { max-width: 62ch; }
   .pm-section { padding-block: clamp(4rem, 9vh, 7rem); }

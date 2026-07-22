@@ -284,12 +284,12 @@ export default function KalashOrbit({ label }: { label?: string }) {
           style={{ opacity: ready ? 1 : 0 }}
         />
         {!ready && (
-          <span className="absolute inset-0 flex items-center justify-center font-display text-[10px] tracking-[0.24em] text-maroon/50 uppercase">
+          <span className="absolute inset-0 flex items-center justify-center font-display text-[12px] tracking-[0.24em] text-maroon/50 uppercase">
             Loading…
           </span>
         )}
         {label && (
-          <span className="pointer-events-none absolute right-0 bottom-4 left-0 text-center font-display text-[10px] tracking-[0.24em] text-maroon/60 uppercase">
+          <span className="pointer-events-none absolute right-0 bottom-4 left-0 text-center font-display text-[12px] tracking-[0.24em] text-maroon/60 uppercase">
             {label} · drag to rotate
           </span>
         )}

@@ -175,7 +175,14 @@ export default function AboutPage() {
                   {p.icon}
                 </svg>
               </span>
-              <h3 className="pm-h3 font-display text-heading-brown sm:min-h-[3.25rem]">
+              {/* 2.6em = exactly two lines at pm-h3's 1.3 line-height, so every card
+                  title in a row reserves the same height and the body copy beneath
+                  them aligns. In EM, not rem, deliberately: this was hard-coded at
+                  3.25rem (52px = two lines at the old 20px h3) and silently broke
+                  when h3 moved to 24px — two lines then needed 62px, overshot the
+                  cap, and the row went ragged. Tied to the font size it cannot
+                  drift again. */}
+              <h3 className="pm-h3 font-display text-heading-brown sm:min-h-[2.6em]">
                 {p.title}
               </h3>
               <p className="pm-small mt-3 font-body text-maroon/70">{p.body}</p>
