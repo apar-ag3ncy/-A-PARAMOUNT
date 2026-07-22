@@ -1,11 +1,13 @@
 "use client";
 
-import { useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import ArchMark from "@/components/ui/ArchMark";
+import { MATERIAL_ICONS, VARIANT_ICONS } from "@/lib/galleries";
+import { cn } from "@/lib/utils";
 
 /**
  * CategoryCards — the pieces in a family, in the same full-bleed card language as
@@ -38,6 +40,8 @@ export interface PieceCard {
   /** White-ground catalogue shot — shown CONTAINED, never cropped. */
   studio?: string;
   finishes: number;
+  /** The finishes this piece is actually made in — drives the filter. */
+  variants: string[];
 }
 
 export default function CategoryCards({
@@ -48,6 +52,28 @@ export default function CategoryCards({
   familySlug: string;
 }) {
   const rootRef = useRef<HTMLDivElement>(null);
+
+  // Every finish offered anywhere in this family, in catalogue order, so the
+  // coin row is the family's real material range rather than a fixed list.
+  const finishes = useMemo(() => {
+    const seen = new Map<string, number>();
+    for (const it of items)
+      for (const v of it.variants) seen.set(v, (seen.get(v) ?? 0) + 1);
+    // A finish only earns a coin if it narrows anything — one that every piece
+    // shares (or that only one has) filters to the same grid or to a single
+    // tile, which is a control that does nothing useful.
+    return [...seen.entries()]
+      .filter(([, n]) => n > 0 && n < items.length)
+      .map(([v]) => v);
+  }, [items]);
+
+  // null = show everything, and it is the default. Clicking the same coin twice
+  // clears back to it, so the control that filtered is the one that undoes it.
+  const [active, setActive] = useState<string | null>(null);
+  const shown = useMemo(
+    () => (active ? items.filter((i) => i.variants.includes(active)) : items),
+    [items, active],
+  );
 
   useIsomorphicLayoutEffect(() => {
     const root = rootRef.current;
@@ -80,14 +106,74 @@ export default function CategoryCards({
       });
     }, root);
     return () => ctx.revert();
-  }, [items.length]);
+  }, [items.length, active]);
 
   return (
-    <div
-      ref={rootRef}
-      className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
-    >
-      {items.map((p, i) => {
+    <>
+      {finishes.length > 1 && (
+        <>
+          <div
+            role="tablist"
+            aria-label="Filter by finish"
+            className="mb-3 flex flex-wrap justify-center gap-x-5 gap-y-4 sm:gap-x-7"
+          >
+            {finishes.map((v) => {
+              const on = active === v;
+              const icon = VARIANT_ICONS[v] ? MATERIAL_ICONS[VARIANT_ICONS[v]] : undefined;
+              return (
+                <button
+                  key={v}
+                  role="tab"
+                  aria-selected={on}
+                  title={v}
+                  onClick={() => setActive((prev) => (prev === v ? null : v))}
+                  className="group flex w-[76px] shrink-0 flex-col items-center gap-2 outline-none sm:w-[88px]"
+                >
+                  <span
+                    className={cn(
+                      "relative grid size-[56px] place-items-center overflow-hidden rounded-full transition-all duration-300 sm:size-[68px]",
+                      on
+                        ? "scale-105 ring-2 ring-olive shadow-[0_6px_20px_-8px_rgba(79,71,40,0.55)]"
+                        : active
+                          ? "opacity-45 ring-1 ring-olive/20 group-hover:opacity-90"
+                          : "opacity-95 ring-1 ring-olive/30 group-hover:scale-[1.03] group-hover:ring-olive/60",
+                    )}
+                  >
+                    {icon ? (
+                      <Image src={icon} alt="" fill sizes="68px" className="rounded-full object-cover" />
+                    ) : (
+                      <span className="grid size-full place-items-center bg-gradient-to-b from-cream-deep to-[#E4D6B6] font-display text-lg text-olive-deep">
+                        {v.charAt(0)}
+                      </span>
+                    )}
+                  </span>
+                  <span
+                    className={cn(
+                      "pm-micro flex min-h-[2.5em] items-start justify-center text-center font-display leading-[1.15] transition-colors",
+                      on ? "text-maroon" : active ? "text-maroon/45" : "text-maroon/75",
+                    )}
+                  >
+                    {v}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          <p
+            aria-live="polite"
+            className="pm-micro mb-6 flex h-5 items-center justify-center gap-1.5 text-center font-body tracking-[0.18em] text-maroon/65 uppercase"
+          >
+            {active ? `Showing ${active} · ${shown.length} of ${items.length}` : `Showing all ${items.length} pieces`}
+            {active && <span className="opacity-70">· tap again for all</span>}
+          </p>
+        </>
+      )}
+
+      <div
+        ref={rootRef}
+        className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
+      >
+      {shown.map((p, i) => {
         const hasPhoto = Boolean(p.photo);
         const hasStudio = !hasPhoto && Boolean(p.studio);
         return (
@@ -194,6 +280,7 @@ export default function CategoryCards({
           </div>
         );
       })}
-    </div>
+      </div>
+    </>
   );
 }

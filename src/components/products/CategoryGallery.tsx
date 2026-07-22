@@ -70,13 +70,37 @@ export default function CategoryGallery({
   }, [groups, variants]);
 
   const hasSelector = finishes.length > 1;
-  const [active, setActive] = useState(0);
+  // Only real photo groups can actually narrow the grid. When `finishes` came
+  // from the catalogue variants instead, every coin points at the SAME images —
+  // so the coins are informational there, and must not pretend to filter.
+  const canFilter = groups.length > 1;
+  // null = SHOW EVERYTHING, and it is the default: opening a piece should show
+  // the whole range, not silently pre-filter it to whichever finish happens to
+  // be first. Picking a coin narrows to that finish; picking the SAME coin again
+  // clears back to null, so the control that filtered is the control that undoes
+  // it and there is no separate "all" button to hunt for.
+  const [active, setActive] = useState<number | null>(null);
   const [open, setOpen] = useState<number | null>(null);
 
-  const activeFinish = hasSelector
-    ? finishes[Math.min(active, finishes.length - 1)]
-    : undefined;
-  const images = activeFinish?.images ?? groups[0]?.images ?? [];
+  const activeFinish =
+    hasSelector && active !== null
+      ? finishes[Math.min(active, finishes.length - 1)]
+      : undefined;
+
+  // Showing everything means every finish's images at once. They MUST be deduped
+  // by src: when a piece has no per-material folders, `finishes` is built by
+  // mapping each variant name onto the SAME base image set, so a naive flatten
+  // would repeat the identical photographs once per variant.
+  const allImages = useMemo(() => {
+    const seen = new Set<string>();
+    const out: (typeof groups)[number]["images"] = [];
+    for (const f of finishes.length ? finishes : groups.map((g) => ({ images: g.images })))
+      for (const im of f.images)
+        if (!seen.has(im.src)) { seen.add(im.src); out.push(im); }
+    return out;
+  }, [finishes, groups]);
+
+  const images = activeFinish?.images ?? allImages;
   const caption = useMemo(
     () => (activeFinish ? `${title} · ${activeFinish.label}` : title),
     [activeFinish, title],
@@ -142,23 +166,30 @@ export default function CategoryGallery({
       {hasSelector && (
         <div
           ref={coinsRef}
-          role="tablist"
-          aria-label="Choose a finish"
-          className="mb-7 flex flex-wrap justify-center gap-x-6 gap-y-5 sm:gap-x-8"
+          role={canFilter ? "tablist" : undefined}
+          aria-label={canFilter ? "Choose a finish" : "Available finishes"}
+          className="mb-3 flex flex-wrap justify-center gap-x-6 gap-y-5 sm:gap-x-8"
         >
           {finishes.map((f, i) => {
-            const on = i === active;
+            const on = canFilter && i === active;
+            const anyActive = canFilter && active !== null;
             const iconSrc = f.iconKey ? MATERIAL_ICONS[f.iconKey] : undefined;
+            const Tag = (canFilter ? "button" : "div") as React.ElementType;
             return (
-              <button
+              <Tag
                 key={f.key}
-                role="tab"
-                aria-selected={on}
+                {...(canFilter
+                  ? {
+                      role: "tab",
+                      "aria-selected": on,
+                      onClick: () => {
+                        // toggle: the same coin twice returns to showing everything
+                        setActive((prev: number | null) => (prev === i ? null : i));
+                        setOpen(null);
+                      },
+                    }
+                  : {})}
                 title={f.label}
-                onClick={() => {
-                  setActive(i);
-                  setOpen(null);
-                }}
                 className="group flex w-[76px] shrink-0 flex-col items-center gap-2 outline-none sm:w-[92px]"
               >
                 {/* the coin IS the button — a big circular, clickable disc */}
@@ -167,7 +198,12 @@ export default function CategoryGallery({
                     "relative grid size-[68px] place-items-center rounded-full transition-all duration-300 group-focus-visible:ring-2 group-focus-visible:ring-olive group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-cream sm:size-[84px]",
                     on
                       ? "scale-105 shadow-[0_6px_20px_-8px_rgba(79,71,40,0.55)] ring-2 ring-olive"
-                      : "opacity-80 ring-1 ring-olive/25 group-hover:scale-[1.03] group-hover:opacity-100 group-hover:ring-olive/50",
+                      : anyActive
+                        ? // another finish is filtering — recede, but stay legible
+                          "opacity-45 ring-1 ring-olive/20 group-hover:scale-[1.03] group-hover:opacity-90 group-hover:ring-olive/50"
+                        : // showing everything: every finish is included, so none
+                          // of them is "off" and none should look it
+                          "opacity-95 ring-1 ring-olive/30 group-hover:scale-[1.03] group-hover:ring-olive/60",
                   )}
                 >
                   {iconSrc ? (
@@ -194,15 +230,40 @@ export default function CategoryGallery({
                         : "text-pista/55 group-hover:text-cream"
                       : on
                         ? "text-maroon"
-                        : "text-maroon/60 group-hover:text-maroon",
+                        : anyActive
+                          ? "text-maroon/45 group-hover:text-maroon"
+                          : "text-maroon/75 group-hover:text-maroon",
                   )}
                 >
                   {f.label}
                 </span>
-              </button>
+              </Tag>
             );
           })}
         </div>
+      )}
+
+      {hasSelector && (
+        <p
+          aria-live="polite"
+          className={cn(
+            "mb-6 flex h-5 items-center justify-center gap-1.5 text-center",
+            dark ? "text-pista/70" : "text-maroon/65",
+          )}
+        >
+          <span className="pm-micro font-body tracking-[0.18em] uppercase">
+            {!canFilter
+              ? `Available in ${finishes.length} finishes`
+              : activeFinish
+                ? `Showing ${activeFinish.label}`
+                : `Showing all ${finishes.length} finishes`}
+          </span>
+          {canFilter && activeFinish && (
+            <span className="pm-micro font-body tracking-[0.18em] opacity-70">
+              · tap again for all
+            </span>
+          )}
+        </p>
       )}
 
       {/* Aligned grid — THREE to a row (from the small-tablet breakpoint up),
