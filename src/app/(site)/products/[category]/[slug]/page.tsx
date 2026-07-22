@@ -84,7 +84,7 @@ export default async function ProductPage({
           </SplitTextReveal>
           <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
           {info.overview && (
-            <p className="pm-lead mx-auto mt-6 max-w-xl font-body text-maroon/80">
+            <p className="pm-lead mx-auto mt-5 max-w-3xl font-body text-maroon/80">
               {info.overview}
             </p>
           )}
