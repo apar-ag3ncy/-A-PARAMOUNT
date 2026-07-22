@@ -79,7 +79,7 @@ export default async function ProductsPage() {
       </header>
 
       {/* the four collections, as full-bleed image cards */}
-      <section className="relative pt-12 pb-28 lg:px-6">
+      <section className="relative pt-10 pb-20 lg:px-6">
         <div className="mx-auto max-w-7xl">
           <CollectionsRail items={items} />
         </div>

@@ -75,7 +75,7 @@ export default function AboutPage() {
       {/* ABOUT US body beside the olive GENERATION semicircle (deck p07). Tops
           aligned (items-start), not centered, the short text column used to
           float 185px down the middle of the taller semicircle. */}
-      <section className="mx-auto mt-20 grid max-w-7xl items-start gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-12">
+      <section className="mx-auto mt-14 grid max-w-7xl items-start gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-12">
         <SlideReveal from="left">
           <SectionHeading eyebrow="Since 1968" title="ABOUT US" align="left" />
           <div className="pm-body mt-8 max-w-xl space-y-5 font-body text-maroon/85">
@@ -120,7 +120,7 @@ export default function AboutPage() {
         </SemicircleField>
       </section>
 
-      <section className="mx-auto max-w-7xl overflow-x-clip px-6 pt-24 pb-24">
+      <section className="mx-auto max-w-7xl overflow-x-clip px-6 pt-16 pb-20">
         <ScrollReveal className="mb-12">
           <SectionHeading eyebrow="Our Purpose" title="Mission & Vision" align="left" />
         </ScrollReveal>

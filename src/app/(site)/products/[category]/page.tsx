@@ -39,7 +39,7 @@ export default async function CategoryPage({
         count={products.length}
       />
 
-      <section className="px-6 pt-8 pb-28">
+      <section className="px-6 pt-6 pb-20">
         <div className="mx-auto max-w-7xl">
           <CategoryGrid familySlug={family.slug} products={products} />
         </div>

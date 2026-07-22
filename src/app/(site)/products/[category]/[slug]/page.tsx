@@ -59,7 +59,7 @@ export default async function ProductPage({
   return (
     // EDITORIAL product "post" (client reference layout), centred, on brand beige.
     <div style={{ background: "#FEF1DA" }}>
-      <article className="mx-auto max-w-5xl px-6 pt-12 pb-28">
+      <article className="mx-auto max-w-5xl px-6 pt-12 pb-20">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -91,7 +91,7 @@ export default async function ProductPage({
         </header>
 
         {/* the piece — framed imagery */}
-        <div className="mt-14">
+        <div className="mt-10">
           {gallery ? (
             <CategoryGallery
               title={product.title}
@@ -111,7 +111,7 @@ export default async function ProductPage({
         </div>
 
         {/* spec — the reference's numbered columns, on olive hairlines */}
-        <Reveal className="mt-16">
+        <Reveal className="mt-12">
           <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-[1.4rem] border border-olive/15 bg-olive/12 sm:grid-cols-3">
             {info.spec.map((s, idx) => (
               <div
@@ -154,7 +154,7 @@ export default async function ProductPage({
         )}
 
         {/* the written description + placement + craft — centred */}
-        <Reveal className="mx-auto mt-16 max-w-3xl text-center">
+        <Reveal className="mx-auto mt-12 max-w-3xl text-center">
           {info.description && (
             <p className="pm-lead mx-auto max-w-2xl font-body text-maroon/85">
               {info.description}
@@ -181,7 +181,7 @@ export default async function ProductPage({
         </Reveal>
 
         {/* commission */}
-        <Reveal className="mt-16 text-center">
+        <Reveal className="mt-12 text-center">
           <p className="pm-eyebrow font-body text-olive/80">Commission this piece</p>
           <div className="mt-5 flex justify-center">
             <MagneticButton href="/contact">

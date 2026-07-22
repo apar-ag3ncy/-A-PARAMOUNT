@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="pt-12 pb-32">
+    <div className="pt-12 pb-24">
       {/* ONE container for the whole page, the intro and the two columns share
           the same max-width and left rail, so nothing floats over an unrelated
           grid. Left-aligned to that rail (the page was a centered intro stranded

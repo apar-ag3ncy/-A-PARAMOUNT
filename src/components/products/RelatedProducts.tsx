@@ -20,7 +20,7 @@ const clampAr = (ar: number) => Math.min(1.4, Math.max(0.56, ar));
 export default function RelatedProducts({ items, familySlug }: Props) {
   if (!items.length) return null;
   return (
-    <section className="mt-20 border-t border-olive/15 pt-14 text-center sm:mt-28">
+    <section className="mt-14 border-t border-olive/15 pt-10 text-center sm:mt-16">
       <p className="pm-eyebrow font-body text-olive/80">More from this collection</p>
       <OrnamentDivider className="mx-auto mt-4 text-olive/45" />
       <div className="mt-10 flex flex-wrap items-start justify-center gap-6">

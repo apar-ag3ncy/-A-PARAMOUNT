@@ -57,7 +57,7 @@ export default function CraftsmanshipPage() {
       />
 
       {/* Deck p11–12, the "WHY CHOOSE US" pill card on an olive band */}
-      <div className="mt-16">
+      <div className="mt-10">
         <WhyChooseUs />
       </div>
 

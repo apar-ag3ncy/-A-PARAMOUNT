@@ -144,7 +144,7 @@ export default function CategoryGallery({
           ref={coinsRef}
           role="tablist"
           aria-label="Choose a finish"
-          className="mb-10 flex flex-wrap justify-center gap-x-6 gap-y-5 sm:gap-x-8"
+          className="mb-7 flex flex-wrap justify-center gap-x-6 gap-y-5 sm:gap-x-8"
         >
           {finishes.map((f, i) => {
             const on = i === active;

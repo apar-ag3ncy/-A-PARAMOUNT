@@ -52,7 +52,7 @@ export function ProductAbout({
   ].filter((r) => r.value);
 
   return (
-    <section className="mt-20 rounded-card border border-olive/15 bg-cream-deep/40 p-8 sm:p-10">
+    <section className="mt-14 rounded-card border border-olive/15 bg-cream-deep/40 p-8 sm:p-10">
       <dl className="grid gap-x-14 gap-y-9 sm:grid-cols-[minmax(140px,200px)_minmax(0,1fr)]">
         {rows.map((r) => (
           <div key={r.label} className="contents">
