@@ -15,7 +15,7 @@ interface Props {
  */
 export default function CategoryHero({ title, subtitle, count }: Props) {
   return (
-    <header className="px-6 pt-28 pb-6 text-center">
+    <header className="px-6 pt-12 pb-6 text-center">
       <p className="pm-eyebrow font-body text-olive/80">
         Collection · {count} {count === 1 ? "piece" : "pieces"}
       </p>

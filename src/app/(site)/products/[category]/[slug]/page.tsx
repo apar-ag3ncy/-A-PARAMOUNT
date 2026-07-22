@@ -59,7 +59,7 @@ export default async function ProductPage({
   return (
     // EDITORIAL product "post" (client reference layout), centred, on brand beige.
     <div style={{ background: "#FEF1DA" }}>
-      <article className="mx-auto max-w-5xl px-6 pt-32 pb-28">
+      <article className="mx-auto max-w-5xl px-6 pt-12 pb-28">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

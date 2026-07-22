@@ -62,7 +62,7 @@ export default async function ProductsPage() {
       />
 
       {/* editorial page header, centred */}
-      <header className="relative px-6 pt-28 pb-4 text-center">
+      <header className="relative px-6 pt-12 pb-4 text-center">
         <p className="pm-eyebrow font-body text-olive/80">The Catalogue</p>
         <SplitTextReveal
           as="h1"

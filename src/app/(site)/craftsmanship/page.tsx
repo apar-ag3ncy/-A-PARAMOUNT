@@ -49,7 +49,7 @@ const STEPS: { n: string; title: string; body: string; img: string }[] = [
 
 export default function CraftsmanshipPage() {
   return (
-    <div className="pt-28">
+    <div className="pt-12">
       <PageHeader
         eyebrow="The Process"
         title="From shastra to sanctum"

@@ -65,7 +65,7 @@ const PILLARS: { title: string; body: string; icon: React.ReactNode }[] = [
 
 export default function AboutPage() {
   return (
-    <div className="pt-28">
+    <div className="pt-12">
       <PageHeader
         eyebrow="Since 1968 · Mumbai"
         title="A Paramount Engineering Works"
