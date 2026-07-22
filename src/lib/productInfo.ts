@@ -67,9 +67,9 @@ const OVERVIEW: Record<string, string> = {
   mandir:
     "A carved shrine for the home or the derasar, in wood or clad metal, made to any size.",
   "deri-window-and-door":
-    "The window and door of the deri, the small shrine niche, carved in wood or worked in metal with brass pipes and jali.",
+    "The window and door of the deri, the small shrine niche, are carved in wood or worked in metal with brass pipes and jali.",
   "door-step":
-    "The threshold of the sanctum, in carved wood, glass and brass, or acrylic.",
+    "The threshold of the sanctum comes in carved wood, glass and brass, or acrylic.",
   "wooden-ceiling":
     "A carved wooden ceiling for the derasar interior, worked to depth.",
   "brass-hardware-and-door-fittings":
@@ -81,9 +81,9 @@ const OVERVIEW: Record<string, string> = {
 
   // -- symbols --
   "angi-mugat":
-    "The crown (mugat) and adornment (angi) for the deity, in gold, silver and jadtar, with minakari enamel and moti detailing.",
+    "The crown (mugat) and adornment (angi) for the deity come in gold, silver and jadtar, with minakari enamel and moti detailing.",
   "14-swapna-and-parna":
-    "The fourteen auspicious dreams seen by the Tirthankara's mother, with the parna, rendered in silver, minakari and two tone polish.",
+    "The fourteen auspicious dreams seen by the Tirthankara's mother, with the parna, are rendered in silver, minakari and two tone polish.",
   ashtamangal:
     "The eight auspicious symbols (ashtamangal), worked in silver, copper and minakari.",
   chattar:
@@ -100,7 +100,7 @@ const OVERVIEW: Record<string, string> = {
 
   // -- ceremonial --
   "samovasaran-trigadu":
-    "The samavasarana, the divine three tiered preaching assembly of the Tirthankara, a centrepiece in two or three tones, supplied with a sized brass thali.",
+    "The samavasarana, the divine three tiered preaching assembly of the Tirthankara, is a centrepiece in two or three tones, supplied with a sized brass thali.",
   divistand:
     "The lamp stand made to complement the samovasaran and trigadu, in various sizes and finishes.",
   sinhasan:
@@ -115,7 +115,7 @@ const OVERVIEW: Record<string, string> = {
     "The pakshal (ablution) kalash and kundi used in the abhishek.",
   "vyaakhyan-kamal": "The lotus discourse piece, the vyaakhyan kamal.",
   "kalpavruksh-naan":
-    "The wish fulfilling tree, the kalpavruksha, rendered for the temple.",
+    "The wish fulfilling tree, the kalpavruksha, is rendered in metal for the temple.",
   "wooden-carved-murti": "Hand carved wooden murtis.",
 
   // -- devotional --
@@ -125,13 +125,13 @@ const OVERVIEW: Record<string, string> = {
   "brass-bracket-and-chain":
     "Brass mounting brackets and chains for the temple bell.",
   "puja-table":
-    "The worship table, carved wood and brass, plain or with delicate inlay.",
+    "The worship table comes in carved wood and brass, plain or with delicate inlay.",
   patla: "The low seat (patla) for the ritual, in silver, german silver and inlay work.",
   table: "Wood or clad metal tables for the puja.",
   "ashtaprakari-puja-bajot":
     "The low table (bajot) for the eight fold ashtaprakari puja, supplied with a sized brass tray with a drainage pipe.",
   "shatrunjay-pat":
-    "The pilgrimage tableau of Shatrunjaya, in silver, copper, two tone or painting.",
+    "The pilgrimage tableau of Shatrunjaya comes in silver, copper, two tone or painting.",
   "navkar-pat": "The Navkar mantra tableau, framed.",
   "fibre-pat": "Lightweight fibre pats in varied designs.",
   "silver-darpan": "The silver mirror (darpan) shown to the deity in the aarti.",
