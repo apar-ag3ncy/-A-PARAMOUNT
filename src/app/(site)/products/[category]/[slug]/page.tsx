@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getProductsByFamily, productParams } from "@/lib/data";
 import { FAMILIES } from "@/lib/constants";
@@ -66,24 +65,13 @@ export default async function ProductPage({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* breadcrumb — centred, small caps */}
-        <nav className="pm-micro text-center font-body tracking-[0.2em] text-olive/50 uppercase">
-          <Link href="/products" className="transition-colors hover:text-maroon">
-            Collections
-          </Link>
-          <span className="mx-2 text-olive/30">/</span>
-          <Link
-            href={`/products/${product.family}`}
-            className="transition-colors hover:text-maroon"
-          >
-            {family?.title}
-          </Link>
-          <span className="mx-2 text-olive/30">/</span>
-          <span className="text-maroon/70">{product.title}</span>
-        </nav>
+        {/* No breadcrumb. It read as clutter above every piece (client) and it
+            was saying nothing the page does not already say louder: the family
+            is the eyebrow directly beneath it and the piece name is the H1. The
+            header nav and the related-pieces rail carry the way back out. */}
 
         {/* header — centred editorial */}
-        <header className="mt-10 text-center">
+        <header className="text-center">
           <p className="pm-eyebrow font-body text-olive/80">
             {info.familyLabel}
           </p>
