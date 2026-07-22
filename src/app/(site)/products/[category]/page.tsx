@@ -48,7 +48,6 @@ export default async function CategoryPage({
       photo,
       studio: photo ? undefined : (p.image ?? undefined),
       finishes: p.variants.length,
-      variants: p.variants,
     };
   });
 
