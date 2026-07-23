@@ -83,15 +83,31 @@ export default function CategoryCards({
   }, [items.length]);
 
   return (
+    // FLEX-WRAP, not a grid, so a PARTIAL LAST ROW CENTRES. A grid pins every
+    // item to a column track, which left-aligns the remainder: architecture and
+    // ceremonial end on 3 of 4, devotional on 2, symbols on 1, and each of those
+    // hung off the left edge under a full row above. The widths below reproduce
+    // the grid's own breakpoints exactly — N per row at gap G is
+    // (100% - (N-1)G)/N — so nothing about the card sizes changes, only where
+    // the last row sits.
+    //
+    // This is how the family grid behaved before (the old CategoryGrid used the
+    // same flex-wrap + justify-center); it was lost when these cards replaced it.
     <div
       ref={rootRef}
-      className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
+      className="flex flex-wrap justify-center gap-3 sm:gap-4"
     >
       {items.map((p, i) => {
         const hasPhoto = Boolean(p.photo);
         const hasStudio = !hasPhoto && Boolean(p.studio);
         return (
-          <div key={p.slug} data-piece className="group/card">
+          <div
+            key={p.slug}
+            data-piece
+            // 2 per row, then 3 at lg and 4 at xl — the grid's own breakpoints,
+            // restated as widths because flex items have no column track.
+            className="group/card w-[calc((100%-0.75rem)/2)] sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)]"
+          >
             {/* gradient hairline frame — the brand's two olives */}
             <div
               className="h-full rounded-[1.25rem] p-px shadow-[0_24px_54px_-40px_rgba(46,35,19,0.5)] transition-shadow duration-500 group-hover/card:shadow-[0_34px_70px_-36px_rgba(46,35,19,0.66)]"
