@@ -75,8 +75,6 @@ const OVERVIEW: Record<string, string> = {
     "The threshold of the sanctum comes in carved wood, glass and brass, or acrylic.",
   "wooden-ceiling":
     "A carved wooden ceiling for the derasar interior, worked to depth.",
-  "brass-hardware-and-door-fittings":
-    "Handles, hinges and door fittings in polished brass, made to match the sanctum.",
   "brass-gate": "Cast and welded brass gates in a variety of designs for the temple.",
   "brass-grill-jali": "Pierced brass grill and jali screens for windows and doors.",
   "aluminium-platform-railing-and-ladder":
@@ -171,8 +169,6 @@ const DESCRIPTION: Record<string, string> = {
     "The threshold step is crossed at every entry to the sanctum and is finished to honour that act. Paramount makes it in carved wood, in glass and brass, or in acrylic.",
   "wooden-ceiling":
     "A carved wooden ceiling completes the derasar interior overhead, echoing the carving of the walls and doors below. It is worked to depth in premium wood.",
-  "brass-hardware-and-door-fittings":
-    "The handles, hinges and fittings of the sanctum are made to match its doors rather than bought off the shelf. Each is cast and finished in polished brass.",
   "brass-gate":
     "Brass gates guard the temple approach and are made in a range of designs to suit the setting. Each is cast and welded, then polished.",
   "brass-grill-jali":

@@ -50,7 +50,11 @@ const ROWS: Row[] = [
   [16, "Brass Tijori", "devotional", [], "Secure brass safes, polished and lacquered."],
   [17, "Brass Bell", "devotional", [], "Engraved with yantra and name; installed with a brass chain or wall bracket."],
   [18, "Brass Bracket & Chain", "devotional", [], "Brass mounting brackets and chains for bells."],
-  [19, "Brass Hardware & Door Fittings", "architecture", [], "Handles, hinges and fittings in polished brass."],
+  // 19 was "Brass Hardware & Door Fittings" — removed at the client's
+  // instruction, there is no photography for it and it was the last piece
+  // still rendering an empty frame on /products/architecture. The ORDER
+  // NUMBER IS LEFT VACANT deliberately: `ratio` is RATIOS[(order-1) % 5], so
+  // renumbering the rows below it would silently reshape 31 other products.
   [20, "Brass Gate", "architecture", [], "Cast and welded brass gates in varied designs."],
   [21, "Brass Grill / Jali", "architecture", [], "A variety of grill designs for windows and doors."],
   [22, "Aluminium Platform, Railing & Ladder", "architecture", [], "Practical platforms, railings and ladders for the temple."],
