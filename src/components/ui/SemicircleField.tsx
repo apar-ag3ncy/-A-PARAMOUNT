@@ -64,46 +64,51 @@ export default function SemicircleField({
   // NOTE: complete, literal class strings only — Tailwind scans source text, so a
   // computed `"left-" + x` would never be emitted.
   //
-  // The "deck" numbers come from solving the circle through two points read off
-  // the client's PDF (its leftmost point, and where the arc crosses the top of
-  // the page): centre at ~105% of the page width, radius ~46% of it. Mapped onto
-  // this field that is a disc of 190% its height anchored at 118% of its width,
-  // which lands the arc's leading edge at ~57% of the page against the deck's 59%.
-  // Solved against the deck's own targets, for a field pinned to the full height
-  // of a full-bleed section and 58% of its width (how /about mounts it):
-  //   radius  46.2% of page  ->  disc height 163% of the field's
-  //   centre 105.2% of page  ->  anchored at 109% of the field's width
-  // which puts the arc's leading edge back on the deck's 59%. The earlier
-  // 190%/118% pair was solved for the old padded grid cell, whose height was the
-  // text row's rather than the section's; carried onto the full-height field it
-  // over-grew the disc to a 53.8% radius.
+  // ── THE DECK VARIANT IS SIZED IN vw, NOT IN % OF THIS FIELD ──────────────
+  //
+  // The sheet's circle is proportional to the PAGE WIDTH: solving it through two
+  // points read off the PDF (its leftmost point, and where the arc crosses the
+  // top of the sheet) gives centre 105.2% of the page width and radius 46.2% of
+  // it — so, directly, w-[92.4vw] centred at left-[105.2vw].
+  //
+  // Every earlier attempt expressed this as a % of the FIELD instead, and each
+  // one drifted, because the field's height is set by the copy — which stops
+  // growing once its container hits max-width. So as the viewport widened the
+  // disc stayed the same size while the page kept getting wider: measured at
+  // 1920 the arc's leading edge had slid from the deck's 59% out to ~68%, the
+  // olive read as a thin sliver instead of the sheet's broad field, and the
+  // floret slid right along with it. vw is the only unit that holds the deck's
+  // proportion at every width. Do NOT re-express these against the field.
+  //
+  // The default variant keeps its height-relative geometry — QuoteInterlude is
+  // a decorative band with no width-proportional target to hit.
   const isDeck = variant === "deck";
-  const discAnchor = isDeck
-    ? side === "right"
-      ? "sm:left-[109%]"
-      : "sm:left-[-9%]"
-    : side === "right"
-      ? "sm:left-[86%]"
-      : "sm:left-[14%]";
-  const discSize = isDeck ? "h-[130%] sm:h-[163%]" : "h-[130%] sm:h-[165%]";
-  // Under `sm` the field is narrow and the page stacks: centre the disc and the
-  // content on the same axis, which is trivially containing.
-  const contentOffset = isDeck
-    ? side === "right"
-      ? "sm:pl-[56%] sm:pr-[2%]"
-      : "sm:pr-[56%] sm:pl-[2%]"
-    : side === "right"
+  const contentOffset =
+    side === "right"
       ? "sm:pl-[40%] sm:pr-[6%]"
       : "sm:pr-[40%] sm:pl-[6%]";
 
   // The disc's own box, reused verbatim by the under-layer below so the two stay
   // locked together. Literal classes only — Tailwind scans source text.
-  const discBox = `pointer-events-none absolute top-1/2 left-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 ${discSize} ${discAnchor}`;
-  // Centred on the arc's leading edge and a shade inboard of it, so roughly a
-  // third of the floret sits out on the cream. 7%/23% of the disc box put its
-  // centre at 63% of the page at 21% of the page wide; the deck's are 65% and 21%.
-  const lotusAt =
-    "absolute top-1/2 left-[7%] w-[23%] -translate-x-1/2 -translate-y-1/2";
+  const discBox = isDeck
+    ? `pointer-events-none absolute top-1/2 aspect-square w-[92.4vw] -translate-x-1/2 -translate-y-1/2 ${
+        side === "right" ? "left-[105.2vw]" : "left-[-5.2vw]"
+      }`
+    : `pointer-events-none absolute top-1/2 left-1/2 aspect-square h-[130%] -translate-x-1/2 -translate-y-1/2 sm:h-[165%] ${
+        side === "right" ? "sm:left-[86%]" : "sm:left-[14%]"
+      }`;
+  // The floret sits 6vw inboard of the arc's leading edge (59vw -> 65vw) and is
+  // 21.5vw across — the sheet's own figures. Against the disc box those are
+  // 6/92.4 = 6.5% and 21.5/92.4 = 23.3%, so it tracks the disc at any width.
+  const lotusAt = isDeck
+    ? "absolute top-1/2 left-[6.5%] w-[23.3%] -translate-x-1/2 -translate-y-1/2"
+    : "absolute top-1/2 left-[7%] w-[23%] -translate-x-1/2 -translate-y-1/2";
+  // The stats column centres on the sheet's 86.8% of page width.
+  const contentBox = isDeck
+    ? `absolute top-1/2 z-10 w-[22vw] max-w-[22rem] min-w-[12rem] -translate-x-1/2 -translate-y-1/2 text-center text-cream ${
+        side === "right" ? "left-[86.8vw]" : "left-[13.2vw]"
+      }`
+    : `relative z-10 flex h-full min-h-[24rem] flex-col items-center justify-center px-[14%] py-12 text-center text-cream ${contentOffset}`;
 
   return (
     <div className={`relative overflow-hidden ${className ?? ""}`}>
@@ -142,12 +147,12 @@ export default function SemicircleField({
         ) : null}
       </div>
 
-      {/* Foreground content, cream by default so it reads on the olive. Vertical
-          padding keeps the stack clear of the arc's narrow top and bottom. */}
-      <div
-        className={`relative z-10 flex h-full min-h-[24rem] flex-col items-center justify-center px-[14%] py-12 text-center text-cream ${contentOffset}`}
-      >
-        <div className="w-full max-w-xs">{children}</div>
+      {/* Foreground content, cream by default so it reads on the olive. On the
+          deck variant it is pinned to the sheet's own column axis; otherwise it
+          is padded off-centre, and the vertical padding keeps the stack clear of
+          the arc's narrow top and bottom. */}
+      <div className={contentBox}>
+        <div className={isDeck ? "w-full" : "w-full max-w-xs"}>{children}</div>
       </div>
     </div>
   );

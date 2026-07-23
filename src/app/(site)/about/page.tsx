@@ -104,16 +104,28 @@ export default function AboutPage() {
             `absolute` in via className only produced two competing position
             utilities of equal specificity — and `relative` won, which put the
             field back in flow and stretched this section to 1485px. */}
-        <div className="absolute inset-y-0 right-0 hidden w-[58%] lg:block">
+        <div className="absolute inset-0 hidden lg:block">
           <SemicircleField side="right" flourish variant="deck" className="h-full">
             {generationPanel}
           </SemicircleField>
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-6 py-16 lg:py-24">
-          {/* 53%, so the copy's right edge lands on the deck's 52.4% of the page.
-              It still clears the arc's leading edge at 59% by ~95px. */}
-          <SlideReveal from="left" className="lg:w-[53%]">
+        {/* The copy sits on the sheet's own left rail — 6.7vw in, running to its
+            52.4vw — NOT centred inside a max-w-7xl. That container is capped at
+            1280px, so past ~1400px viewport it stopped growing and started
+            centring instead: measured at 1920 the copy began at 18% of the page
+            where the sheet starts it at 6.7%. min-h is the sheet's own 63.25vw
+            aspect, which is what gives the olive its breadth top and bottom. */}
+        <div className="relative flex items-center px-6 py-16 lg:min-h-[63.25vw] lg:py-24 lg:pr-0 lg:pl-[6.7vw]">
+          {/* 45.7vw is the sheet's own column (6.7% -> 52.4% of the page). The
+              78rem ceiling never engages below a 2731px viewport, so the deck
+              proportion is exact at every width anyone will see this at; it only
+              stops the measure running away on an ultrawide, where 45.7vw would
+              otherwise reach 115 characters a line. */}
+          <SlideReveal
+            from="left"
+            className="w-full lg:max-w-[min(45.7vw,78rem)]"
+          >
             {/* pm-display, not pm-h2. This is the route's H1 now, and the locked
                 type ramp brackets an H1 at 32-48px — pm-h2 tops out at 30 and would
                 sit outside it. The divider steps up to "lg" (w-64) to match: on the
@@ -135,7 +147,13 @@ export default function AboutPage() {
                 Below it the copy runs full-width-ish and at 375px the column is
                 327px, where justifying stretched the worst gap to 5.36x — rivers
                 of white down the paragraph. */}
-            <div className="pm-body mt-8 space-y-5 font-body text-maroon/85 text-left lg:text-justify">
+            {/* pm-lead (18px), the TOP of the locked body bracket rather than
+                pm-body's 16. The sheet's own body type is ~1.5% of its width;
+                ours cannot match that (the ramp caps body at 18), but 18 is
+                strictly closer, and it fills more of the spread's height — the
+                deck's copy runs 8%-91% of the sheet where smaller type leaves
+                the column visibly short of the olive's span. */}
+            <div className="pm-lead mt-8 space-y-5 font-body text-maroon/85 text-left lg:text-justify">
               <p>
                 Established in 1968, A Paramount Engineering Works is a manufacturing
                 company based in Mumbai, India which deals in all kinds of Jain Derasar
