@@ -60,7 +60,9 @@ const ROWS: Row[] = [
   [22, "Aluminium Platform, Railing & Ladder", "architecture", [], "Practical platforms, railings and ladders for the temple."],
   [23, "Puja Table", "devotional", ["Wooden", "Brass", "Inlay"], "Handcrafted in wood and brass, carved or with delicate inlay."],
   [24, "Patla", "devotional", ["Silver", "German Silver", "Two-tone Polish", "Inlay"], "Low seats in silver, german silver and inlay work."],
-  [25, "Table", "devotional", ["Wooden", "German Silver", "GS + Brass"], "Wood or clad-metal tables for the puja."],
+  // 25 was "Table" — removed at the client's instruction. Order left vacant,
+  // as 19, 32, 37 and 50 are: `ratio` is RATIOS[(order - 1) % 5], so
+  // renumbering would reshape the rows below.
   [26, "Ashtaprakari Puja Bajot", "devotional", ["Silver", "German Silver", "Brass", "GS + Brass", "Inlay"], "Supplied with a sized brass tray with a drainage pipe."],
   [27, "Sinhasan", "ceremonial", [], "The throne seat, exquisitely carved."],
   [28, "Vyaakhyan Paat", "ceremonial", [], "Intricately carved discourse seat with steps and a central trigadu."],
