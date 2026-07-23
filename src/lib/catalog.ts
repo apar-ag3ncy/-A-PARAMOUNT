@@ -67,7 +67,9 @@ const ROWS: Row[] = [
   [29, "Toran", "symbols", [], "Decorative arch hangings, painted or clad in silver, german silver or brass."],
   [30, "Manekstambh Toran", "symbols", [], "The manekstambh toran, handcrafted in premium wood."],
   [31, "Rath", "ceremonial", [], "Processional chariots, clad in silver, german silver or brass; sturdy and movable."],
-  [32, "Indradhaja", "symbols", [], "The Indra banner, exclusively handcrafted."],
+  // 32 was "Indradhaja" — removed at the client's instruction, no photography
+  // for it. Order number left vacant for the same reason as 19: `ratio` is
+  // RATIOS[(order - 1) % 5], so renumbering would reshape everything below.
   [33, "Palkhi", "ceremonial", [], "Ceremonial palanquins for processions."],
   [34, "Cloth Dhaja", "symbols", [], "Cloth banners for the shikhar."],
   [35, "Shatrunjay Pat", "devotional", ["Silver", "Copper", "Two-tone Polish", "Painting"], "The pilgrimage tableau in silver, copper, two-tone or painting."],

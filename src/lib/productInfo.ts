@@ -95,8 +95,6 @@ const OVERVIEW: Record<string, string> = {
     "The decorative arch hung over the doorway, painted or clad in silver, german silver or brass.",
   "manekstambh-toran":
     "The manekstambh toran, exclusively handcrafted in premium wood.",
-  indradhaja:
-    "The Indra banner (indradhaja), exclusively handcrafted for the temple.",
   "cloth-dhaja": "Cloth banners flown from the shikhar.",
 
   // -- ceremonial --
@@ -191,8 +189,6 @@ const DESCRIPTION: Record<string, string> = {
     "The toran is hung across the doorway as a welcome and a blessing on the threshold. It is painted or clad in silver, german silver or brass.",
   "manekstambh-toran":
     "The manekstambh toran takes its name from the jewel pillar of the samavasarana and is among the most ornate of the hangings. It is exclusively handcrafted in premium wood.",
-  indradhaja:
-    "The indradhaja is the banner of Indra, raised on the great occasions of the temple. It is exclusively handcrafted.",
   "cloth-dhaja":
     "The cloth dhaja flies from the shikhar and is changed at the appointed times. Paramount supplies it in varied designs.",
 
