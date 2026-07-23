@@ -9,8 +9,19 @@ interface Props {
   children?: ReactNode;
   /** Paint a faint damask texture inside the olive field. */
   damask?: boolean;
-  /** Center a large faint 4-petal lotus watermark behind the children. */
+  /** A faint 4-petal lotus watermark. Centred in the disc by default; on the
+   *  "deck" variant it straddles the arc's leading edge, as in the deck page. */
   flourish?: boolean;
+  /**
+   * "default" is the original composition (used by the home QuoteInterlude).
+   *
+   * "deck" reproduces the client's ABOUT US spread exactly: a bigger disc whose
+   * centre sits off the page so only a shallow arc shows, the copy pushed out
+   * to the far side of it, and the lotus straddling the arc's edge. Measured off
+   * the PDF — there the arc's leading edge falls at 59% of the page width and the
+   * stats centre at 87%, against 49% and 80% on the default geometry.
+   */
+  variant?: "default" | "deck";
   className?: string;
 }
 
@@ -29,6 +40,7 @@ export default function SemicircleField({
   children,
   damask = false,
   flourish = false,
+  variant = "default",
   className,
 }: Props) {
   // GEOMETRY — the disc must *contain* its content, or the arc shears the stats.
@@ -51,21 +63,68 @@ export default function SemicircleField({
   //
   // NOTE: complete, literal class strings only — Tailwind scans source text, so a
   // computed `"left-" + x` would never be emitted.
-  const discAnchor = side === "right" ? "sm:left-[86%]" : "sm:left-[14%]";
+  //
+  // The "deck" numbers come from solving the circle through two points read off
+  // the client's PDF (its leftmost point, and where the arc crosses the top of
+  // the page): centre at ~105% of the page width, radius ~46% of it. Mapped onto
+  // this field that is a disc of 190% its height anchored at 118% of its width,
+  // which lands the arc's leading edge at ~57% of the page against the deck's 59%.
+  const isDeck = variant === "deck";
+  const discAnchor = isDeck
+    ? side === "right"
+      ? "sm:left-[118%]"
+      : "sm:left-[-18%]"
+    : side === "right"
+      ? "sm:left-[86%]"
+      : "sm:left-[14%]";
+  const discSize = isDeck ? "h-[130%] sm:h-[190%]" : "h-[130%] sm:h-[165%]";
   // Under `sm` the field is narrow and the page stacks: centre the disc and the
   // content on the same axis, which is trivially containing.
-  const contentOffset =
-    side === "right" ? "sm:pl-[40%] sm:pr-[6%]" : "sm:pr-[40%] sm:pl-[6%]";
+  const contentOffset = isDeck
+    ? side === "right"
+      ? "sm:pl-[62%] sm:pr-[2%]"
+      : "sm:pr-[62%] sm:pl-[2%]"
+    : side === "right"
+      ? "sm:pl-[40%] sm:pr-[6%]"
+      : "sm:pr-[40%] sm:pl-[6%]";
+
+  // The disc's own box, reused verbatim by the under-layer below so the two stay
+  // locked together. Literal classes only — Tailwind scans source text.
+  const discBox = `pointer-events-none absolute top-1/2 left-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 ${discSize} ${discAnchor}`;
+  // Centred on the arc's leading edge and a shade inboard of it, so roughly a
+  // third of the floret sits out on the cream. 7%/23% of the disc box put its
+  // centre at 63% of the page at 21% of the page wide; the deck's are 65% and 21%.
+  const lotusAt =
+    "absolute top-1/2 left-[7%] w-[23%] -translate-x-1/2 -translate-y-1/2";
 
   return (
     <div className={`relative overflow-hidden ${className ?? ""}`}>
+      {/* THE UNDER-LAYER, and why the lotus is drawn twice.
+          On the deck page the floret reads LIGHTER than the olive inside the
+          circle and DARKER than the cream outside it — it is one shape crossing
+          a hard colour boundary. A single element cannot do that: cream-on-cream
+          vanishes and olive-on-olive vanishes. So the olive copy is painted
+          first, BENEATH the disc (the disc hides all of it except the petal that
+          reaches out onto the cream), and the cream copy is painted inside the
+          disc, where only the part over the olive registers. Each shows exactly
+          the half the other cannot. */}
+      {flourish && isDeck ? (
+        <div aria-hidden className={discBox}>
+          <span className={`${lotusAt} text-olive`} style={{ opacity: 0.22 }}>
+            <LotusFlourish className="h-auto w-full" />
+          </span>
+        </div>
+      ) : null}
+
       {/* The olive disc — square aspect, rounded to a full circle, bleeding off-edge */}
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute top-1/2 left-1/2 aspect-square h-[130%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-olive sm:h-[165%] ${discAnchor}`}
-      >
+      <div aria-hidden className={`${discBox} rounded-full bg-olive`}>
         {damask ? <BrandDamask className="rounded-full text-cream" opacity={0.14} /> : null}
-        {flourish ? (
+        {flourish && isDeck ? (
+          <span className={`${lotusAt} text-cream`} style={{ opacity: 0.13 }}>
+            <LotusFlourish className="h-auto w-full" />
+          </span>
+        ) : null}
+        {flourish && !isDeck ? (
           <span
             className="absolute inset-0 flex items-center justify-center text-cream"
             style={{ opacity: 0.12 }}

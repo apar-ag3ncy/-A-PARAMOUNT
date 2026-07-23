@@ -132,6 +132,7 @@ export default function AboutPage() {
         <SemicircleField
           side="right"
           flourish
+          variant="deck"
           className="min-h-[560px] lg:-mr-6"
         >
           <div className="flex h-full min-h-[560px] flex-col items-center justify-center gap-10 px-6 py-14 text-center">
