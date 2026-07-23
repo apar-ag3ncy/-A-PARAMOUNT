@@ -161,17 +161,19 @@ export default function CraftsmanshipPage() {
 
                     <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
                       <span className="block h-px w-8 bg-gold/80 transition-[width] duration-500 group-hover/card:w-14" />
-                      {/* pm-body, not pm-h3. The card name is a caption over a photograph, not a
-                    section subheading, and at pm-h3's 24px 13 of the 54 names across
-                    the site wrapped to two or three lines. Measured against the true
-                    257px label width, 16px puts 53 of them on one line — and it is the
-                    efficient stopping point, because going smaller gains nothing: the
-                    only name still over is "Aluminium Platform, Railing & Ladder",
-                    which needs 11.2px, below the client's 12px floor for small text.
-                    16px is an existing ramp step and sits inside the locked 16-18 body
-                    bracket. No extra tracking — at 0.06em it would add ~23px to a
-                    23-character name and undo the fit it is meant to flatter. */}
-                      <h2 className="pm-body mt-3 font-display leading-[1.15] text-cream uppercase">
+                      {/* pm-small (14px). The card name is a caption over a photograph, not a
+                          section subheading; at pm-h3's 24px, 13 of the 54 names across the site
+                          wrapped to two or three lines. Measured against the label's true 257px
+                          content width, 16px already put 53 of them on one line and 14px keeps all
+                          53 — the only name still over is "Aluminium Platform, Railing & Ladder",
+                          which measures 385px against 274px available and needs 11.2px, below the
+                          client's 12px floor. No type size rescues that one; it needs a shorter
+                          name. 14px is an existing ramp step inside the locked 12-14 small-text
+                          bracket, so this stays in the ramp rather than hand-picking a size (the
+                          literal 5% ask, 15.2px, falls in the gap between the 12-14 and 16-18
+                          brackets and would sit outside the spec). No extra tracking: at 0.06em it
+                          would add ~23px to a 23-character name and undo the fit. */}
+                      <h2 className="pm-small mt-3 font-display leading-[1.15] text-cream uppercase">
                         {s.title}
                       </h2>
                     </div>
