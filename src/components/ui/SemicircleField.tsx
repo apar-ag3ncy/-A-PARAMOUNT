@@ -69,21 +69,29 @@ export default function SemicircleField({
   // the page): centre at ~105% of the page width, radius ~46% of it. Mapped onto
   // this field that is a disc of 190% its height anchored at 118% of its width,
   // which lands the arc's leading edge at ~57% of the page against the deck's 59%.
+  // Solved against the deck's own targets, for a field pinned to the full height
+  // of a full-bleed section and 58% of its width (how /about mounts it):
+  //   radius  46.2% of page  ->  disc height 163% of the field's
+  //   centre 105.2% of page  ->  anchored at 109% of the field's width
+  // which puts the arc's leading edge back on the deck's 59%. The earlier
+  // 190%/118% pair was solved for the old padded grid cell, whose height was the
+  // text row's rather than the section's; carried onto the full-height field it
+  // over-grew the disc to a 53.8% radius.
   const isDeck = variant === "deck";
   const discAnchor = isDeck
     ? side === "right"
-      ? "sm:left-[118%]"
-      : "sm:left-[-18%]"
+      ? "sm:left-[109%]"
+      : "sm:left-[-9%]"
     : side === "right"
       ? "sm:left-[86%]"
       : "sm:left-[14%]";
-  const discSize = isDeck ? "h-[130%] sm:h-[190%]" : "h-[130%] sm:h-[165%]";
+  const discSize = isDeck ? "h-[130%] sm:h-[163%]" : "h-[130%] sm:h-[165%]";
   // Under `sm` the field is narrow and the page stacks: centre the disc and the
   // content on the same axis, which is trivially containing.
   const contentOffset = isDeck
     ? side === "right"
-      ? "sm:pl-[62%] sm:pr-[2%]"
-      : "sm:pr-[62%] sm:pl-[2%]"
+      ? "sm:pl-[56%] sm:pr-[2%]"
+      : "sm:pr-[56%] sm:pl-[2%]"
     : side === "right"
       ? "sm:pl-[40%] sm:pr-[6%]"
       : "sm:pr-[40%] sm:pl-[6%]";

@@ -4,8 +4,8 @@ import SlideReveal from "@/components/animations/SlideReveal";
 import Testimonials from "@/components/sections/Testimonials";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SemicircleField from "@/components/ui/SemicircleField";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import StatBlock from "@/components/ui/StatBlock";
-import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
 
 export const metadata: Metadata = {
@@ -64,87 +64,117 @@ const PILLARS: { title: string; body: string; icon: React.ReactNode }[] = [
 ];
 
 export default function AboutPage() {
+  // The spread's right-hand panel. Declared once and rendered twice: pinned to the
+  // section's right edge from `lg` up, and stacked underneath below it, where a
+  // half-circle bleeding off the side has no room to read as one.
+  const generationPanel = (
+    <div className="flex h-full min-h-[560px] flex-col items-center justify-center gap-10 px-6 py-14 text-center">
+      <p className="pm-h2 font-display tracking-[0.12em] text-cream uppercase">
+        Generation
+      </p>
+      <div className="flex flex-col items-center gap-8">
+        {STATS.map(([n, l]) => (
+          <StatBlock key={l} value={n} label={l} />
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <div className="pt-12">
-      <PageHeader
-        eyebrow="Since 1968 · Mumbai"
-        title="A Paramount Engineering Works"
-        tagline="Makers of Temple Accessories"
-      />
+    <div>
 
-      {/* ABOUT US body beside the olive GENERATION semicircle — the client's deck
-          page, replicated: no eyebrow over the heading, the full five-paragraph
-          company statement set JUSTIFIED (both edges flush, as in the PDF), and
-          the disc bleeding off the right carrying "Generation" + the stats.
+      {/* ===== the client's ABOUT US spread, replicated =====
 
-          `items-stretch` (the grid default), NOT `items-start`. That was pinned to
-          start when this column held a condensed three-paragraph rewrite and was
-          SHORTER than the disc, so it floated mid-arc. With the real copy restored
-          the column is the taller of the two, and stretching lets the disc grow to
-          match it — which is how the deck page reads, one full-height circle. The
-          field's geometry is safe under that: its radius is 0.825 x height while
-          the content's half-height grows with height/2, so a taller field only
-          widens the containment margin. */}
-      <section className="mx-auto mt-14 grid max-w-7xl gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-12">
-        <SlideReveal from="left">
-          <SectionHeading title="ABOUT US" align="left" />
-          {/* Justified from `sm` up ONLY, and left-aligned below it. The deck page
-              is justified, but it is a wide desktop spread; at 375px the column is
-              327px and justifying it stretched the widest word gap to 23.8px
-              against a 4.4px natural space — a 5.4x pull, i.e. visible rivers of
-              white down the paragraph. Measured, not assumed. hyphens-auto rides
-              along wherever justification is on, so the browser breaks long words
-              rather than stretching the spaces to reach the margin. */}
-          <div className="pm-body mt-8 max-w-xl space-y-5 font-body text-maroon/85 hyphens-auto text-left sm:text-justify">
-            <p>
-              Established in 1968, A Paramount Engineering Works is a manufacturing
-              company based in Mumbai, India which deals in all kinds of Jain Derasar
-              and Hindu Temple accessories.
-            </p>
-            <p>
-              Backed by rich experience and extensive knowledge, we pride ourselves
-              on being the only company that provides all kinds of temple needs under
-              one roof, with a rare combination of engineering expertise and artistic
-              skills.
-            </p>
-            <p>
-              We are one of the major suppliers of temple accessories and handicrafts
-              in the country. We provide a wide variety of products and services to
-              meet customer requirements and provide a one-stop solution to all the
-              temple needs. The knowledge that we possess about our shastra gives us
-              an upper hand compared to our competitors.
-            </p>
-            <p>
-              With three generations in the business, the company is driven by passion
-              and commitment to craftsmanship, customer satisfaction and innovation.
-            </p>
-            <p>
-              The company enjoys a reliable image in the industry through its
-              commitment to quality, on-time delivery and maintaining transparency and
-              fairness in its relationships with the customers.
-            </p>
-          </div>
-        </SlideReveal>
+          The deck page is FULL-BLEED: its olive runs off the top, right and bottom
+          of the sheet, and nothing sits above "ABOUT US". So this section owns the
+          top of the route (the shared PageHeader was removed here — it put a
+          centred title block above the spread that the deck page does not have,
+          and pushed the olive down off the top edge), and the field is pinned to
+          the section's edges rather than sitting inside the padded grid cell it
+          used to, which had capped the disc at the row's height and left cream
+          above and below it.
 
-        {/* min-h, not h: the stack needs ~742px at the sm/md widths, and a hard
-            560px box with overflow-hidden was clipping 182px of it (the last
-            StatBlock). */}
+          "ABOUT US" is the route's H1 now that the PageHeader is gone. */}
+      <section className="relative overflow-hidden lg:min-h-[46rem]">
+        {/* From `lg` up: full height, flush to the right edge, so the disc bleeds
+            off three sides exactly as it does on the sheet.
+
+            The absolute positioning lives on a WRAPPER, not on the field itself.
+            SemicircleField hardcodes `relative` on its own root, so passing
+            `absolute` in via className only produced two competing position
+            utilities of equal specificity — and `relative` won, which put the
+            field back in flow and stretched this section to 1485px. */}
+        <div className="absolute inset-y-0 right-0 hidden w-[58%] lg:block">
+          <SemicircleField side="right" flourish variant="deck" className="h-full">
+            {generationPanel}
+          </SemicircleField>
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-6 py-16 lg:py-24">
+          {/* 53%, so the copy's right edge lands on the deck's 52.4% of the page.
+              It still clears the arc's leading edge at 59% by ~95px. */}
+          <SlideReveal from="left" className="lg:w-[53%]">
+            {/* pm-display, not pm-h2. This is the route's H1 now, and the locked
+                type ramp brackets an H1 at 32-48px — pm-h2 tops out at 30 and would
+                sit outside it. The divider steps up to "lg" (w-64) to match: on the
+                deck sheet the rule and the word are near enough the same width
+                (287 vs 297 units, 0.97), and at pm-display that ratio comes back to
+                0.97 where the default w-48 rule would have left it at 1.29. */}
+            <h1 className="pm-display font-display text-heading-brown">ABOUT US</h1>
+            <OrnamentDivider width="lg" className="mt-4 text-olive/50" />
+            {/* Justified from `lg` up ONLY, and NOT hyphenated — both to match the
+                sheet, and both measured rather than assumed.
+
+                No hyphenation: the deck breaks only on whole words. Hyphenating
+                held the worst word gap to 1.92x the natural space against 2.52x
+                without, but 2.52x is ordinary for justified setting (the sheet's
+                own gaps are visibly wide), and it cost visible "com-bination" /
+                "coun-try" breaks the deck does not have.
+
+                Justified only at `lg`: that is where the two-column spread exists.
+                Below it the copy runs full-width-ish and at 375px the column is
+                327px, where justifying stretched the worst gap to 5.36x — rivers
+                of white down the paragraph. */}
+            <div className="pm-body mt-8 space-y-5 font-body text-maroon/85 text-left lg:text-justify">
+              <p>
+                Established in 1968, A Paramount Engineering Works is a manufacturing
+                company based in Mumbai, India which deals in all kinds of Jain Derasar
+                and Hindu Temple accessories.
+              </p>
+              <p>
+                Backed by rich experience and extensive knowledge, we pride ourselves
+                on being the only company that provides all kinds of temple needs under
+                one roof, with a rare combination of engineering expertise and artistic
+                skills.
+              </p>
+              <p>
+                We are one of the major suppliers of temple accessories and handicrafts
+                in the country. We provide a wide variety of products and services to
+                meet customer requirements and provide a one-stop solution to all the
+                temple needs. The knowledge that we possess about our shastra gives us
+                an upper hand compared to our competitors.
+              </p>
+              <p>
+                With three generations in the business, the company is driven by passion
+                and commitment to craftsmanship, customer satisfaction and innovation.
+              </p>
+              <p>
+                The company enjoys a reliable image in the industry through its
+                commitment to quality, on-time delivery and maintaining transparency and
+                fairness in its relationships with the customers.
+              </p>
+            </div>
+          </SlideReveal>
+        </div>
+
+        {/* Below `lg` the sheet's side-by-side reading is impossible, so the panel
+            stacks under the copy on the default centred geometry. */}
         <SemicircleField
           side="right"
           flourish
-          variant="deck"
-          className="min-h-[560px] lg:-mr-6"
+          className="min-h-[560px] lg:hidden"
         >
-          <div className="flex h-full min-h-[560px] flex-col items-center justify-center gap-10 px-6 py-14 text-center">
-            <p className="pm-h2 font-display tracking-[0.12em] text-cream uppercase">
-              Generation
-            </p>
-            <div className="flex flex-col items-center gap-8">
-              {STATS.map(([n, l]) => (
-                <StatBlock key={l} value={n} label={l} />
-              ))}
-            </div>
-          </div>
+          {generationPanel}
         </SemicircleField>
       </section>
 
