@@ -72,13 +72,30 @@ export default function AboutPage() {
         tagline="Makers of Temple Accessories"
       />
 
-      {/* ABOUT US body beside the olive GENERATION semicircle (deck p07). Tops
-          aligned (items-start), not centered, the short text column used to
-          float 185px down the middle of the taller semicircle. */}
-      <section className="mx-auto mt-14 grid max-w-7xl items-start gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-12">
+      {/* ABOUT US body beside the olive GENERATION semicircle — the client's deck
+          page, replicated: no eyebrow over the heading, the full five-paragraph
+          company statement set JUSTIFIED (both edges flush, as in the PDF), and
+          the disc bleeding off the right carrying "Generation" + the stats.
+
+          `items-stretch` (the grid default), NOT `items-start`. That was pinned to
+          start when this column held a condensed three-paragraph rewrite and was
+          SHORTER than the disc, so it floated mid-arc. With the real copy restored
+          the column is the taller of the two, and stretching lets the disc grow to
+          match it — which is how the deck page reads, one full-height circle. The
+          field's geometry is safe under that: its radius is 0.825 x height while
+          the content's half-height grows with height/2, so a taller field only
+          widens the containment margin. */}
+      <section className="mx-auto mt-14 grid max-w-7xl gap-12 overflow-x-clip px-6 lg:grid-cols-2 lg:gap-12">
         <SlideReveal from="left">
-          <SectionHeading eyebrow="Since 1968" title="ABOUT US" align="left" />
-          <div className="pm-body mt-8 max-w-xl space-y-5 font-body text-maroon/85">
+          <SectionHeading title="ABOUT US" align="left" />
+          {/* Justified from `sm` up ONLY, and left-aligned below it. The deck page
+              is justified, but it is a wide desktop spread; at 375px the column is
+              327px and justifying it stretched the widest word gap to 23.8px
+              against a 4.4px natural space — a 5.4x pull, i.e. visible rivers of
+              white down the paragraph. Measured, not assumed. hyphens-auto rides
+              along wherever justification is on, so the browser breaks long words
+              rather than stretching the spaces to reach the margin. */}
+          <div className="pm-body mt-8 max-w-xl space-y-5 font-body text-maroon/85 hyphens-auto text-left sm:text-justify">
             <p>
               Established in 1968, A Paramount Engineering Works is a manufacturing
               company based in Mumbai, India which deals in all kinds of Jain Derasar
@@ -88,26 +105,36 @@ export default function AboutPage() {
               Backed by rich experience and extensive knowledge, we pride ourselves
               on being the only company that provides all kinds of temple needs under
               one roof, with a rare combination of engineering expertise and artistic
-              skill.
+              skills.
             </p>
             <p>
-              The knowledge we possess about our shastra gives us an upper hand. With
-              three generations in the business, the company is driven by passion and
-              a commitment to craftsmanship, customer satisfaction and innovation.
+              We are one of the major suppliers of temple accessories and handicrafts
+              in the country. We provide a wide variety of products and services to
+              meet customer requirements and provide a one-stop solution to all the
+              temple needs. The knowledge that we possess about our shastra gives us
+              an upper hand compared to our competitors.
+            </p>
+            <p>
+              With three generations in the business, the company is driven by passion
+              and commitment to craftsmanship, customer satisfaction and innovation.
+            </p>
+            <p>
+              The company enjoys a reliable image in the industry through its
+              commitment to quality, on-time delivery and maintaining transparency and
+              fairness in its relationships with the customers.
             </p>
           </div>
         </SlideReveal>
 
         {/* min-h, not h: the stack needs ~742px at the sm/md widths, and a hard
             560px box with overflow-hidden was clipping 182px of it (the last
-            StatBlock). At lg the content fits inside 560, so the desktop
-            composition is unchanged. */}
+            StatBlock). */}
         <SemicircleField
           side="right"
           flourish
           className="min-h-[560px] lg:-mr-6"
         >
-          <div className="flex min-h-[560px] flex-col items-center justify-center gap-10 px-6 py-14 text-center">
+          <div className="flex h-full min-h-[560px] flex-col items-center justify-center gap-10 px-6 py-14 text-center">
             <p className="pm-h2 font-display tracking-[0.12em] text-cream uppercase">
               Generation
             </p>
