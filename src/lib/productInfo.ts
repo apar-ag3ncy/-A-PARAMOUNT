@@ -132,7 +132,6 @@ const OVERVIEW: Record<string, string> = {
   "shatrunjay-pat":
     "The pilgrimage tableau of Shatrunjaya comes in silver, copper, two tone or painting.",
   "navkar-pat": "The Navkar mantra tableau, framed.",
-  "fibre-pat": "Lightweight fibre pats in varied designs.",
   "silver-darpan": "The silver mirror (darpan) shown to the deity in the aarti.",
   "silver-pankho": "The silver ceremonial fan (pankho).",
   "silver-chaamar": "The silver whisk (chaamar) waved before the deity.",
@@ -140,7 +139,6 @@ const OVERVIEW: Record<string, string> = {
   "108-diva-aarti": "The 108-lamp aarti stand, for the grand aarti.",
   "silver-kothi": "Silver storage vessels (kothi).",
   "silver-frames": "Silver photo and image frames.",
-  "photo-frame": "Framed devotional imagery.",
 };
 
 /**
@@ -235,8 +233,6 @@ const DESCRIPTION: Record<string, string> = {
     "The Shatrunjay pat depicts the great pilgrimage tirth of Palitana, its temples and paths laid out for veneration. It is made in silver, copper, two tone or as a painting.",
   "navkar-pat":
     "The Navkar pat sets the foremost mantra of the tradition before the worshipper. It is framed for the temple or the home.",
-  "fibre-pat":
-    "Lightweight fibre pats carry the same imagery at a lower weight. They are offered in varied designs.",
   "silver-darpan":
     "The darpan is the mirror shown to the deity during the aarti, so that it may see its own reflected form. It is made in silver.",
   "silver-pankho":
@@ -251,8 +247,6 @@ const DESCRIPTION: Record<string, string> = {
     "Silver kothi are the storage vessels of the temple. They are raised and polished in silver.",
   "silver-frames":
     "Silver frames hold the images and photographs of the tradition. They are made in a range of sizes.",
-  "photo-frame":
-    "Framed devotional imagery for the temple and the home. Each is made to the picture it holds.",
 };
 
 export interface ProductInfo {

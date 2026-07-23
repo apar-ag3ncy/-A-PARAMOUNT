@@ -74,7 +74,9 @@ const ROWS: Row[] = [
   [34, "Cloth Dhaja", "symbols", [], "Cloth banners for the shikhar."],
   [35, "Shatrunjay Pat", "devotional", ["Silver", "Copper", "Two-tone Polish", "Painting"], "The pilgrimage tableau in silver, copper, two-tone or painting."],
   [36, "Navkar Pat", "devotional", [], "The Navkar mantra tableau, framed."],
-  [37, "Fibre Pat", "devotional", [], "Lightweight fibre pats in varied designs."],
+  // 37 was "Fibre Pat" — removed at the client's instruction, no
+  // photography. Order left vacant, as 19 and 32 are: `ratio` is
+  // RATIOS[(order - 1) % 5], so renumbering would reshape the rows below.
   [38, "Kumbh Kalash", "ceremonial", [], "Ceremonial kumbh kalash."],
   [39, "Pakshal Kalash", "ceremonial", [], "The pakshal kalash and kundi."],
   [40, "Vyaakhyan Kamal", "ceremonial", [], "The lotus discourse piece."],
@@ -87,7 +89,9 @@ const ROWS: Row[] = [
   [47, "108 Diva Aarti", "devotional", [], "The 108-lamp aarti stand."],
   [48, "Silver Kothi", "devotional", [], "Silver storage vessels."],
   [49, "Silver Frames", "devotional", [], "Silver photo and image frames."],
-  [50, "Photo Frame", "devotional", [], "Framed devotional imagery."],
+  // 50 was "Photo Frame" — removed at the client's instruction, no
+  // photography. Order left vacant, as 19 and 32 are: `ratio` is
+  // RATIOS[(order - 1) % 5], so renumbering would reshape the rows below.
 ];
 
 function slugify(title: string): string {
