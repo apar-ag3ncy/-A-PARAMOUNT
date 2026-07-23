@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getProductBySlug, getProductsByFamily, productParams } from "@/lib/data";
 import { FAMILIES } from "@/lib/constants";
 import { galleryFor } from "@/lib/galleries";
 import { getProductInfo } from "@/lib/productInfo";
+import { PRODUCT_IMAGE_DIMS, productAspect } from "@/lib/productImageDims";
 import CategoryGallery from "@/components/products/CategoryGallery";
 import RelatedProducts from "@/components/products/RelatedProducts";
 import ArchMark from "@/components/ui/ArchMark";
@@ -98,6 +100,31 @@ export default async function ProductPage({
               gallery={gallery}
               variants={product.variants}
             />
+          ) : product.image ? (
+            // A piece can have the client's studio cut-out without having a
+            // per-material photo FOLDER — three do. This branch used to be
+            // missing, so those three showed the "no photography yet" plate
+            // while their photograph sat unused in /public/products.
+            //
+            // The frame adopts the photo's own aspect ratio (see the catalogue
+            // grid, same reasoning): these cut-outs run from 0.23 to 5.17, so a
+            // fixed frame either crops — forbidden — or letterboxes badly.
+            <div
+              className="mx-auto max-w-sm overflow-hidden rounded-[1.4rem] border border-olive/15"
+              style={{
+                aspectRatio: productAspect(product.image) ?? 4 / 5,
+                background: "linear-gradient(180deg, #F3E4C8 0%, #E9DBBE 100%)",
+              }}
+            >
+              <Image
+                src={product.image}
+                alt={product.title}
+                width={PRODUCT_IMAGE_DIMS[product.image]?.w ?? 1200}
+                height={PRODUCT_IMAGE_DIMS[product.image]?.h ?? 1500}
+                className="h-full w-full object-contain"
+                priority
+              />
+            </div>
           ) : (
             <div
               className="mx-auto grid aspect-[4/5] max-w-sm place-items-center rounded-[1.4rem] border border-olive/15"
