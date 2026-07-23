@@ -95,7 +95,7 @@ export default function AboutPage() {
           above and below it.
 
           "ABOUT US" is the route's H1 now that the PageHeader is gone. */}
-      <section className="relative overflow-hidden lg:min-h-[46rem]">
+      <section className="relative overflow-hidden">
         {/* From `lg` up: full height, flush to the right edge, so the disc bleeds
             off three sides exactly as it does on the sheet.
 
@@ -114,9 +114,16 @@ export default function AboutPage() {
             52.4vw — NOT centred inside a max-w-7xl. That container is capped at
             1280px, so past ~1400px viewport it stopped growing and started
             centring instead: measured at 1920 the copy began at 18% of the page
-            where the sheet starts it at 6.7%. min-h is the sheet's own 63.25vw
-            aspect, which is what gives the olive its breadth top and bottom. */}
-        <div className="relative flex items-center px-6 py-16 lg:min-h-[63.25vw] lg:py-24 lg:pr-0 lg:pl-[6.7vw]">
+            where the sheet starts it at 6.7%.
+
+            The spread is ONE SCREEN TALL. It used to take the sheet's own
+            63.25vw aspect, which is 1215px at 1920 — taller than the viewport,
+            so the copy and the last stat ran off the bottom and had to be
+            scrolled to. min-h (not h) so it still grows rather than clipping if
+            the copy ever outruns the screen; padding drops to py-12 to buy that
+            headroom back. The disc reads its own size off the same band, so the
+            arc keeps the sheet's curvature at this height. */}
+        <div className="relative flex items-center px-6 py-16 lg:min-h-[calc(100svh-var(--pm-bar-bottom))] lg:py-8 lg:pr-0 lg:pl-[6.7vw]">
           {/* 45.7vw is the sheet's own column (6.7% -> 52.4% of the page). The
               78rem ceiling never engages below a 2731px viewport, so the deck
               proportion is exact at every width anyone will see this at; it only
@@ -147,13 +154,12 @@ export default function AboutPage() {
                 Below it the copy runs full-width-ish and at 375px the column is
                 327px, where justifying stretched the worst gap to 5.36x — rivers
                 of white down the paragraph. */}
-            {/* pm-lead (18px), the TOP of the locked body bracket rather than
-                pm-body's 16. The sheet's own body type is ~1.5% of its width;
-                ours cannot match that (the ramp caps body at 18), but 18 is
-                strictly closer, and it fills more of the spread's height — the
-                deck's copy runs 8%-91% of the sheet where smaller type leaves
-                the column visibly short of the olive's span. */}
-            <div className="pm-lead mt-8 space-y-5 font-body text-maroon/85 text-left lg:text-justify">
+            {/* pm-body (16px), not pm-lead's 18. The spread has to fit one
+                screen, and 18px overruns a 1366x768 viewport by 29px even with
+                the padding cut to the bone — measured across 18/17/16px against
+                three paddings. 16px clears every common size with room. Both
+                sit inside the client's locked 16-18 body bracket. */}
+            <div className="pm-body mt-8 space-y-5 font-body text-maroon/85 text-left lg:text-justify">
               <p>
                 Established in 1968, A Paramount Engineering Works is a manufacturing
                 company based in Mumbai, India which deals in all kinds of Jain Derasar

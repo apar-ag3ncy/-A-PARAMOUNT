@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import BrandDamask from "./BrandDamask";
 import LotusFlourish from "./LotusFlourish";
 
@@ -91,17 +91,42 @@ export default function SemicircleField({
   // The disc's own box, reused verbatim by the under-layer below so the two stay
   // locked together. Literal classes only — Tailwind scans source text.
   const discBox = isDeck
-    ? `pointer-events-none absolute top-1/2 aspect-square w-[92.4vw] -translate-x-1/2 -translate-y-1/2 ${
-        side === "right" ? "left-[105.2vw]" : "left-[-5.2vw]"
-      }`
+    ? "pointer-events-none absolute top-1/2 aspect-square -translate-x-1/2 -translate-y-1/2"
     : `pointer-events-none absolute top-1/2 left-1/2 aspect-square h-[130%] -translate-x-1/2 -translate-y-1/2 sm:h-[165%] ${
         side === "right" ? "sm:left-[86%]" : "sm:left-[14%]"
       }`;
-  // The floret sits 6vw inboard of the arc's leading edge (59vw -> 65vw) and is
-  // 21.5vw across — the sheet's own figures. Against the disc box those are
-  // 6/92.4 = 6.5% and 21.5/92.4 = 23.3%, so it tracks the disc at any width.
+
+  // DECK DISC — sized in a style object, not a class, because it is a live calc
+  // against both axes and Tailwind would need the whole thing escaped.
+  //
+  // The spread has to FIT THE SCREEN, so the band it is drawn in is the viewport
+  // height less the header rather than the sheet's own 63.25vw (1215px at 1920,
+  // which ran off the bottom). A shorter band showing the SAME circle would
+  // flatten the arc to a near-straight edge, so the diameter is tied to the
+  // band's height at the sheet's own ratio instead — 1265 : 1847.6, i.e.
+  // diameter = 1.46 x height — which keeps the arc's CURVATURE identical at any
+  // height. The leading edge stays pinned to the sheet's 59vw, so the circle
+  // grows rightward from there and still bleeds off the right.
+  //
+  // The max() floor stops the disc shrinking so far on a short viewport that its
+  // right edge would stop reaching the page edge (it needs a diameter of at
+  // least 41vw to span 59vw -> 100vw; 48vw leaves margin).
+  const deckDiscStyle = {
+    "--pm-disc":
+      "max(calc(1.46 * (100svh - var(--pm-bar-bottom, 4rem))), 48vw)",
+    width: "var(--pm-disc)",
+    left:
+      side === "right"
+        ? "calc(59vw + var(--pm-disc) / 2)"
+        : "calc(41vw - var(--pm-disc) / 2)",
+  } as CSSProperties;
+
+  // The floret is pinned to the PAGE, not to the disc: centre 65vw (6vw inboard
+  // of the arc's leading edge) at 21.5vw across, the sheet's own figures. It is
+  // offset from the disc box's left edge, which is itself pinned at 59vw, so it
+  // holds those figures even as the disc resizes with the viewport.
   const lotusAt = isDeck
-    ? "absolute top-1/2 left-[6.5%] w-[23.3%] -translate-x-1/2 -translate-y-1/2"
+    ? "absolute top-1/2 left-[6vw] w-[21.5vw] -translate-x-1/2 -translate-y-1/2"
     : "absolute top-1/2 left-[7%] w-[23%] -translate-x-1/2 -translate-y-1/2";
   // The stats column centres on the sheet's 86.8% of page width.
   const contentBox = isDeck
@@ -122,7 +147,11 @@ export default function SemicircleField({
           disc, where only the part over the olive registers. Each shows exactly
           the half the other cannot. */}
       {flourish && isDeck ? (
-        <div aria-hidden className={discBox}>
+        <div
+          aria-hidden
+          className={discBox}
+          style={isDeck ? deckDiscStyle : undefined}
+        >
           <span className={`${lotusAt} text-olive`} style={{ opacity: 0.22 }}>
             <LotusFlourish className="h-auto w-full" />
           </span>
@@ -130,7 +159,11 @@ export default function SemicircleField({
       ) : null}
 
       {/* The olive disc — square aspect, rounded to a full circle, bleeding off-edge */}
-      <div aria-hidden className={`${discBox} rounded-full bg-olive`}>
+      <div
+        aria-hidden
+        className={`${discBox} rounded-full bg-olive`}
+        style={isDeck ? deckDiscStyle : undefined}
+      >
         {damask ? <BrandDamask className="rounded-full text-cream" opacity={0.14} /> : null}
         {flourish && isDeck ? (
           <span className={`${lotusAt} text-cream`} style={{ opacity: 0.13 }}>
