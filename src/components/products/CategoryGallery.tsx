@@ -279,7 +279,15 @@ export default function CategoryGallery({
             aria-label={`View ${caption} photo ${i + 1}`}
             style={{ aspectRatio: `${img.w} / ${img.h}` }}
             className={cn(
-              "pm-gtile group relative w-[calc((100%-1rem)/2)] overflow-hidden rounded-[1rem] bg-cream-deep transition-colors duration-300 sm:w-[calc((100%-3rem)/3)]",
+              "pm-gtile group relative overflow-hidden rounded-[1rem] bg-cream-deep transition-colors duration-300",
+              // A LONE photo runs the full width as the piece's hero, rather than
+              // sitting as an orphan third of an empty row. Five pieces have
+              // exactly one shot (wooden-ceiling, palkhi, silver-pankho,
+              // brass-tijori, wooden-carved-murti) and on each of them that third
+              // read as a thumbnail of a missing set.
+              images.length === 1
+                ? "w-full"
+                : "w-[calc((100%-1rem)/2)] sm:w-[calc((100%-3rem)/3)]",
               dark
                 ? "border border-cream/10 hover:border-gold/40"
                 : "border border-olive/15 hover:border-olive/50",
@@ -289,7 +297,12 @@ export default function CategoryGallery({
               src={img.src}
               fill
               alt={`${caption} photo ${i + 1}`}
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              priority={images.length === 1}
+              sizes={
+                images.length === 1
+                  ? "(max-width: 1024px) 100vw, 64rem"
+                  : "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              }
               className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
           </button>

@@ -2415,6 +2415,23 @@ export const GALLERIES: Record<string, ProductGallery> = {
       }
     ],
     "count": 1
+  },
+  "wooden-ceiling": {
+    "groups": [
+      {
+        "material": "all",
+        "label": "All",
+        "icon": null,
+        "images": [
+          {
+            "src": "/gallery/wooden-ceiling/all/00.webp",
+            "w": 1600,
+            "h": 1195
+          }
+        ]
+      }
+    ],
+    "count": 1
   }
 };
 
