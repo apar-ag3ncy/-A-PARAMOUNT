@@ -5,7 +5,14 @@ import SectionHeading from "@/components/ui/SectionHeading";
 /** Closing call-to-action with the magnetic enquiry button (§4.7). */
 export default function EnquiryCTA() {
   return (
-    <section className="px-6 py-20 text-center sm:py-32">
+    // Asymmetric padding on purpose. This section used to be `py-20 sm:py-32`,
+    // and the showcase above it closes on `sm:py-24`, so the two paddings stacked
+    // into 224px of empty cream between the kalash card and this eyebrow — by far
+    // the largest gap on the page (every other transition here overlaps by ~70px).
+    // The top is trimmed hardest because that stack is doubled; the bottom keeps
+    // more, since what follows is the full-viewport dark footer plate and it wants
+    // a breath before it.
+    <section className="px-6 pt-12 pb-16 text-center sm:pt-16 sm:pb-24">
       <ScrollReveal className="flex flex-col items-center">
         <SectionHeading
           eyebrow="Begin the conversation"

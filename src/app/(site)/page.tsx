@@ -21,7 +21,10 @@ export default function Home() {
       {/* Deck p30 interlude — "Shaped by devotion," + olive damask circle */}
       <QuoteInterlude />
 
-      <section className="mx-auto max-w-6xl px-6 py-16 text-center sm:py-24">
+      {/* Bottom padding is trimmed (it was a symmetric `py-16 sm:py-24`) because
+          the enquiry CTA below opens with its own top padding, and the two used
+          to stack into 224px of empty cream under the kalash. */}
+      <section className="mx-auto max-w-6xl px-6 pt-16 pb-8 text-center sm:pt-24 sm:pb-10">
         <ScrollReveal className="mb-12 flex justify-center">
           <SectionHeading eyebrow="Interactive" title="Turn it in your hands" />
         </ScrollReveal>
