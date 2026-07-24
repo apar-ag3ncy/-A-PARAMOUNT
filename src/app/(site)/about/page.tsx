@@ -5,8 +5,8 @@ import Testimonials from "@/components/sections/Testimonials";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SemicircleField from "@/components/ui/SemicircleField";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
-import StatBlock from "@/components/ui/StatBlock";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
+import { CONTACT } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "About",
@@ -14,12 +14,28 @@ export const metadata: Metadata = {
     "Established in 1968, A Paramount Engineering Works is a Mumbai manufacturer of Jain Derasar and Hindu temple accessories, three generations of engineering and artistry.",
 };
 
-const STATS: [string, string][] = [
-  ["1968", "Established"],
-  ["50+", "Years of legacy"],
-  ["3", "Generations"],
-  ["240+", "Temples served"],
-];
+/* The sheet's right-hand column is the three GENERATIONS of the family, by name
+   — not a stat rack. Measured off "20July.pdf" p6: four Inter-18pt cream spans,
+   all centred on x = 729.63 of 900 (81.07% of the page width), at these
+   fractions of the page height. The gaps between them are dead even (0.1613
+   each), which is the only reason the connectors below sit true.
+
+   Same four people as the contact page, so they come from CONTACT rather than
+   being retyped here and drifting. */
+const PEOPLE: string[] = CONTACT.people.map((p) => `${p.title} ${p.name}`);
+
+/** y-centre of each name, as a fraction of the field height (measured) */
+const NAME_TOPS = [26.15, 42.28, 58.41, 74.54];
+/** "GENERATION", and the gold rule under it */
+const HEADING_TOP = 15.49;
+const HEADING_RULE_TOP = 19.23;
+/* The vertical connector between two names spans 73.96pt of the sheet's 648 =
+   11.41% of the field height, centred on the midpoint of the pair. On the sheet
+   it is the brand rule turned on its side — hairline, dot, floret, medallion,
+   floret, dot, hairline, reading top to bottom — so it is the SAME
+   OrnamentDivider element, rotated, not a second vertical ornament invented to
+   sit here. */
+const CONNECTOR_SIZE = "11.41%";
 
 const PILLARS: { title: string; body: string; icon: React.ReactNode }[] = [
   {
@@ -64,19 +80,78 @@ const PILLARS: { title: string; body: string; icon: React.ReactNode }[] = [
 ];
 
 export default function AboutPage() {
-  // The spread's right-hand panel. Declared once and rendered twice: pinned to the
-  // section's right edge from `lg` up, and stacked underneath below it, where a
-  // half-circle bleeding off the side has no room to read as one.
-  const generationPanel = (
-    <div className="flex h-full min-h-[560px] flex-col items-center justify-center gap-10 px-6 py-14 text-center">
+  // THE DECK PANEL. Laid out by the sheet's own vertical percentages rather than
+  // by a flex column with guessed gaps: the container is `inset-y-0` inside the
+  // field, so its height IS the field's height and `top: 26.15%` lands exactly
+  // where the sheet puts that name. A centred flex stack cannot reproduce this —
+  // the sheet's block is not vertically centred (it runs 15.5% to 74.5%, whose
+  // midpoint is 45%, not 50%).
+  const deckPanel = (
+    <div className="relative h-full text-center">
+      <p
+        className="pm-h2 absolute inset-x-0 -translate-y-1/2 font-display tracking-[0.12em] text-cream uppercase"
+        style={{ top: `${HEADING_TOP}%` }}
+      >
+        Generation
+      </p>
+      {/* 18.49% of the page width on the sheet; the column is 26vw, so 71.1% of
+          it. Gold, like the sheet's (a lit pixel reads #EFC48F). */}
+      <div
+        className="absolute inset-x-0 flex -translate-y-1/2 justify-center"
+        style={{ top: `${HEADING_RULE_TOP}%` }}
+      >
+        <OrnamentDivider className="w-[71.1%] text-gold/85" />
+      </div>
+
+      {PEOPLE.map((name, i) => (
+        <p
+          key={name}
+          className="pm-h3 absolute inset-x-0 -translate-y-1/2 font-body text-cream"
+          style={{ top: `${NAME_TOPS[i]}%` }}
+        >
+          {name}
+        </p>
+      ))}
+
+      {/* One connector per GAP, hence length - 1. `aspect-square` on a box whose
+          HEIGHT is a percentage makes its width match that height, which is the
+          only way to give the rotated rule a length measured against the field's
+          height — a width percentage would resolve against the column instead. */}
+      {PEOPLE.slice(0, -1).map((name, i) => (
+        <div
+          key={`rule-${name}`}
+          className="absolute left-1/2 aspect-square -translate-x-1/2 -translate-y-1/2"
+          style={{
+            height: CONNECTOR_SIZE,
+            top: `${(NAME_TOPS[i] + NAME_TOPS[i + 1]) / 2}%`,
+          }}
+        >
+          <OrnamentDivider className="absolute top-1/2 left-0 w-full -translate-y-1/2 rotate-90 text-gold/85" />
+        </div>
+      ))}
+    </div>
+  );
+
+  // Below `lg` the sheet's proportions do not exist, so the same content runs as
+  // an ordinary centred stack.
+  const stackedPanel = (
+    <div className="flex h-full min-h-[560px] flex-col items-center justify-center px-6 py-14 text-center">
       <p className="pm-h2 font-display tracking-[0.12em] text-cream uppercase">
         Generation
       </p>
-      <div className="flex flex-col items-center gap-8">
-        {STATS.map(([n, l]) => (
-          <StatBlock key={l} value={n} label={l} />
-        ))}
-      </div>
+      <OrnamentDivider className="mt-4 w-56 text-gold/85" />
+      {PEOPLE.map((name, i) => (
+        <div key={name} className="contents">
+          {i > 0 ? (
+            <div className="relative h-20 w-20">
+              <OrnamentDivider className="absolute top-1/2 left-0 w-full -translate-y-1/2 rotate-90 text-gold/85" />
+            </div>
+          ) : (
+            <div className="h-10" />
+          )}
+          <p className="pm-h3 font-body text-cream">{name}</p>
+        </div>
+      ))}
     </div>
   );
 
@@ -106,7 +181,7 @@ export default function AboutPage() {
             field back in flow and stretched this section to 1485px. */}
         <div className="absolute inset-0 hidden lg:block">
           <SemicircleField side="right" flourish variant="deck" className="h-full">
-            {generationPanel}
+            {deckPanel}
           </SemicircleField>
         </div>
 
@@ -124,14 +199,22 @@ export default function AboutPage() {
             headroom back. The disc reads its own size off the same band, so the
             arc keeps the sheet's curvature at this height. */}
         <div className="relative flex items-center px-6 py-16 lg:min-h-[calc(100svh-var(--pm-bar-bottom))] lg:py-8 lg:pr-0 lg:pl-[6.7vw]">
-          {/* 45.7vw is the sheet's own column (6.7% -> 52.4% of the page). The
-              78rem ceiling never engages below a 2731px viewport, so the deck
-              proportion is exact at every width anyone will see this at; it only
-              stops the measure running away on an ultrawide, where 45.7vw would
-              otherwise reach 115 characters a line. */}
+          {/* THE SHEET'S OWN COLUMN, re-measured off the vector layer: the body
+              copy runs 59.83 -> 418.14 of 900, i.e. 6.65% -> 46.46%, a measure
+              of 39.81vw.
+
+              It was 45.7vw, which ran the copy out to 52.4% — and 52.0% is
+              exactly where the arc's leading edge now sits, so the last words of
+              the wide lines were being overprinted by the olive. That was
+              invisible while the arc was (wrongly) parked at 59%. The sheet
+              leaves a deliberate 5.54% gutter between the end of the measure and
+              the arc, and 39.81vw restores it.
+
+              The 78rem ceiling only engages past a ~3100px viewport; it just
+              stops the measure running away on an ultrawide. */}
           <SlideReveal
             from="left"
-            className="w-full lg:max-w-[min(45.7vw,78rem)]"
+            className="w-full lg:max-w-[min(39.81vw,78rem)]"
           >
             {/* pm-display, not pm-h2. This is the route's H1 now, and the locked
                 type ramp brackets an H1 at 32-48px — pm-h2 tops out at 30 and would
@@ -198,7 +281,7 @@ export default function AboutPage() {
           flourish
           className="min-h-[560px] lg:hidden"
         >
-          {generationPanel}
+          {stackedPanel}
         </SemicircleField>
       </section>
 

@@ -5,35 +5,117 @@ import LotusFlourish from "./LotusFlourish";
 interface Props {
   /** Which edge the half-circle bleeds off. Defaults to "right". */
   side?: "left" | "right";
-  /** Content rendered on top of the field (e.g. "GENERATION" + stats). */
+  /** Content rendered on top of the field (e.g. "GENERATION" + the names). */
   children?: ReactNode;
   /** Paint a faint damask texture inside the olive field. */
   damask?: boolean;
   /** A faint 4-petal lotus watermark. Centred in the disc by default; on the
-   *  "deck" variant it straddles the arc's leading edge, as in the deck page. */
+   *  "deck" variant it is CENTRED ON THE ARC and clipped to it, as on the sheet. */
   flourish?: boolean;
   /**
    * "default" is the original composition (used by the home QuoteInterlude).
    *
-   * "deck" reproduces the client's ABOUT US spread exactly: a bigger disc whose
-   * centre sits off the page so only a shallow arc shows, the copy pushed out
-   * to the far side of it, and the lotus straddling the arc's edge. Measured off
-   * the PDF — there the arc's leading edge falls at 59% of the page width and the
-   * stats centre at 87%, against 49% and 80% on the default geometry.
+   * "deck" reproduces the client's ABOUT US spread. Every number is read out of
+   * the PDF's vector layer, not estimated off a screenshot — see the geometry
+   * note below.
    */
   variant?: "default" | "deck";
   className?: string;
 }
 
+/* ── THE SHEET'S GEOMETRY, MEASURED ──────────────────────────────────────────
+ *
+ * Source: "20July.pdf" page index 6 (the ABOUT US spread), 900 x 648 pt, read
+ * with PyMuPDF straight off the vector layer. Do NOT re-derive these by eye off
+ * a screenshot; every previous attempt did that, and every one of them drifted.
+ *
+ * THE OLIVE FIELD is one path (drawing #2): two Bézier arcs plus three straight
+ * lines. Solving the arcs gives a PERFECT CIRCLE, centre (792, 324), r = 324 —
+ * and the straight lines carry its flat side out to the page's right edge.
+ * Three facts fall out of that, and they are the whole composition:
+ *
+ *   1. r = 324 = EXACTLY HALF THE PAGE HEIGHT. The arc kisses the top edge and
+ *      the bottom edge, at the circle's own centre-x. So the field is a TRUE
+ *      half-disc spanning the full height — a full 180 degrees of arc shows.
+ *   2. Its leftmost point is at x = 468 = 52.0% of the page width.
+ *   3. Right of the circle's centre the olive is a plain RECTANGLE out to the
+ *      page edge, and that is what fills the top-right and bottom-right
+ *      corners. A bare circle cannot fill them: the distance from the centre to
+ *      a corner is always greater than r. That rectangle is why the sheet reads
+ *      as a *field* rather than as a ball.
+ *
+ * The old code had all three wrong — leading edge 59%, diameter 1.46x the
+ * height (so only a shallow ~86-degree slice of arc showed, and the olive
+ * "spread" much further left at the top and bottom than the sheet's does), and
+ * no rectangle at all, so on a short viewport the corners went cream.
+ *
+ * THE FLORET is Form XObject Fm0, bbox (298.671,154.671)-(637.329,493.329):
+ * a perfect square, 338.658 pt on a side, centred at (468.000, 324.000).
+ * That is the arc's leftmost point to ZERO error — the floret sits exactly ON
+ * the boundary, half over the cream and half over the olive.
+ *
+ * And it is POWER-CLIPPED to the olive. Probing the render at 4x across
+ * x in [436,467] at y = 200/250/300/324/350/400/440 returns the untouched cream
+ * #FEF4DA every single time: the cream-side half does not paint at all. Only
+ * the olive-side half shows, as a faint DARKENING of the olive — ground #8A7F4A
+ * reads #847946 to #817745 under it, i.e. black at 4.5%-7.7%, dominant ~7%.
+ *
+ * Expressed against the field, free of the sheet's own aspect ratio:
+ *   disc diameter = field height          (fact 1)
+ *   disc left edge = 52vw                 (fact 2)
+ *   floret centre  = the disc's left edge, at half its height
+ *   floret size    = 338.658 / 648 = 52.262% of the disc's diameter
+ * ────────────────────────────────────────────────────────────────────────── */
+const DECK_LEADING_EDGE = "52vw";
+/** floret side ÷ disc diameter = 338.658 / 648, from the two measured bboxes */
+const DECK_FLOURISH_RATIO = 338.658 / 648;
+
+/* THE POWER CLIP, in the floret's own box.
+ *
+ * The sheet does this literally — its content stream is
+ *
+ *     468 145.059 613.059 0 792 0 c   … 900 648 l  h
+ *     W n                              <- clip to the half-disc
+ *     q 0 g /GS1 gs /Fm0 Do Q          <- floret painted INSIDE that clip
+ *
+ * so "the cream half does not paint" is an operator in the file, not something
+ * inferred from pixels.
+ *
+ * WHY THE CLIP RIDES THE FLORET AND NOT THE DISC. `overflow-hidden` on the
+ * `rounded-full` disc would clip just as well — but it turns the disc into a
+ * CLIPPING CONTAINER, which is the same shape as the bug that put a visible
+ * hairline under "Our Works": a rounded clip on a composited/transformed layer
+ * can leak a line of the colour beneath along its edge. Clipping the floret
+ * instead leaves the disc a single un-clipped opaque surface, so no new edge is
+ * created for anything to bleed through.
+ *
+ * THE ARITHMETIC. The floret's centre sits exactly on the disc's leftmost
+ * point, so in the floret's own border box the disc's centre is half a diameter
+ * to the right and its radius is half a diameter:
+ *
+ *     R = (D/2) / floretWidth = 0.5 / DECK_FLOURISH_RATIO   (of the floret box)
+ *     clip = circle(R at 50% + R, 50%)
+ *
+ * Both numbers come off the SAME ratio as the width, so the clip circle and the
+ * painted arc cannot drift apart. A percentage radius only resolves against the
+ * box's side while the box is SQUARE (otherwise it is the diagonal ÷ √2) —
+ * hence `aspect-square` on the span AND `block` on the svg below, without which
+ * the inline svg's baseline descender makes the span ~4px taller than wide and
+ * the radius comes out ~1.9px too large, painting a crescent of floret on the
+ * cream. */
+const DECK_CLIP_R = 0.5 / DECK_FLOURISH_RATIO;
+const deckFlourishClip = (side: "left" | "right") =>
+  `circle(${(DECK_CLIP_R * 100).toFixed(4)}% at ${(
+    (side === "right" ? 0.5 + DECK_CLIP_R : 0.5 - DECK_CLIP_R) * 100
+  ).toFixed(4)}% 50%)`;
+
+/** black at 7%: the measured darkening of #8A7F4A under the sheet's floret */
+const DECK_FLOURISH_INK: CSSProperties = { color: "#000", opacity: 0.07 };
+
 /**
  * SemicircleField — the deck's big olive half-circle bleeding off one `side`
- * (p04 / p07). Optionally carries a faint `damask` texture and a centered
- * `flourish` lotus watermark; `children` render on top (e.g. "GENERATION" and the
- * stat blocks).
- *
- * The disc is olive and over-sized so its straight diameter sits flush with the
- * chosen edge and the curve bleeds past the top and bottom. Everything inside is
- * cream-toned by default so text/stats read on the olive.
+ * (p04 / p07). Optionally carries a faint `damask` texture and a `flourish`
+ * lotus watermark; `children` render on top.
  */
 export default function SemicircleField({
   side = "right",
@@ -43,7 +125,8 @@ export default function SemicircleField({
   variant = "default",
   className,
 }: Props) {
-  // GEOMETRY — the disc must *contain* its content, or the arc shears the stats.
+  // GEOMETRY (default variant) — the disc must *contain* its content, or the
+  // arc shears the stats.
   //
   // The old anchor (`left-1/2 -translate-x-[8%]`, h-[130%]) put the disc's centre
   // at ~the field's RIGHT EDGE while the content stayed near the field's centre,
@@ -54,138 +137,122 @@ export default function SemicircleField({
   //
   // Now: diameter D = 1.65 x field height H (r = 0.825H), centre at 86% of the
   // field width. The left arc stays inside the field (the half-circle read) and
-  // the right half bleeds off the edge, as before. Content is centred at 70% of
-  // the field width and capped at max-w-xs.
-  //
-  // Containment scales: r grows with H while the content's half-height grows with
-  // H/2, so the margin only widens as content is added. Verified in-browser: zero
-  // content corners outside the circle. Re-run that check if you touch these.
+  // the right half bleeds off the edge, as before.
   //
   // NOTE: complete, literal class strings only — Tailwind scans source text, so a
   // computed `"left-" + x` would never be emitted.
-  //
-  // ── THE DECK VARIANT IS SIZED IN vw, NOT IN % OF THIS FIELD ──────────────
-  //
-  // The sheet's circle is proportional to the PAGE WIDTH: solving it through two
-  // points read off the PDF (its leftmost point, and where the arc crosses the
-  // top of the sheet) gives centre 105.2% of the page width and radius 46.2% of
-  // it — so, directly, w-[92.4vw] centred at left-[105.2vw].
-  //
-  // Every earlier attempt expressed this as a % of the FIELD instead, and each
-  // one drifted, because the field's height is set by the copy — which stops
-  // growing once its container hits max-width. So as the viewport widened the
-  // disc stayed the same size while the page kept getting wider: measured at
-  // 1920 the arc's leading edge had slid from the deck's 59% out to ~68%, the
-  // olive read as a thin sliver instead of the sheet's broad field, and the
-  // floret slid right along with it. vw is the only unit that holds the deck's
-  // proportion at every width. Do NOT re-express these against the field.
-  //
-  // The default variant keeps its height-relative geometry — QuoteInterlude is
-  // a decorative band with no width-proportional target to hit.
   const isDeck = variant === "deck";
   const contentOffset =
     side === "right"
       ? "sm:pl-[40%] sm:pr-[6%]"
       : "sm:pr-[40%] sm:pl-[6%]";
 
-  // The disc's own box, reused verbatim by the under-layer below so the two stay
-  // locked together. Literal classes only — Tailwind scans source text.
-  const discBox = isDeck
-    ? "pointer-events-none absolute top-1/2 aspect-square -translate-x-1/2 -translate-y-1/2"
-    : `pointer-events-none absolute top-1/2 left-1/2 aspect-square h-[130%] -translate-x-1/2 -translate-y-1/2 sm:h-[165%] ${
-        side === "right" ? "sm:left-[86%]" : "sm:left-[14%]"
-      }`;
-
-  // DECK DISC — sized in a style object, not a class, because it is a live calc
-  // against both axes and Tailwind would need the whole thing escaped.
+  // THE DECK DISC BOX. `h-full aspect-square` is the whole trick: it makes the
+  // diameter equal the FIELD'S OWN HEIGHT, which is fact 1 above, and it does so
+  // without a single viewport calc — so it stays true even if the copy column
+  // grows taller than one screen and drags the section with it. Every earlier
+  // version tied the diameter to `100svh` and drifted the moment the section
+  // stopped being exactly one screen tall.
   //
-  // The spread has to FIT THE SCREEN, so the band it is drawn in is the viewport
-  // height less the header rather than the sheet's own 63.25vw (1215px at 1920,
-  // which ran off the bottom). A shorter band showing the SAME circle would
-  // flatten the arc to a near-straight edge, so the diameter is tied to the
-  // band's height at the sheet's own ratio instead — 1265 : 1847.6, i.e.
-  // diameter = 1.46 x height — which keeps the arc's CURVATURE identical at any
-  // height. The leading edge stays pinned to the sheet's 59vw, so the circle
-  // grows rightward from there and still bleeds off the right.
-  //
-  // The max() floor stops the disc shrinking so far on a short viewport that its
-  // right edge would stop reaching the page edge (it needs a diameter of at
-  // least 41vw to span 59vw -> 100vw; 48vw leaves margin).
-  const deckDiscStyle = {
-    "--pm-disc":
-      "max(calc(1.46 * (100svh - var(--pm-bar-bottom, 4rem))), 48vw)",
-    width: "var(--pm-disc)",
-    left:
-      side === "right"
-        ? "calc(59vw + var(--pm-disc) / 2)"
-        : "calc(41vw - var(--pm-disc) / 2)",
-  } as CSSProperties;
+  // Positioned by its LEFT EDGE (no x-translate), because that edge IS the arc's
+  // leftmost point — the one landmark the sheet actually pins.
+  const deckDiscBox: CSSProperties =
+    side === "right"
+      ? { left: DECK_LEADING_EDGE }
+      : { right: DECK_LEADING_EDGE };
 
-  // The floret is pinned to the PAGE, not to the disc: centre 65vw (6vw inboard
-  // of the arc's leading edge) at 21.5vw across, the sheet's own figures. It is
-  // offset from the disc box's left edge, which is itself pinned at 59vw, so it
-  // holds those figures even as the disc resizes with the viewport.
-  const lotusAt = isDeck
-    ? "absolute top-1/2 left-[6vw] w-[21.5vw] -translate-x-1/2 -translate-y-1/2"
-    : "absolute top-1/2 left-[7%] w-[23%] -translate-x-1/2 -translate-y-1/2";
-  // The stats column centres on the sheet's 86.8% of page width.
+  // The names column centres on the sheet's own 81.07% of the page width
+  // (measured: every span in that column has centre x = 729.63 of 900). It is
+  // `inset-y-0`, so its height IS the field's height — which is what lets the
+  // panel place "GENERATION" and the four names at the sheet's own vertical
+  // percentages rather than guessing at gaps.
   const contentBox = isDeck
-    ? `absolute top-1/2 z-10 w-[22vw] max-w-[22rem] min-w-[12rem] -translate-x-1/2 -translate-y-1/2 text-center text-cream ${
-        side === "right" ? "left-[86.8vw]" : "left-[13.2vw]"
+    ? `absolute inset-y-0 z-10 w-[26vw] max-w-[28rem] min-w-[14rem] -translate-x-1/2 text-cream ${
+        side === "right" ? "left-[81.07vw]" : "left-[18.93vw]"
       }`
     : `relative z-10 flex h-full min-h-[24rem] flex-col items-center justify-center px-[14%] py-12 text-center text-cream ${contentOffset}`;
 
   return (
     <div className={`relative overflow-hidden ${className ?? ""}`}>
-      {/* THE UNDER-LAYER, and why the lotus is drawn twice.
-          On the deck page the floret reads LIGHTER than the olive inside the
-          circle and DARKER than the cream outside it — it is one shape crossing
-          a hard colour boundary. A single element cannot do that: cream-on-cream
-          vanishes and olive-on-olive vanishes. So the olive copy is painted
-          first, BENEATH the disc (the disc hides all of it except the petal that
-          reaches out onto the cream), and the cream copy is painted inside the
-          disc, where only the part over the olive registers. Each shows exactly
-          the half the other cannot. */}
-      {flourish && isDeck ? (
+      {isDeck ? (
         <div
           aria-hidden
-          className={discBox}
-          style={isDeck ? deckDiscStyle : undefined}
+          className="pointer-events-none absolute top-1/2 aspect-square h-full -translate-y-1/2"
+          style={deckDiscBox}
         >
-          <span className={`${lotusAt} text-olive`} style={{ opacity: 0.22 }}>
-            <LotusFlourish className="h-auto w-full" />
-          </span>
-        </div>
-      ) : null}
+          {/* THE FLAT SIDE — fact 3. A plain rectangle from the circle's centre
+              out past the page edge, so the top-right and bottom-right corners
+              are olive exactly as they are on the sheet. It OVERLAPS the circle
+              (it starts at the centre; the circle reaches centre + r) rather
+              than butting against it: two opaque surfaces that abut along a
+              shared edge blend into a visible hairline once either is
+              composited — that exact bug already cost us the seam under
+              "Our Works". */}
+          <div
+            className={`absolute inset-y-0 w-screen bg-olive ${
+              side === "right" ? "left-1/2" : "right-1/2"
+            }`}
+          />
 
-      {/* The olive disc — square aspect, rounded to a full circle, bleeding off-edge */}
-      <div
-        aria-hidden
-        className={`${discBox} rounded-full bg-olive`}
-        style={isDeck ? deckDiscStyle : undefined}
-      >
-        {damask ? <BrandDamask className="rounded-full text-cream" opacity={0.14} /> : null}
-        {flourish && isDeck ? (
-          <span className={`${lotusAt} text-cream`} style={{ opacity: 0.13 }}>
-            <LotusFlourish className="h-auto w-full" />
-          </span>
-        ) : null}
-        {flourish && !isDeck ? (
-          <span
-            className="absolute inset-0 flex items-center justify-center text-cream"
-            style={{ opacity: 0.12 }}
-          >
-            <LotusFlourish className="h-1/2 w-1/2" />
-          </span>
-        ) : null}
-      </div>
+          {/* THE HALF-DISC. Deliberately NOT a clipping container — see the
+              power-clip note above; the floret clips itself.
+
+              There is only ONE floret element now. The old code drew TWO (an
+              olive copy beneath the disc to serve the cream side, a cream copy
+              inside it to serve the olive side) and, since nothing was clipping
+              anything, BOTH painted over the cream at once, which is why the
+              petal hanging over the page read as a washed-out smudge instead of
+              the sheet's clean cut. */}
+          <div className="absolute inset-0 rounded-full bg-olive">
+            {damask ? (
+              <BrandDamask className="rounded-full text-cream" opacity={0.14} />
+            ) : null}
+            {flourish ? (
+              <span
+                className={`absolute top-1/2 block aspect-square -translate-y-1/2 ${
+                  side === "right"
+                    ? "left-0 -translate-x-1/2"
+                    : "right-0 translate-x-1/2"
+                }`}
+                style={{
+                  width: `${(DECK_FLOURISH_RATIO * 100).toFixed(4)}%`,
+                  clipPath: deckFlourishClip(side),
+                  ...DECK_FLOURISH_INK,
+                }}
+              >
+                {/* `block` is load-bearing: see the clip note. */}
+                <LotusFlourish className="block h-full w-full" />
+              </span>
+            ) : null}
+          </div>
+        </div>
+      ) : (
+        /* The default variant's disc — unchanged; QuoteInterlude rides on it. */
+        <div
+          aria-hidden
+          className={`pointer-events-none absolute top-1/2 left-1/2 aspect-square h-[130%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-olive sm:h-[165%] ${
+            side === "right" ? "sm:left-[86%]" : "sm:left-[14%]"
+          }`}
+        >
+          {damask ? (
+            <BrandDamask className="rounded-full text-cream" opacity={0.14} />
+          ) : null}
+          {flourish ? (
+            <span
+              className="absolute inset-0 flex items-center justify-center text-cream"
+              style={{ opacity: 0.12 }}
+            >
+              <LotusFlourish className="h-1/2 w-1/2" />
+            </span>
+          ) : null}
+        </div>
+      )}
 
       {/* Foreground content, cream by default so it reads on the olive. On the
-          deck variant it is pinned to the sheet's own column axis; otherwise it
-          is padded off-centre, and the vertical padding keeps the stack clear of
-          the arc's narrow top and bottom. */}
+          deck variant the panel positions itself against the field's own height,
+          so it is handed through untouched. */}
       <div className={contentBox}>
-        <div className={isDeck ? "w-full" : "w-full max-w-xs"}>{children}</div>
+        {isDeck ? children : <div className="w-full max-w-xs">{children}</div>}
       </div>
     </div>
   );

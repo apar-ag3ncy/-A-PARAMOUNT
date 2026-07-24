@@ -55,6 +55,32 @@ function categoryPreview(slug: string, image?: string): string | null {
 }
 
 /**
+ * Break a family heading before its LAST word, so all four columns read as two
+ * lines — "Temple / Architecture", "Sacred / Symbols", "Ceremonial / Pieces",
+ * "Puja & / Devotional".
+ *
+ * WHY THIS IS FORCED rather than left to wrapping. All four titles are two
+ * words, but only three are long enough to overflow the column: "Sacred
+ * Symbols" fits on one line at 13px, so it alone rendered flat while its
+ * neighbours stacked. The break was therefore an accident of string length, and
+ * it would move again with any type-size or column-width change. Breaking
+ * before the last word gives every column the same two-line shape by
+ * construction — and it is the rule the three natural wraps were already
+ * following, so nothing else shifts.
+ */
+function stackTitle(title: string) {
+  const words = title.split(" ");
+  const last = words.pop() ?? "";
+  return (
+    <>
+      {words.join(" ")}
+      <br />
+      {last}
+    </>
+  );
+}
+
+/**
  * Desktop navigation + the Collections mega-panel — an ornamental, deck-faithful
  * dropdown: damask-washed cream, hairline gold rules, corner flourishes, serif-
  * family headings, staggered link entrance, and an arch-framed feature
@@ -227,16 +253,21 @@ export default function MegaMenu() {
                     )}
                     style={{ transitionDelay: open ? `${70 + col * 60}ms` : "0ms" }}
                   >
-                    {/* Reserve two lines for the title so 1-line ("Sacred
-                        Symbols") and 2-line ("Temple Architecture") headings end
-                        at the same baseline — the dividers and every item row
-                        below then align across all four columns. */}
+                    {/* Two lines by construction (see stackTitle), so the four
+                        headings are the same height and the dividers and item
+                        rows below align across all four columns — that used to
+                        need a min-height reserve, which now only added dead
+                        space above the shorter-set text.
+
+                        BLOCK, not flex: the line break inside stackTitle is a
+                        <br />, and inside a flex container a <br /> becomes a
+                        flex ITEM and stops breaking anything. */}
                     <Link
                       href={`/products/${f.slug}`}
                       onClick={() => setOpen(false)}
-                      className="flex min-h-[2.4rem] items-end font-display text-[13px] leading-[1.2] tracking-[0.14em] text-heading-brown uppercase transition-colors hover:text-maroon"
+                      className="block font-display text-[13px] leading-[1.2] tracking-[0.14em] text-heading-brown uppercase transition-colors hover:text-maroon"
                     >
-                      {f.title}
+                      {stackTitle(f.title)}
                     </Link>
                     <OrnamentDivider
                       width="sm"
