@@ -74,7 +74,7 @@ export default function GalleryPage() {
           </span>
         </span>
 
-        {/* ---------- the two-line display heading (with the corner doodles) ---------- */}
+        {/* ---------- the two-line display heading ---------- */}
         <div className="relative mt-5 text-center">
           <h1 className="pm-display-lg font-display tracking-[-0.01em] text-balance text-heading-brown">
             Our Work,
@@ -82,46 +82,6 @@ export default function GalleryPage() {
             In Its Sacred Place
           </h1>
 
-          {/* top-right flourish (the reference's "Elevate your brand" note),
-              a brand-olive stroke — no non-brand script face */}
-          <div
-            aria-hidden
-            className="absolute -top-6 right-0 hidden w-32 translate-x-1/2 text-olive/55 lg:block xl:translate-x-2/3"
-          >
-            <span className="pm-micro block font-body tracking-[0.2em] text-olive/65 uppercase">
-              in marble &amp; metal
-            </span>
-            <svg viewBox="0 0 110 46" fill="none" className="mt-1 w-full">
-              <path
-                d="M6 6 C 34 2, 74 6, 96 34"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                strokeLinecap="round"
-              />
-              <path
-                d="M96 34 L 84 30 M96 34 L 91 22"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                strokeLinecap="round"
-              />
-            </svg>
-          </div>
-
-          {/* tiny hand-drawn caret to the lower-left of the heading (annotation C) */}
-          <svg
-            aria-hidden
-            viewBox="0 0 24 24"
-            fill="none"
-            className="absolute -left-6 bottom-1 hidden w-5 text-olive/45 lg:block"
-          >
-            <path
-              d="M16 4 L 6 12 L 16 20"
-              stroke="currentColor"
-              strokeWidth={1.6}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
         </div>
 
         {/* ---------- lede (narrow column, like the reference) ---------- */}
@@ -137,41 +97,11 @@ export default function GalleryPage() {
           <FannedGalleryRail cards={reel} />
         </div>
 
-        {/* ---------- CTA: solid pill inside a dashed sticker ring (reference detail) ---------- */}
+        {/* ---------- CTA ---------- */}
         <div className="relative mt-7 flex items-center justify-center">
-          <div
-            aria-hidden
-            className="absolute right-full mr-5 hidden w-24 text-olive/55 sm:block"
-          >
-            <svg viewBox="0 0 96 40" fill="none" className="w-full">
-              <path
-                d="M90 8 C 64 4, 30 10, 10 30"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                strokeLinecap="round"
-              />
-              <path
-                d="M10 30 L 20 26 M10 30 L 16 20"
-                stroke="currentColor"
-                strokeWidth={1.5}
-                strokeLinecap="round"
-              />
-            </svg>
-            <span className="pm-micro block text-right font-body tracking-[0.2em] text-olive/60 uppercase">
-              drag to explore
-            </span>
-          </div>
-
-          {/* dashed offset ring around the pill — the reference's sticker/cut-out look */}
-          <span className="relative inline-flex rounded-full p-[7px]">
-            <span
-              aria-hidden
-              className="pointer-events-none absolute inset-0 rounded-full border border-dashed border-olive/40"
-            />
-            <Button variant="solid" size="lg" href="/products">
-              Explore the catalogue
-            </Button>
-          </span>
+          <Button variant="solid" size="lg" href="/products">
+            Explore the catalogue
+          </Button>
         </div>
       </div>
     </section>
