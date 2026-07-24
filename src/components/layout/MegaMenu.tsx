@@ -4,10 +4,15 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import AssetFrame from "@/components/ui/AssetFrame";
 import { FAMILIES } from "@/lib/constants";
-import { categoriesByFamily } from "@/lib/catalog";
+import { CATEGORIES, categoriesByFamily } from "@/lib/catalog";
 import { galleryFor } from "@/lib/galleries";
 import { cn } from "@/lib/utils";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+
+/** Counted, not typed. The caption read a hard-coded "50 sacred works" and went
+ *  stale the moment five pieces came out of the catalogue for want of assets —
+ *  it has been claiming 50 against a real 46 ever since. */
+const CATALOGUE_COUNT = CATEGORIES.length;
 
 /** The currently-hovered piece — drives the arch photo AND the caption subtext
  *  (name + one-line blurb). Kept as one object so a piece with no photo still
@@ -29,12 +34,13 @@ function NavLink({ href, children }: { href: string; children: React.ReactNode }
   );
 }
 
-/** Small gold corner flourish (inspo: ornamental card corners). */
+/** Small corner flourish (inspo: ornamental card corners). Cream, because the
+ *  panel it sits on is the deep olive #7C7144. */
 function Corner({ className }: { className?: string }) {
   return (
     <svg
       viewBox="0 0 40 40"
-      className={cn("absolute h-7 w-7 text-olive/50", className)}
+      className={cn("absolute h-7 w-7 text-cream/40", className)}
       fill="none"
       stroke="currentColor"
       strokeWidth={1.4}
@@ -82,8 +88,9 @@ function stackTitle(title: string) {
 
 /**
  * Desktop navigation + the Collections mega-panel — an ornamental, deck-faithful
- * dropdown: damask-washed cream, hairline gold rules, corner flourishes, serif-
- * family headings, staggered link entrance, and an arch-framed feature
+ * dropdown: a deep-olive #7C7144 ground carrying CREAM type (the inverse of the
+ * frosted cream bar it drops out of), gold hairline rules, corner flourishes,
+ * Storica family headings, staggered link entrance, and an arch-framed feature
  * that previews whichever category is hovered.
  */
 export default function MegaMenu() {
@@ -157,10 +164,19 @@ export default function MegaMenu() {
               auto, too little padding would slice the shadow into a hard edge. */}
           <div className="mx-auto max-h-[calc(100svh-var(--pm-bar-bottom)-1.5rem)] max-w-6xl overflow-y-auto px-10 pt-3 pb-20">
             <div
-              className="relative overflow-hidden rounded-card border border-olive/25 shadow-[0_3px_6px_-1px_rgba(60,46,20,0.05),0_8px_16px_-5px_rgba(64,48,20,0.06),0_15px_28px_-12px_rgba(68,50,22,0.07),0_26px_42px_-20px_rgba(72,52,22,0.07),0_38px_58px_-30px_rgba(74,54,24,0.06),0_50px_74px_-46px_rgba(74,54,24,0.05),0_36px_72px_-48px_rgba(197,155,74,0.06)]"
+              // THE PANEL IS DARK. Ground #7C7144 (the deeper brand olive, the
+              // --color-maroon token's value) with cream type on it — the
+              // inverse of the cream-with-olive-type it used to be, and of the
+              // header bar it drops out of, so the panel reads as a distinct
+              // surface rather than as more of the bar.
+              //
+              // The base layer is a FLAT #7C7144, not a gradient: the two gold
+              // radials are corner ornament (they fade to transparent by 42%),
+              // so the body of the panel is exactly that colour.
+              className="relative overflow-hidden rounded-card border border-cream/15 shadow-[0_3px_6px_-1px_rgba(60,46,20,0.08),0_8px_16px_-5px_rgba(64,48,20,0.10),0_15px_28px_-12px_rgba(68,50,22,0.12),0_26px_42px_-20px_rgba(72,52,22,0.12),0_38px_58px_-30px_rgba(74,54,24,0.10),0_50px_74px_-46px_rgba(74,54,24,0.08),0_36px_72px_-48px_rgba(197,155,74,0.06)]"
               style={{
                 background:
-                  "radial-gradient(circle at 12% 0%, rgb(var(--gold-rgb) / 0.16), transparent 42%), radial-gradient(circle at 88% 100%, rgb(var(--gold-rgb) / 0.13), transparent 42%), linear-gradient(180deg, #FBF0D9, #F3E4C8)",
+                  "radial-gradient(circle at 12% 0%, rgb(var(--gold-rgb) / 0.16), transparent 42%), radial-gradient(circle at 88% 100%, rgb(var(--gold-rgb) / 0.13), transparent 42%), #7C7144",
               }}
             >
               <Corner className="top-2 left-2" />
@@ -194,7 +210,10 @@ export default function MegaMenu() {
                     showLabel={false}
                     sizes="(min-width:1024px) 240px, 0px"
                     frameClassName={cn(
-                      "pm-arch-frame rounded-t-full transition-colors duration-[400ms] group-hover:border-olive",
+                      // gold on hover, not olive — olive is now within a few
+                      // percent of the panel behind it and would read as no
+                      // hover at all.
+                      "pm-arch-frame rounded-t-full transition-colors duration-[400ms] group-hover:border-gold",
                       "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:content-['']",
                       // recess: top-lip catch-light, dark upper interior cast, seated
                       // bottom, faint all-round occlusion — the piece sits BACK, deep.
@@ -217,11 +236,11 @@ export default function MegaMenu() {
                         feature ? "opacity-0" : "opacity-100",
                       )}
                     >
-                      <p className="text-center font-body text-sm text-maroon">
+                      <p className="text-center font-body text-sm text-cream">
                         The Catalogue
                       </p>
-                      <p className="mt-0.5 text-center font-display text-[12px] tracking-[0.22em] text-maroon/60 uppercase">
-                        50 sacred works →
+                      <p className="mt-0.5 text-center font-display text-[12px] tracking-[0.22em] text-cream/65 uppercase">
+                        {CATALOGUE_COUNT} sacred works →
                       </p>
                     </div>
 
@@ -232,11 +251,11 @@ export default function MegaMenu() {
                         feature ? "opacity-100 delay-[30ms]" : "opacity-0",
                       )}
                     >
-                      <p className="text-center font-display text-[12px] leading-[1.3] tracking-[0.16em] text-heading-brown uppercase">
+                      <p className="text-center font-display text-[12px] leading-[1.3] tracking-[0.16em] text-cream uppercase">
                         {feature?.title}
                       </p>
                       {feature?.blurb && (
-                        <p className="mx-auto mt-1.5 max-w-[26ch] overflow-hidden text-center font-body text-[12px] leading-[1.5] text-maroon/70 [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [display:-webkit-box]">
+                        <p className="mx-auto mt-1.5 max-w-[26ch] overflow-hidden text-center font-body text-[12px] leading-[1.5] text-cream/70 [-webkit-box-orient:vertical] [-webkit-line-clamp:3] [display:-webkit-box]">
                           {feature.blurb}
                         </p>
                       )}
@@ -265,13 +284,13 @@ export default function MegaMenu() {
                     <Link
                       href={`/products/${f.slug}`}
                       onClick={() => setOpen(false)}
-                      className="block font-display text-[13px] leading-[1.2] tracking-[0.14em] text-heading-brown uppercase transition-colors hover:text-maroon"
+                      className="block font-display text-[13px] leading-[1.2] tracking-[0.14em] text-cream uppercase transition-colors hover:text-gold"
                     >
                       {stackTitle(f.title)}
                     </Link>
                     <OrnamentDivider
                       width="sm"
-                      className="mt-2.5 mb-4 text-olive/45"
+                      className="mt-2.5 mb-4 text-gold/60"
                     />
                     <ul className="space-y-2.5">
                       {categoriesByFamily(f.slug)
@@ -289,7 +308,7 @@ export default function MegaMenu() {
                                 })
                               }
                               onMouseLeave={clearFeature}
-                              className="font-body text-[12.5px] text-maroon/70 transition-colors hover:text-maroon"
+                              className="font-body text-[12.5px] text-cream/70 transition-colors hover:text-cream"
                             >
                               {p.title}
                             </Link>
@@ -299,7 +318,7 @@ export default function MegaMenu() {
                     <Link
                       href={`/products/${f.slug}`}
                       onClick={() => setOpen(false)}
-                      className="mt-5 inline-block font-display text-[12px] tracking-[0.18em] text-maroon uppercase hover:text-maroon"
+                      className="mt-5 inline-block font-display text-[12px] tracking-[0.18em] text-cream uppercase transition-colors hover:text-gold"
                     >
                       View all →
                     </Link>
