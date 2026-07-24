@@ -126,6 +126,7 @@ const OVERVIEW: Record<string, string> = {
   "puja-table":
     "The worship table comes in carved wood and brass, plain or with delicate inlay.",
   patla: "The low seat (patla) for the ritual, in silver, german silver and inlay work.",
+  table: "Wood or clad metal tables for the puja, in wooden, german silver and GS + brass.",
   "ashtaprakari-puja-bajot":
     "The low table (bajot) for the eight fold ashtaprakari puja, supplied with a sized brass tray with a drainage pipe.",
   "shatrunjay-pat":
@@ -224,6 +225,8 @@ const DESCRIPTION: Record<string, string> = {
     "The puja table holds the articles of worship through the ritual. It is made in carved wood and brass, plain or with delicate inlay.",
   patla:
     "The patla is the low seat used in the ritual. It is offered in silver, german silver and inlay work.",
+  table:
+    "The table collection comes in three variants: wooden, german silver, and german silver with brass. Each is made to serve the puja and to last, in premium materials and traditional craft.",
   "ashtaprakari-puja-bajot":
     "The bajot is the low table on which the eight substances of the ashtaprakari puja are offered. It is supplied with a sized brass tray fitted with a drainage pipe.",
   "shatrunjay-pat":

@@ -1784,57 +1784,27 @@ export const GALLERIES: Record<string, ProductGallery> = {
           {
             "src": "/gallery/patla/all/00.webp",
             "w": 1600,
-            "h": 1195
+            "h": 1243
           },
           {
             "src": "/gallery/patla/all/01.webp",
             "w": 1600,
-            "h": 1195
+            "h": 1296
           },
           {
             "src": "/gallery/patla/all/02.webp",
             "w": 1600,
-            "h": 1195
+            "h": 1228
           },
           {
             "src": "/gallery/patla/all/03.webp",
             "w": 1600,
-            "h": 1195
-          },
-          {
-            "src": "/gallery/patla/all/04.webp",
-            "w": 1600,
-            "h": 1195
-          },
-          {
-            "src": "/gallery/patla/all/05.webp",
-            "w": 1600,
-            "h": 1195
-          },
-          {
-            "src": "/gallery/patla/all/06.webp",
-            "w": 1600,
-            "h": 1195
-          },
-          {
-            "src": "/gallery/patla/all/07.webp",
-            "w": 1600,
-            "h": 1195
-          },
-          {
-            "src": "/gallery/patla/all/08.webp",
-            "w": 1600,
-            "h": 1195
-          },
-          {
-            "src": "/gallery/patla/all/09.webp",
-            "w": 1600,
-            "h": 1195
+            "h": 1388
           }
         ]
       }
     ],
-    "count": 10
+    "count": 4
   },
   "pichwadi": {
     "groups": [
@@ -2260,6 +2230,52 @@ export const GALLERIES: Record<string, ProductGallery> = {
           },
           {
             "src": "/gallery/sinhasan/all/03.webp",
+            "w": 1600,
+            "h": 1195
+          }
+        ]
+      }
+    ],
+    "count": 4
+  },
+  "table": {
+    "groups": [
+      {
+        "material": "wooden",
+        "label": "Wooden",
+        "icon": "wooden",
+        "images": [
+          {
+            "src": "/gallery/table/wooden/00.webp",
+            "w": 1600,
+            "h": 1195
+          },
+          {
+            "src": "/gallery/table/wooden/01.webp",
+            "w": 1600,
+            "h": 1195
+          }
+        ]
+      },
+      {
+        "material": "german-silver",
+        "label": "German Silver",
+        "icon": "silver",
+        "images": [
+          {
+            "src": "/gallery/table/german-silver/00.webp",
+            "w": 1600,
+            "h": 1195
+          }
+        ]
+      },
+      {
+        "material": "gs-brass",
+        "label": "GS + Brass",
+        "icon": "brass-germansilver",
+        "images": [
+          {
+            "src": "/gallery/table/gs-brass/00.webp",
             "w": 1600,
             "h": 1195
           }
