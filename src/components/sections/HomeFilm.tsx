@@ -793,7 +793,15 @@ export default function HomeFilm() {
           afford. Stable height, always covered. */}
       <div
         ref={stage}
-        className="hf-pin relative flex h-[100lvh] w-full items-center justify-center overflow-hidden bg-cream"
+        // NO bg-cream here. The section behind it (.hf) already paints the
+        // same cream, so this was a SECOND opaque surface stacked exactly on
+        // the first. The stage is GPU-composited (its children carry
+        // will-change: transform) and clipped by overflow-hidden, and the edge
+        // of that composited layer anti-aliased against the layer beneath it —
+        // drawing a hairline right across the page where the stage ends, even
+        // though both sides were the identical colour and every box measured
+        // flush to the pixel. One surface, no edge to blend.
+        className="hf-pin relative flex h-[100lvh] w-full items-center justify-center overflow-hidden"
       >
         {/* ===================== ACT 1 — THE DOORS ===================== */}
         {/* poster, so the doors are on screen from the first paint */}
