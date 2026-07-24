@@ -160,7 +160,7 @@ export default function CraftsmanshipPage() {
                     </span>
 
                     <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                      <span className="block h-px w-8 bg-gold/80 transition-[width] duration-500 group-hover/card:w-14" />
+                      <OrnamentDivider width="sm" className="text-gold/80" />
                       {/* pm-small (14px). The card name is a caption over a photograph, not a
                           section subheading; at pm-h3's 24px, 13 of the 54 names across the site
                           wrapped to two or three lines. Measured against the label's true 257px

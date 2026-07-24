@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import AssetFrame from "@/components/ui/AssetFrame";
-import ArchMark from "@/components/ui/ArchMark";
 import { FAMILIES } from "@/lib/constants";
 import { categoriesByFamily } from "@/lib/catalog";
 import { galleryFor } from "@/lib/galleries";
 import { cn } from "@/lib/utils";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 /** The currently-hovered piece — drives the arch photo AND the caption subtext
  *  (name + one-line blurb). Kept as one object so a piece with no photo still
@@ -238,13 +238,10 @@ export default function MegaMenu() {
                     >
                       {f.title}
                     </Link>
-                    <div className="mt-2.5 mb-4 flex items-center gap-2 text-olive/45" aria-hidden>
-                      <span className="h-px w-8 bg-current" />
-                      {/* size by height only - the deck's mark is WIDER than it
-                          is tall, so pinning both axes (was h-4 w-3) squashed it */}
-                      <ArchMark className="h-3 w-auto shrink-0" />
-                      <span className="h-px flex-1 bg-current opacity-40" />
-                    </div>
+                    <OrnamentDivider
+                      width="sm"
+                      className="mt-2.5 mb-4 text-olive/45"
+                    />
                     <ul className="space-y-2.5">
                       {categoriesByFamily(f.slug)
                         .slice(0, 6)

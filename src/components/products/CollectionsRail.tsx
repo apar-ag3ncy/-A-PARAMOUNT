@@ -3,8 +3,9 @@
 import { useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { gsap, ScrollTrigger } from "@/lib/gsap";
+import { gsap } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 /**
  * CollectionsRail — the four families as a row of TALL, full-bleed image cards
@@ -186,7 +187,7 @@ export default function CollectionsRail({ items }: { items: CollectionCard[] }) 
 
               {/* the label, bottom-left on the image (reference layout) */}
               <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                <span className="block h-px w-9 bg-gold/70 transition-[width] duration-500 group-hover/card:w-16" />
+                <OrnamentDivider width="sm" className="text-gold/70" />
                 {/* pm-small (14px). The card name is a caption over a photograph, not a
                     section subheading; at pm-h3's 24px, 13 of the 54 names across the site
                     wrapped to two or three lines. Measured against the label's true 257px

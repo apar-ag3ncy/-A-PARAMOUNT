@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import FooterHeaderHold from "@/components/layout/FooterHeaderHold";
 import { SITE, CONTACT } from "@/lib/constants";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 /**
  * Footer — a full-VIEWPORT architectural plate with the wordmark cut into the base.
@@ -69,7 +70,7 @@ export default function Footer() {
           {SITE.tagline} · Since {SITE.since}
         </p>
 
-        <span aria-hidden className="mt-6 mb-8 block h-px w-16 bg-cream/25" />
+        <OrnamentDivider width="sm" className="mt-6 mb-8 text-cream/45" />
 
         {/* The full contact block. THREE columns rather than one stacked list:
             this is ~12 lines of detail, and centred in a single column it doubled

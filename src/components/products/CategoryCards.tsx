@@ -6,6 +6,7 @@ import Image from "next/image";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import ArchMark from "@/components/ui/ArchMark";
+import OrnamentDivider from "@/components/ui/OrnamentDivider";
 
 /**
  * CategoryCards — the pieces in a family, in the same full-bleed card language as
@@ -200,7 +201,7 @@ export default function CategoryCards({
 
                 {/* the name, bottom-left on the image */}
                 <div className="absolute inset-x-0 bottom-0 p-4">
-                  <span className="block h-px w-7 bg-gold/70 transition-[width] duration-500 group-hover/card:w-12" />
+                  <OrnamentDivider width="sm" className="text-gold/70" />
                   {/* pm-small (14px). The card name is a caption over a photograph, not a
                       section subheading; at pm-h3's 24px, 13 of the 54 names across the site
                       wrapped to two or three lines. Measured against the label's true 257px
