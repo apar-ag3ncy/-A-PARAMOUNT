@@ -2135,6 +2135,23 @@ export const GALLERIES: Record<string, ProductGallery> = {
     ],
     "count": 2
   },
+  "silver-darpan": {
+    "groups": [
+      {
+        "material": "all",
+        "label": "All",
+        "icon": null,
+        "images": [
+          {
+            "src": "/gallery/silver-darpan/all/00.webp",
+            "w": 1600,
+            "h": 1195
+          }
+        ]
+      }
+    ],
+    "count": 1
+  },
   "silver-frames": {
     "groups": [
       {

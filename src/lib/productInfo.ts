@@ -149,10 +149,17 @@ const OVERVIEW: Record<string, string> = {
  */
 const DESCRIPTION: Record<string, string> = {
   // -- architecture --
+  // The 20 July catalogue gives this a Jain spread (p13) and a Hindu spread
+  // (p14). Its INDEX lists dhwajadand ONCE, and both spreads describe the same
+  // object in the same metals with the same finishing — what differs is whose
+  // proportional system governs the sizing. So it stays one piece, and the two
+  // traditions are named here rather than split into two products.
   dhwajadand:
-    "Raised at the very summit of the temple, the dhwajadand carries the dhaja that announces the derasar from afar and is honoured at every flag hoisting ceremony. Paramount shapes it in pure brass or copper to the proportions religious calculation prescribes, then polishes and lacquers it to weather the years on the shikhar.",
+    "Raised at the very summit of the temple, the dhwajadand carries the dhaja that announces the derasar from afar and is honoured at every flag hoisting ceremony. Paramount shapes it in pure brass or copper, sized for a Jain derasar to sacred Jain proportion and for a Hindu mandir to Vedic measurement, then polishes it to any shade you choose and lacquers it to weather the years on the shikhar.",
+  // Same reasoning as the dhwajadand above: separate Jain (p15) and Hindu (p16)
+  // spreads, one index entry, one piece.
   kalash:
-    "The kalash is the crowning vessel of the spire, a mark of auspiciousness and completion set at the highest point of the temple. The metal cover is raised to fit precisely over the marble kalash of the shikhar, offered in brass or copper and in a range of sizes and polishes.",
+    "The kalash is the crowning vessel of the spire, a mark of auspiciousness and completion set at the highest point of the temple. It is handcrafted in pure brass or copper for Jain derasars and Hindu mandirs alike, and the cover is raised to fit precisely over the marble kalash of the shikhar, in a range of sizes, designs and polishes.",
   doors:
     "The doors of the sanctum are the threshold between the world and the deity, and are carved to be worthy of that passage. Premium wood is worked from normal to extra deep relief, then clad, polished and lacquered, in wood, silver, german silver, brass, copper, inlay, jali or diamond finishes.",
   bhandar:

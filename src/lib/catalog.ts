@@ -69,8 +69,14 @@ const ROWS: Row[] = [
   [29, "Toran", "symbols", [], "Decorative arch hangings, painted or clad in silver, german silver or brass."],
   [30, "Manekstambh Toran", "symbols", [], "The manekstambh toran, handcrafted in premium wood."],
   [31, "Rath", "ceremonial", [], "Processional chariots, clad in silver, german silver or brass; sturdy and movable."],
-  // 32 was "Indradhaja" — removed at the client's instruction, no photography
-  // for it. Order number left vacant for the same reason as 19: `ratio` is
+  // 32 was "Indradhaja". It IS in the finalized 20 July index, so this was
+  // re-examined against the catalogue and still stays out. Its only spread is
+  // p82, shared with Rath and Palkhi, and the four photographs there are a
+  // sinhasan, the rath, a spired seat and the palkhi — no standalone
+  // indradhaja anywhere in 108 pages. The banner appears ONLY as the flagged
+  // mast on the rath, which is already the Rath product's own photograph, so
+  // a page here could only show an empty frame or a duplicate of Rath.
+  // Order number left vacant for the same reason as 19: `ratio` is
   // RATIOS[(order - 1) % 5], so renumbering would reshape everything below.
   [33, "Palkhi", "ceremonial", [], "Ceremonial palanquins for processions."],
   [34, "Cloth Dhaja", "symbols", [], "Cloth banners for the shikhar."],
