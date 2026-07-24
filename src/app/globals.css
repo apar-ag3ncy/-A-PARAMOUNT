@@ -13,8 +13,16 @@
    which had been pasted as a raw hex into 12 components.
    ============================================================================ */
 @theme {
-  /* -- Palette -- */
-  --color-cream:        #FEF4DA; /* page background (dominant) */
+  /* -- Palette --
+     The cream is #FEF1DA. It moved here from #FEF4DA at the client's
+     request for the landing film (the light flooding out of the doors, the
+     ground the logo resolves on, and "Our Works" all paint from --color-cream).
+     BOTH this and --color-background had to move together: the sections after
+     the film are transparent and show the body, so shifting only one would
+     have left a faint band across the seam where the two creams met. This
+     value is also what the catalogue pages already hardcoded, so the site now
+     has ONE cream instead of two that differed by 3/255 in one channel. */
+  --color-cream:        #FEF1DA; /* page background (dominant) */
   --color-cream-deep:   #F3E4C8; /* cards / secondary surface */
   --color-olive:        #8A7F4A; /* PRIMARY brand — accent, borders, large fills */
   --color-olive-deep:   #6F6639; /* headings, hover, shadow of olive */
@@ -47,7 +55,7 @@
   --color-velvet-500:  #1E1709; /* deepest */
 
   /* -- Semantic aliases -- */
-  --color-background:   #FEF4DA;
+  --color-background:   #FEF1DA;
   --color-surface:      #F3E4C8;
   --color-foreground:   #2E2313;
   --color-accent:       #8A7F4A;
