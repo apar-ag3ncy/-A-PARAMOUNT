@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AssetFrame from "@/components/ui/AssetFrame";
 import { FAMILIES } from "@/lib/constants";
 import { CATEGORIES, categoriesByFamily } from "@/lib/catalog";
@@ -25,7 +25,13 @@ const linkCls =
   "group/nav relative font-display text-[12px] uppercase tracking-[0.12em] text-maroon/85 whitespace-nowrap rounded-sm transition-colors hover:text-maroon focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold";
 
 /** Elegant hover underline that draws in from the left. */
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
   return (
     <Link href={href} className={linkCls}>
       {children}
@@ -48,7 +54,12 @@ function Corner({ className }: { className?: string }) {
     >
       <path d="M2,26 L2,10 Q2,2 10,2 L26,2" />
       <path d="M7,20 L7,12 Q7,7 12,7 L20,7" opacity={0.6} />
-      <path d="M2,33 l2.6,3 -2.6,3 -2.6,-3 z" fill="currentColor" stroke="none" opacity={0.7} />
+      <path
+        d="M2,33 l2.6,3 -2.6,3 -2.6,-3 z"
+        fill="currentColor"
+        stroke="none"
+        opacity={0.7}
+      />
     </svg>
   );
 }
@@ -102,7 +113,9 @@ export default function MegaMenu() {
   // gap between leaving one link and entering the next, so sweeping across
   // categories swaps cleanly instead of flashing back to idle between them.
   const [feature, setFeature] = useState<Feature | null>(null);
-  const previewTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const previewTimer = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   const preview = feature?.src ?? null; // derived — keeps the AssetFrame + zoom-key wiring unchanged
 
   const enter = () => {
@@ -122,6 +135,25 @@ export default function MegaMenu() {
   const clearFeature = () => {
     previewTimer.current = setTimeout(() => setFeature(null), 90);
   };
+
+  // The idle niche plays the temple-ceiling film, and ONLY while the panel is
+  // actually open. `preload="none"` keeps the 2.2MB off the wire until the menu
+  // is first used (the poster carries the frame instantly meanwhile), and
+  // pausing on close stops a decoder running behind an invisible panel on every
+  // page of the site.
+  const filmRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = filmRef.current;
+    if (!v) return;
+    if (open) {
+      // play() rejects if the tab blocks autoplay; the poster stays up, which is
+      // a fine resting state, so swallow it rather than surfacing an unhandled
+      // rejection.
+      void v.play().catch(() => {});
+    } else {
+      v.pause();
+    }
+  }, [open]);
 
   return (
     <nav className="hidden items-center gap-7 lg:flex">
@@ -192,7 +224,9 @@ export default function MegaMenu() {
                   onClick={() => setOpen(false)}
                   className={cn(
                     "group hidden transition-[opacity,transform] duration-500 lg:block",
-                    open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
+                    open
+                      ? "translate-y-0 opacity-100"
+                      : "translate-y-3 opacity-0",
                   )}
                 >
                   {/* `key` remounts the image on each NEW photo so the entrance
@@ -200,28 +234,78 @@ export default function MegaMenu() {
                       means grazing two pieces with the same photo won't re-trigger
                       it. The after:* layers paint a carved-niche recess INSIDE the
                       frame (clipped to the arch), pointer-events-none so hover fires. */}
-                  <AssetFrame
-                    key={preview ?? "idle"}
-                    image={null}
-                    src={preview ?? undefined}
-                    ratio="4/5"
-                    fit="cover"
-                    crop
-                    showLabel={false}
-                    sizes="(min-width:1024px) 240px, 0px"
-                    frameClassName={cn(
-                      // gold on hover, not olive — olive is now within a few
-                      // percent of the panel behind it and would read as no
-                      // hover at all.
-                      "pm-arch-frame rounded-t-full transition-colors duration-[400ms] group-hover:border-gold",
-                      "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:content-['']",
-                      // recess: top-lip catch-light, dark upper interior cast, seated
-                      // bottom, faint all-round occlusion — the piece sits BACK, deep.
-                      "after:[box-shadow:inset_0_2px_5px_rgba(255,248,228,0.45),inset_0_14px_30px_-12px_rgba(46,35,19,0.5),inset_0_-18px_32px_-16px_rgba(46,35,19,0.4),inset_0_0_22px_rgba(46,35,19,0.18)]",
-                      // vignette deepening the arch crown so the centre advances
-                      "after:[background:radial-gradient(120%_100%_at_50%_8%,transparent_54%,rgba(46,35,19,0.16))]",
-                    )}
-                  />
+                  <div className="relative">
+                    <AssetFrame
+                      key={preview ?? "idle"}
+                      image={null}
+                      src={preview ?? undefined}
+                      ratio="4/5"
+                      fit="cover"
+                      crop
+                      showLabel={false}
+                      sizes="(min-width:1024px) 240px, 0px"
+                      frameClassName={cn(
+                        // gold on hover, not olive — olive is now within a few
+                        // percent of the panel behind it and would read as no
+                        // hover at all.
+                        "pm-arch-frame rounded-t-full transition-colors duration-[400ms] group-hover:border-gold",
+                        "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:content-['']",
+                        // recess: top-lip catch-light, dark upper interior cast, seated
+                        // bottom, faint all-round occlusion — the piece sits BACK, deep.
+                        "after:[box-shadow:inset_0_2px_5px_rgba(255,248,228,0.45),inset_0_14px_30px_-12px_rgba(46,35,19,0.5),inset_0_-18px_32px_-16px_rgba(46,35,19,0.4),inset_0_0_22px_rgba(46,35,19,0.18)]",
+                        // vignette deepening the arch crown so the centre advances
+                        "after:[background:radial-gradient(120%_100%_at_50%_8%,transparent_54%,rgba(46,35,19,0.16))]",
+                      )}
+                    />
+
+                    {/* THE IDLE NICHE — a continuous temple-ceiling shot, white
+                      marble pillars either side and the carved gilded ceiling
+                      overhead, so the frame is never an empty plate. It fades
+                      out the moment a piece is hovered and the photograph
+                      beneath takes over.
+
+                      `inset-px` sits it INSIDE the frame's hairline border, and
+                      it repeats the frame's own rounding so the film is clipped
+                      to the arch. The recess layers are repeated here too — they
+                      live on the frame's ::after, which is underneath this, so
+                      without them the film would read as a flat sticker where
+                      the empty plate reads as a carved niche.
+
+                      16:9 source, object-cover to the 4/5 arch: architectural
+                      footage, croppable — the never-crop rule governs the
+                      white-ground product shots, not this. */}
+                    <div
+                      aria-hidden
+                      className={cn(
+                        "pointer-events-none absolute inset-px overflow-hidden rounded-image rounded-t-full transition-opacity duration-500 ease-[cubic-bezier(0.33,0,0.2,1)]",
+                        // keyed on `preview`, NOT on `feature`: a piece that has
+                        // no photograph yet would otherwise fade the film out to
+                        // reveal the empty plate, which is the one thing this is
+                        // here to stop. No photo -> the film stays.
+                        preview ? "opacity-0" : "opacity-100",
+                      )}
+                    >
+                      <video
+                        ref={filmRef}
+                        src="/menu/temple-ceiling.mp4"
+                        poster="/menu/temple-ceiling.webp"
+                        muted
+                        loop
+                        playsInline
+                        preload="none"
+                        className="h-full w-full object-cover"
+                      />
+                      <span
+                        className="absolute inset-0 rounded-[inherit]"
+                        style={{
+                          boxShadow:
+                            "inset 0 2px 5px rgba(255,248,228,0.45), inset 0 14px 30px -12px rgba(46,35,19,0.5), inset 0 -18px 32px -16px rgba(46,35,19,0.4), inset 0 0 22px rgba(46,35,19,0.18)",
+                          background:
+                            "radial-gradient(120% 100% at 50% 8%, transparent 54%, rgba(46,35,19,0.16))",
+                        }}
+                      />
+                    </div>
+                  </div>
 
                   {/* caption — two stacked layers crossfade on opacity only (no
                       reflow); idle shows the catalogue line, hover shows the piece.
@@ -268,9 +352,13 @@ export default function MegaMenu() {
                     key={f.slug}
                     className={cn(
                       "transition-[opacity,transform] duration-500",
-                      open ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
+                      open
+                        ? "translate-y-0 opacity-100"
+                        : "translate-y-3 opacity-0",
                     )}
-                    style={{ transitionDelay: open ? `${70 + col * 60}ms` : "0ms" }}
+                    style={{
+                      transitionDelay: open ? `${70 + col * 60}ms` : "0ms",
+                    }}
                   >
                     {/* Two lines by construction (see stackTitle), so the four
                         headings are the same height and the dividers and item
