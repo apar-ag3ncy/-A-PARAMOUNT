@@ -86,14 +86,17 @@ export default async function ProductPage({
           </SplitTextReveal>
           <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
           {info.overview && (
-            <p className="pm-lead mx-auto mt-5 max-w-3xl font-body text-maroon/80">
+            <p className="pm-lead mx-auto mt-6 max-w-3xl font-body text-maroon/80">
               {info.overview}
             </p>
           )}
         </header>
 
-        {/* the piece — framed imagery */}
-        <div className="mt-10">
+        {/* the piece — framed imagery.
+            mt-12, not mt-10. Every other section on this page steps at 48px
+            (spec, description, commission, related); the gallery alone sat at
+            40 and broke the rhythm. */}
+        <div className="mt-12">
           {gallery ? (
             <CategoryGallery
               title={product.title}

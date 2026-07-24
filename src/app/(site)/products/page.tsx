@@ -67,11 +67,11 @@ export default async function ProductsPage() {
         <SplitTextReveal
           as="h1"
           by="words"
-          className="pm-display-lg mt-5 font-display font-light text-balance text-heading-brown"
+          className="pm-display-lg mt-4 font-display font-light text-balance text-heading-brown"
         >
           Our Collections
         </SplitTextReveal>
-        <OrnamentDivider className="mx-auto mt-7 text-olive/50" />
+        <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
         <p className="pm-body mx-auto mt-6 max-w-md font-body text-maroon/75">
           Four families of temple artifacts, every piece handcrafted to order in
           your choice of material.

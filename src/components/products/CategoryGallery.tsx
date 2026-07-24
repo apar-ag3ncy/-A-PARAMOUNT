@@ -168,7 +168,14 @@ export default function CategoryGallery({
           ref={coinsRef}
           role={canFilter ? "tablist" : undefined}
           aria-label={canFilter ? "Choose a finish" : "Available finishes"}
-          className="mb-3 flex flex-wrap justify-center gap-x-6 gap-y-5 sm:gap-x-8"
+          // SPACING LADDER for this block: 8px disc-to-its-own-label (gap-2 on
+          // each coin), 16px coin row to the status line, 32px status line to
+          // the grid, 48px between page sections. It used to run 8 / 12 / 24:
+          // only 4px separated the status line from the coin labels, so the
+          // caption read as a third row of labels rather than as feedback about
+          // the control. The status stays CLOSER to the coins it describes
+          // (16) than to the results it filters (32).
+          className="mb-4 flex flex-wrap justify-center gap-x-6 gap-y-6 sm:gap-x-8"
         >
           {finishes.map((f, i) => {
             const on = canFilter && i === active;
@@ -247,7 +254,7 @@ export default function CategoryGallery({
         <p
           aria-live="polite"
           className={cn(
-            "mb-6 flex h-5 items-center justify-center gap-1.5 text-center",
+            "mb-8 flex h-5 items-center justify-center gap-1.5 text-center",
             dark ? "text-pista/70" : "text-maroon/65",
           )}
         >

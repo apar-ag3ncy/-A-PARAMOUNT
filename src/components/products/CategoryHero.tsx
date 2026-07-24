@@ -22,11 +22,11 @@ export default function CategoryHero({ title, subtitle, count }: Props) {
       <SplitTextReveal
         as="h1"
         by="words"
-        className="pm-display-lg mt-5 font-display font-light text-balance text-heading-brown"
+        className="pm-display-lg mt-4 font-display font-light text-balance text-heading-brown"
       >
         {title}
       </SplitTextReveal>
-      <OrnamentDivider className="mx-auto mt-7 text-olive/50" />
+      <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
       {subtitle && (
         <p className="pm-body mx-auto mt-6 max-w-md font-body text-maroon/75">
           {subtitle}
