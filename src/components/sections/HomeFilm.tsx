@@ -968,15 +968,15 @@ export default function HomeFilm() {
                 // ~0.80 with margin; putting 0.75 exactly at 0.62 measured 0.745 once
                 // interpolated, i.e. fractionally under the floor. Re-measure if the
                 // lockup is ever resized, or the type will drift past it.
-                "radial-gradient(closest-side, #fff 0%, #fff 36%, rgba(255,255,255,0.92) 52%, rgba(255,255,255,0.78) 64%, rgba(255,255,255,0.45) 76%, rgba(255,255,255,0.16) 89%, rgba(255,255,255,0) 100%)",
+                "radial-gradient(closest-side, #FEF1DA 0%, #FEF1DA 36%, rgba(254,241,218,0.92) 52%, rgba(254,241,218,0.78) 64%, rgba(254,241,218,0.45) 76%, rgba(254,241,218,0.16) 89%, rgba(254,241,218,0) 100%)",
             }}
           />
           {/* Because the disc now feathers to nothing at its rim it can NEVER cover
               the section on its own, however large it grows. This solid sheet closes
-              the last of stage 2 so "Our Works" still lands on flat white. It is
+              the last of stage 2 so "Our Works" still lands on the flat brand cream. It is
               eased quadratically so the disc's growth reads first and the fill only
               rushes at the very end. */}
-          <div className="hv-sheet absolute inset-0 bg-white opacity-0" />
+          <div className="hv-sheet absolute inset-0 bg-cream opacity-0" />
         </div>
 
         <div className="hv-brand relative top-[6svh] z-[20] flex flex-col items-center px-6 text-center text-heading-brown">
