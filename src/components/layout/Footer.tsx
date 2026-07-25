@@ -139,12 +139,29 @@ export default function Footer() {
 
         <Link
           href="/contact"
-          /* pr shorter than pl by the tracking: pm-label sets 0.16em, and the space
-             after the last glyph is inside the box but carries no ink, so with
-             symmetric px-6 the label sat 0.96px left of the pill's centre. */
-          className="pm-label mt-10 inline-flex items-center rounded-full border border-cream/35 py-2.5 pl-6 pr-[calc(1.5rem-0.16em)] font-display text-cream transition-colors hover:border-gold hover:text-gold"
+          className="relative mt-10 inline-flex items-center justify-center rounded-full backdrop-blur-md px-7 py-3 font-display transition-all duration-300 group hover:scale-[1.03] hover:border-white/70 active:scale-[0.98]"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.12) 100%)",
+            border: "1px solid rgba(255, 255, 255, 0.4)",
+            boxShadow:
+              "inset 0 1px 1.5px rgba(255, 255, 255, 0.6), inset 0 -1px 2px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.3)",
+          }}
         >
-          Let&apos;s Connect Today
+          {/* Delicate top glass edge highlight */}
+          <div
+            className="pointer-events-none absolute inset-x-3 top-[1px] h-[1px] rounded-full"
+            style={{
+              background:
+                "linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 25%, rgba(255, 255, 255, 0.8) 75%, transparent 100%)",
+            }}
+          />
+          <span
+            className="pm-label text-cream transition-colors group-hover:text-white"
+            style={{ textShadow: "0 1px 3px rgba(0, 0, 0, 0.6)" }}
+          >
+            Let&apos;s Connect Today
+          </span>
         </Link>
       </div>
 

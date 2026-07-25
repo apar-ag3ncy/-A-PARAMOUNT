@@ -532,7 +532,16 @@ export default function HomeFilm() {
         // ceiling as the brand resolves on it.
         const fp = seg(P, 0, FILM_END);
         scrubTo(paceMap(fp)); // PACE emits a fraction of the film; see scrubTo
-        if (dcueEl) gsap.set(dcueEl, { opacity: 1 - easeIn(seg(fp, D.cueOut, 0.14)) });
+
+        // Soft dissolve for the door scroll capsule: expands, floats up, and fades out softly
+        const dcueDissolve = smooth(seg(fp, 0.05, 0.16));
+        if (dcueEl) {
+          gsap.set(dcueEl, {
+            opacity: 1 - dcueDissolve,
+            scale: 1 + 0.12 * dcueDissolve,
+            y: -20 * dcueDissolve,
+          });
+        }
 
         // ---- door-open light + cinematic push (fp) ----
         // a slow synthetic zoom INTO the doorway across the approach and the swing,
@@ -614,10 +623,16 @@ export default function HomeFilm() {
             y: 36 * (1 - works),
             pointerEvents: works > 0.5 ? "auto" : "none",
           });
-        if (cueEl)
+        if (cueEl) {
+          const cueIn = smooth(seg(P, B.brandDone, 0.04));
+          const cueOut = smooth(seg(P, B.brandOut, 0.06));
+          const vis = cueIn * (1 - cueOut);
           gsap.set(cueEl, {
-            opacity: seg(P, B.brandDone, 0.04) * (1 - smooth(seg(P, B.brandOut, 0.06))),
+            opacity: vis,
+            scale: cueOut > 0.001 ? 1 + 0.12 * cueOut : 0.92 + 0.08 * cueIn,
+            y: -20 * cueOut,
           });
+        }
 
         // header withheld for the whole film, back once the brand resolves
         const wantHold = P < GLOBAL_BRAND_DONE;
@@ -852,15 +867,37 @@ export default function HomeFilm() {
             which is precisely when this cue has a job to do. Positioning it from
             the top at 100svh keeps it a fixed gap above the fold in both states. */}
         <div
-          className="hf-dcue pointer-events-none absolute left-1/2 z-[6] flex -translate-x-1/2 flex-col items-center gap-3"
-          style={{ top: "calc(100svh - 5.25rem)" }}
+          className="hf-dcue pointer-events-none absolute left-1/2 bottom-8 sm:bottom-10 z-[25] flex -translate-x-1/2 flex-col items-center gap-3"
+          style={{ bottom: "max(2rem, env(safe-area-inset-bottom, 2rem))" }}
         >
-          <span className="font-display text-[12px] tracking-[0.3em] text-cream/70 uppercase">
-            Scroll to open
-          </span>
+          <div
+            className="relative flex items-center justify-center px-6 py-2 rounded-full backdrop-blur-md transition-all duration-300 shadow-xl"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(32, 25, 16, 0.68) 0%, rgba(18, 14, 8, 0.48) 50%, rgba(28, 22, 14, 0.62) 100%)",
+              border: "1px solid rgba(255, 255, 255, 0.38)",
+              boxShadow:
+                "inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4)",
+            }}
+          >
+            {/* Delicate top glass edge highlight */}
+            <div
+              className="pointer-events-none absolute inset-x-3 top-[1px] h-[1px] rounded-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.75) 25%, rgba(255, 255, 255, 0.75) 75%, transparent 100%)",
+              }}
+            />
+            <span
+              className="font-display text-[11px] font-semibold tracking-[0.28em] text-[#FEF1DA] uppercase"
+              style={{ textShadow: "0 1px 3px rgba(0, 0, 0, 0.9)" }}
+            >
+              Scroll to open
+            </span>
+          </div>
           <span
-            className="block h-10 w-px"
-            style={{ background: `linear-gradient(to bottom, ${GOLD}, transparent)` }}
+            className="block h-7 w-px"
+            style={{ background: `linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent)` }}
           />
         </div>
 
@@ -921,7 +958,13 @@ export default function HomeFilm() {
               No max-w in `ch` here — ch resolves against the PARENT font-size, which
               these spans override, so it would have computed off the inherited 16px
               and wrapped both lines. */}
-          <p className="max-w-[92vw] text-center font-display text-white">
+          <p
+            className="max-w-[92vw] text-center font-display text-white"
+            style={{
+              textShadow:
+                "-1px 3px 6px rgba(0, 0, 0, 0.35), -2px 6px 12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(0, 0, 0, 0.10)",
+            }}
+          >
             <span
               className="block"
               style={{ fontSize: "clamp(2rem, 4.6vw, 36px)", lineHeight: 1.16 }}
@@ -1021,8 +1064,31 @@ export default function HomeFilm() {
 
 
 
-        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 font-display text-[12px] tracking-[0.34em] text-white/70 uppercase opacity-0">
-          Scroll to continue
+        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 opacity-0">
+          <div
+            className="relative flex items-center justify-center px-6 py-2 rounded-full backdrop-blur-md transition-all duration-300"
+            style={{
+              background:
+                "linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.12) 100%)",
+              border: "1px solid rgba(255, 255, 255, 0.4)",
+              boxShadow:
+                "inset 0 1px 1.5px rgba(255, 255, 255, 0.6), inset 0 -1px 2px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.3)",
+            }}
+          >
+            <div
+              className="pointer-events-none absolute inset-x-3 top-[1px] h-[1px] rounded-full"
+              style={{
+                background:
+                  "linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 25%, rgba(255, 255, 255, 0.8) 75%, transparent 100%)",
+              }}
+            />
+            <span
+              className="font-display text-[11px] font-medium tracking-[0.28em] text-white uppercase"
+              style={{ textShadow: "0 1px 3px rgba(0, 0, 0, 0.6)" }}
+            >
+              Scroll to continue
+            </span>
+          </div>
         </div>
 
         {/* ACT 4 — Our Works, on the same dome */}
