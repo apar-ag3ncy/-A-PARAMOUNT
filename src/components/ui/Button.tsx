@@ -24,7 +24,7 @@ type Size = "sm" | "md" | "lg";
 type Tone = "light" | "dark";
 
 const BASE =
-  "group relative inline-flex items-center justify-center gap-2 font-display tracking-[0.16em] uppercase transition-[color,background-color,border-color,box-shadow,transform] duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:pointer-events-none disabled:opacity-50";
+  "group relative inline-flex items-center justify-center gap-2 font-display tracking-[0.16em] uppercase leading-none transition-[color,background-color,border-color,box-shadow,transform] duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold disabled:pointer-events-none disabled:opacity-50";
 
 const VARIANT: Record<Variant, string> = {
   solid:
@@ -80,7 +80,7 @@ function Inner({
           no box/ink mismatch to correct and compensating would over-shift it. */}
       <span
         className={cn(
-          "relative z-10 inline-flex items-center gap-2",
+          "relative z-10 inline-flex items-center justify-center gap-2 leading-none translate-y-[1px]",
           !showArrow && "-me-[0.16em]",
         )}
       >

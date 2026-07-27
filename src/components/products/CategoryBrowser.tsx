@@ -134,7 +134,7 @@ export default function CategoryBrowser({
                   <circle cx={16} cy={16} r={15} fill="none" stroke="#C9A85E" strokeWidth={1} />
                   <circle cx={16} cy={16} r={11.5} fill="none" stroke="#B8933F" strokeWidth={1.4} opacity={0.7} />
                 </svg>
-                {m}
+                <span className="inline-block leading-none translate-y-[1.5px]">{m}</span>
               </button>
             );
           })}

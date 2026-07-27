@@ -84,7 +84,7 @@ export default function MagneticButton({
         aria-hidden
         className="absolute inset-x-0 bottom-0 h-px origin-left scale-x-0 bg-gold transition-transform delay-150 duration-500 ease-out group-hover:scale-x-100"
       />
-      <span className="relative z-10">{children}</span>
+      <span className="relative z-10 inline-block leading-none translate-y-[1.5px]">{children}</span>
       <svg
         aria-hidden
         viewBox="0 0 24 24"

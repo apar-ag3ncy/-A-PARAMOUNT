@@ -68,8 +68,8 @@ export default function GalleryPage() {
       {/* the cream card itself — everything clips to its rounded edge */}
       <div className="relative flex w-full max-w-[80rem] flex-col items-center overflow-hidden rounded-[2.2rem] bg-cream px-4 pt-7 pb-7 shadow-[0_46px_110px_-46px_rgba(46,35,19,0.42),inset_0_1px_0_rgba(255,255,255,0.55)] sm:px-12 sm:pt-8 sm:pb-7">
         {/* ---------- eyebrow badge (solid warm pill, sentence case) ---------- */}
-        <span className="relative inline-flex items-center rounded-full bg-gold/25 px-4 py-1.5">
-          <span className="font-body text-[13px] font-medium tracking-[0.01em] text-maroon/90">
+        <span className="relative inline-flex items-center justify-center rounded-full bg-gold/25 px-4 py-1.5">
+          <span className="inline-block leading-none translate-y-[1.5px] font-body text-[13px] font-medium tracking-[0.01em] text-maroon/90">
             Handcrafted for derasars since 1968
           </span>
         </span>

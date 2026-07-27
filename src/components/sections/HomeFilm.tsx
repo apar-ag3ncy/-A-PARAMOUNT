@@ -536,10 +536,12 @@ export default function HomeFilm() {
         // Soft dissolve for the door scroll capsule: expands, floats up, and fades out softly
         const dcueDissolve = smooth(seg(fp, 0.05, 0.16));
         if (dcueEl) {
+          const dcueOpacity = Math.max(0, 1 - dcueDissolve);
           gsap.set(dcueEl, {
-            opacity: 1 - dcueDissolve,
+            opacity: dcueOpacity,
             scale: 1 + 0.12 * dcueDissolve,
             y: -20 * dcueDissolve,
+            visibility: dcueOpacity < 0.005 ? "hidden" : "visible",
           });
         }
 
@@ -547,20 +549,20 @@ export default function HomeFilm() {
         // a slow synthetic zoom INTO the doorway across the approach and the swing,
         // layered on the film's own dolly for a deeper, cinematic push-in.
         if (zoomEl) gsap.set(zoomEl, { scale: 1 + 0.12 * smooth(seg(fp, 0, 0.35)) });
-        // No synthetic light over the doorway any more — the god-ray canvas and the
-        // gold bloom that used to swell here were removed (they hazed the carving
-        // out); the footage carries its own rays. The vignette is now a STEADY
-        // filmic edge-darkening instead of breathing against the bloom it used to
-        // counterweight — held mid-way between its old 0.40 and 0.82 extremes.
-        if (dvignetteEl) gsap.set(dvignetteEl, { opacity: 0.52 });
-        if (fp >= 0.34) fireDoorsOpen();
-
+        
         // ---------------- VEIL / TYPE / BRAND / WORKS (P) ----------------
         const inside = smooth(seg(P, B.veilIn, B.veilLen));
         const brandInP = smooth(seg(P, B.markIn, 0.18));
         const gone = smooth(seg(P, B.brandOut, B.brandOutLen));
         const blur = smooth(seg(P, B.blurIn, B.blurLen));
         const works = easeOut(seg(P, B.worksIn, B.worksLen));
+
+        const grow1 = smooth(seg(P, B.whiteIn, B.whiteLen));
+        const grow2 = smooth(seg(P, B.whiteFull, B.whiteFullLen));
+
+        // Edge vignette fades off as the white/cream ground closes, preventing dark edge artifacts
+        if (dvignetteEl) gsap.set(dvignetteEl, { opacity: 0.52 * (1 - grow2) });
+        if (fp >= 0.34) fireDoorsOpen();
 
         // the warm veil eases in as we walk inside — legibility for the "1968"
         // line, fuller for the brand on the ceiling, then lifts again for works
@@ -573,25 +575,17 @@ export default function HomeFilm() {
         if (lineEl) {
           const i = easeOut(seg(P, B.lineIn, B.lineInLen));
           const o = smooth(seg(P, B.lineOut, B.lineOutLen));
-          gsap.set(lineEl, { opacity: i * (1 - o), y: 22 * (1 - i) - 18 * o });
+          const lineOpacity = Math.max(0, i * (1 - o));
+          gsap.set(lineEl, {
+            opacity: lineOpacity,
+            y: 22 * (1 - i) - 18 * o,
+            visibility: lineOpacity < 0.005 ? "hidden" : "visible",
+          });
         }
 
         // THE WHITE GROUND, in two stages that move on DIFFERENT axes.
-        //   stage 1 (grow1): size 0 → 50%, opacity settling at 40%. The lockup
-        //     resolves against this, so the ceiling still reads through the wash.
-        //   stage 2 (grow2): starts only after the lockup has gone, taking size
-        //     50% → 100% and opacity 40% → 100% together, closing to solid white.
-        // Opacity reaches its 40% plateau in the first quarter of stage 1 (x4) so the
-        // disc reads as light arriving, not as a wash slowly gaining density; size
-        // keeps growing for the rest of it under the logo.
-        const grow1 = smooth(seg(P, B.whiteIn, B.whiteLen));
-        const grow2 = smooth(seg(P, B.whiteFull, B.whiteFullLen));
         if (whiteEl)
           gsap.set(whiteEl, {
-            // FULL element opacity, so the gradient above is what shapes the falloff
-            // rather than being scaled down by it: the centre composites to a true
-            // 100% and the logo's own area never drops under 75%. (It used to be
-            // capped at 0.74 here, which pulled the centre down with it.)
             opacity: Math.min(1, grow1 * 4),
             scale: 0.05 + 0.45 * grow1 + 0.5 * grow2,
           });
@@ -610,18 +604,22 @@ export default function HomeFilm() {
         rise(divEl, easeOut(seg(P, B.divIn, B.divLen)), 16);
         rise(tagEl, easeOut(seg(P, B.tagIn, B.tagLen)));
 
-        if (brandEl)
+        if (brandEl) {
+          const brandOpacity = Math.max(0, 1 - gone);
           gsap.set(brandEl, {
-            opacity: 1 - gone,
+            opacity: brandOpacity,
             y: -34 * gone,
-            pointerEvents: gone > 0.5 ? "none" : "auto",
-            filter: blur > 0.001 ? `blur(${(BLUR_PX * blur).toFixed(2)}px)` : "none",
+            pointerEvents: brandOpacity < 0.5 ? "none" : "auto",
+            visibility: brandOpacity < 0.005 ? "hidden" : "visible",
+            filter: brandOpacity > 0.005 && blur > 0.001 ? `blur(${(BLUR_PX * blur).toFixed(2)}px)` : "none",
           });
+        }
         if (worksEl)
           gsap.set(worksEl, {
             opacity: works,
             y: 36 * (1 - works),
             pointerEvents: works > 0.5 ? "auto" : "none",
+            visibility: works < 0.005 ? "hidden" : "visible",
           });
         if (cueEl) {
           const cueIn = smooth(seg(P, B.brandDone, 0.04));
@@ -631,6 +629,7 @@ export default function HomeFilm() {
             opacity: vis,
             scale: cueOut > 0.001 ? 1 + 0.12 * cueOut : 0.92 + 0.08 * cueIn,
             y: -20 * cueOut,
+            visibility: vis < 0.005 ? "hidden" : "visible",
           });
         }
 
@@ -867,37 +866,29 @@ export default function HomeFilm() {
             which is precisely when this cue has a job to do. Positioning it from
             the top at 100svh keeps it a fixed gap above the fold in both states. */}
         <div
-          className="hf-dcue pointer-events-none absolute left-1/2 bottom-8 sm:bottom-10 z-[25] flex -translate-x-1/2 flex-col items-center gap-3"
-          style={{ bottom: "max(2rem, env(safe-area-inset-bottom, 2rem))" }}
+          className="hf-dcue pointer-events-none absolute inset-x-0 bottom-0 z-[25] flex flex-col items-center justify-end pb-8 sm:pb-10 pt-24 gap-3"
+          style={{
+            bottom: 0,
+            paddingBottom: "max(2rem, env(safe-area-inset-bottom, 2rem))",
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0) 100%)",
+          }}
         >
-          <div
-            className="relative flex items-center justify-center px-6 py-2 rounded-full backdrop-blur-md transition-all duration-300 shadow-xl"
+          <span
+            className="font-display text-[12px] sm:text-[12.5px] font-bold tracking-[0.3em] text-white uppercase"
             style={{
-              background:
-                "linear-gradient(180deg, rgba(32, 25, 16, 0.68) 0%, rgba(18, 14, 8, 0.48) 50%, rgba(28, 22, 14, 0.62) 100%)",
-              border: "1px solid rgba(255, 255, 255, 0.38)",
-              boxShadow:
-                "inset 0 1px 1px rgba(255, 255, 255, 0.45), inset 0 -1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4)",
+              textShadow:
+                "0 2px 8px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.8)",
             }}
           >
-            {/* Delicate top glass edge highlight */}
-            <div
-              className="pointer-events-none absolute inset-x-3 top-[1px] h-[1px] rounded-full"
-              style={{
-                background:
-                  "linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.75) 25%, rgba(255, 255, 255, 0.75) 75%, transparent 100%)",
-              }}
-            />
-            <span
-              className="font-display text-[11px] font-semibold tracking-[0.28em] text-[#FEF1DA] uppercase"
-              style={{ textShadow: "0 1px 3px rgba(0, 0, 0, 0.9)" }}
-            >
-              Scroll to open
-            </span>
-          </div>
+            Scroll to open
+          </span>
           <span
             className="block h-7 w-px"
-            style={{ background: `linear-gradient(to bottom, rgba(255, 255, 255, 0.7), transparent)` }}
+            style={{
+              background:
+                "linear-gradient(to bottom, rgba(255, 255, 255, 0.95), transparent)",
+            }}
           />
         </div>
 
@@ -1064,31 +1055,22 @@ export default function HomeFilm() {
 
 
 
-        <div className="hv-cue absolute bottom-8 left-1/2 z-[20] -translate-x-1/2 opacity-0">
-          <div
-            className="relative flex items-center justify-center px-6 py-2 rounded-full backdrop-blur-md transition-all duration-300"
+        <div
+          className="hv-cue pointer-events-none absolute inset-x-0 bottom-0 z-[20] flex flex-col items-center justify-end pb-8 pt-20 gap-3 opacity-0"
+          style={{
+            background:
+              "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0) 100%)",
+          }}
+        >
+          <span
+            className="font-display text-[12px] font-bold tracking-[0.3em] text-white uppercase"
             style={{
-              background:
-                "linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.12) 100%)",
-              border: "1px solid rgba(255, 255, 255, 0.4)",
-              boxShadow:
-                "inset 0 1px 1.5px rgba(255, 255, 255, 0.6), inset 0 -1px 2px rgba(0, 0, 0, 0.15), 0 8px 24px rgba(0, 0, 0, 0.3)",
+              textShadow:
+                "0 2px 8px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.8)",
             }}
           >
-            <div
-              className="pointer-events-none absolute inset-x-3 top-[1px] h-[1px] rounded-full"
-              style={{
-                background:
-                  "linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.8) 25%, rgba(255, 255, 255, 0.8) 75%, transparent 100%)",
-              }}
-            />
-            <span
-              className="font-display text-[11px] font-medium tracking-[0.28em] text-white uppercase"
-              style={{ textShadow: "0 1px 3px rgba(0, 0, 0, 0.6)" }}
-            >
-              Scroll to continue
-            </span>
-          </div>
+            Scroll to continue
+          </span>
         </div>
 
         {/* ACT 4 — Our Works, on the same dome */}

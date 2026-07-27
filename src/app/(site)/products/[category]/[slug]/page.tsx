@@ -140,22 +140,27 @@ export default async function ProductPage({
           )}
         </div>
 
-        {/* spec — the reference's numbered columns, on olive hairlines */}
+        {/* spec — single continuous frame in brand color #7C7144 gradient background */}
         <Reveal className="mt-12">
-          <dl className="grid grid-cols-1 gap-px overflow-hidden rounded-[1.4rem] border border-olive/15 bg-olive/12 sm:grid-cols-3">
+          <dl
+            className="grid grid-cols-1 divide-y divide-gold/25 overflow-hidden rounded-2xl sm:rounded-3xl border border-gold/35 shadow-[0_20px_50px_-20px_rgba(23,18,8,0.4)] text-cream sm:grid-cols-3 sm:divide-y-0 sm:divide-x"
+            style={{
+              background:
+                "linear-gradient(145deg, #7C7144 0%, #6E643B 48%, #574F2E 100%)",
+            }}
+          >
             {info.spec.map((s, idx) => (
               <div
                 key={s.label}
-                className="px-6 py-8 text-center"
-                style={{ background: "#FBF0D6" }}
+                className="relative flex flex-col items-center justify-center p-7 sm:p-8 text-center"
               >
-                <span className="pm-micro font-body tabular-nums tracking-[0.2em] text-olive/45">
+                <span className="font-display tabular-nums tracking-[0.22em] text-gold/85 text-xs sm:text-sm text-center block mb-2 font-medium">
                   {String(idx + 1).padStart(2, "0")}
                 </span>
-                <dt className="pm-label mt-4 font-body tracking-[0.16em] text-olive/60 uppercase">
+                <dt className="font-display tracking-[0.2em] text-gold text-xs sm:text-sm uppercase text-center font-medium">
                   {s.label}
                 </dt>
-                <dd className="pm-body mt-2 font-display text-heading-brown">
+                <dd className="font-display text-base sm:text-lg md:text-xl font-medium text-cream mt-2.5 tracking-tight text-center">
                   {s.value}
                 </dd>
               </div>
@@ -183,32 +188,14 @@ export default async function ProductPage({
           </div>
         )}
 
-        {/* the written description + placement + craft — centred */}
-        <Reveal className="mx-auto mt-12 max-w-3xl text-center">
-          {info.description && (
+        {/* the written description — centred */}
+        {info.description && (
+          <Reveal className="mx-auto mt-12 max-w-3xl text-center">
             <p className="pm-lead mx-auto max-w-2xl font-body text-maroon/85">
               {info.description}
             </p>
-          )}
-          <div className="mt-10 grid gap-8 border-t border-olive/15 pt-10 text-center sm:grid-cols-2 sm:gap-12">
-            <div>
-              <h3 className="pm-label font-display tracking-[0.16em] text-olive/70 uppercase">
-                Placement
-              </h3>
-              <p className="pm-body mx-auto mt-2.5 max-w-sm font-body text-maroon/80">
-                {info.placement}
-              </p>
-            </div>
-            <div>
-              <h3 className="pm-label font-display tracking-[0.16em] text-olive/70 uppercase">
-                Craft
-              </h3>
-              <p className="pm-body mx-auto mt-2.5 max-w-sm font-body text-maroon/80">
-                {info.craft}
-              </p>
-            </div>
-          </div>
-        </Reveal>
+          </Reveal>
+        )}
 
         {/* commission */}
         <Reveal className="mt-12 text-center">
@@ -223,8 +210,6 @@ export default async function ProductPage({
             religious norms.
           </p>
         </Reveal>
-
-        <RelatedProducts items={related} familySlug={product.family} />
       </article>
     </div>
   );
