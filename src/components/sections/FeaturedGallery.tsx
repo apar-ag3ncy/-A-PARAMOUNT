@@ -18,7 +18,7 @@ const WORKS = [
   { slug: "rath", src: "/gallery/rath/all/03.webp", w: 900, h: 1600 },
   { slug: "kalpavruksh-naan", src: "/gallery/kalpavruksh-naan/all/00.webp", w: 893, h: 1600 },
   { slug: "samovasaran-trigadu", src: "/gallery/samovasaran-trigadu/all/04.webp", w: 893, h: 1600 },
-  { slug: "doors", src: "/gallery/doors/carved-temple-door/00.webp", w: 1024, h: 1024 },
+  { slug: "doors", src: "/gallery/doors/carved-temple-door/00.webp", w: 900, h: 1600 },
   { slug: "vyaakhyan-kamal", src: "/gallery/vyaakhyan-kamal/all/03.webp", w: 893, h: 1600 },
   { slug: "brass-grill-jali", src: "/gallery/brass-grill-jali/all/06.webp", w: 900, h: 1600 },
   { slug: "vyaakhyan-paat", src: "/gallery/vyaakhyan-paat/all/04.webp", w: 893, h: 1600 },
