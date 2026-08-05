@@ -141,7 +141,7 @@ export default function Footer() {
           aria-hidden
           className="mt-2 sm:mt-3 font-display uppercase tracking-[0.38em] text-center select-none"
           style={{
-            fontSize: "clamp(0.85rem, 2.5vw, 3.2rem)",
+            fontSize: "clamp(0.8rem, 2.375vw, 3.04rem)",
             lineHeight: 1.1,
             backgroundImage:
               "linear-gradient(180deg, rgba(254,244,218,0.92) 0%, rgba(254,244,218,0.75) 100%)",
