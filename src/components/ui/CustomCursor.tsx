@@ -59,7 +59,7 @@ function groundIsDark(el: Element | null): boolean {
     const styleAttr = node.getAttribute("style") || "";
     if (styleAttr) {
       if (
-        /171208|241D10|1A140A|120D05|7C7144|8A7F4A|2E2713|2A2511|3A321B|59502B|6E643B|574F2E|1A150C|171208/i.test(
+        /171208|241D10|1A140A|120D05|7C7144|8A7F4A|2E2713|2A2511|3A321B|59502B|6E643B|574F2E|1A150C|171208|766B3B|5E552E/i.test(
           styleAttr
         ) ||
         /rgba?\(\s*([0-9]{1,2}|1[0-7][0-9])\s*,\s*([0-9]{1,2}|1[0-6][0-9])\s*,\s*([0-9]{1,2}|1[0-4][0-9])/i.test(
@@ -77,8 +77,8 @@ function groundIsDark(el: Element | null): boolean {
       const rgba = parseColor(bgCol);
       if (rgba && rgba[3] >= 0.25) {
         const lum = luminance(rgba[0], rgba[1], rgba[2]);
-        if (lum < 0.45) return true; // Dark ground
-        if (lum >= 0.45) return false; // Light ground
+        if (lum < 0.48) return true; // Dark ground
+        if (lum >= 0.48) return false; // Light ground
       }
     }
 
@@ -96,7 +96,7 @@ function groundIsDark(el: Element | null): boolean {
             count++;
           }
         }
-        if (count > 0 && sumL / count < 0.45) {
+        if (count > 0 && sumL / count < 0.48) {
           return true;
         }
       }
@@ -214,7 +214,6 @@ export default function CustomCursor() {
         aria-hidden
         draggable={false}
         className="absolute inset-0 h-full w-full object-contain"
-        style={{ filter: "drop-shadow(0 1px 2.5px rgba(254,248,235,0.55))" }}
       />
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
@@ -224,7 +223,6 @@ export default function CustomCursor() {
         aria-hidden
         draggable={false}
         className="absolute inset-0 h-full w-full object-contain"
-        style={{ filter: "drop-shadow(0 1px 2.5px rgba(24,18,8,0.75))" }}
       />
     </div>
   );

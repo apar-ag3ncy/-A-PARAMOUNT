@@ -18,7 +18,7 @@ export const PRODUCT_IMAGE_DIMS: Record<string, { w: number; h: number }> = {
   "/products/dhwajadand.webp": { w: 896, h: 1200 },
   "/products/divistand.webp": { w: 1200, h: 896 },
   "/products/door-step.webp": { w: 1200, h: 896 },
-  "/products/doors.webp": { w: 1042, h: 1200 },
+  "/products/doors.webp": { w: 1024, h: 1024 },
   "/products/kalash.webp": { w: 1200, h: 1200 },
   "/products/kalpavruksh-naan.webp": { w: 670, h: 1200 },
   "/products/mandir.webp": { w: 1200, h: 900 },

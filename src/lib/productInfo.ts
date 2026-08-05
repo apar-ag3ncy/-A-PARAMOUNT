@@ -269,6 +269,31 @@ export interface ProductInfo {
 }
 
 /** Resolve the static info for one piece. Truthful, catalog-and-family-derived. */
+function formatMaterials(variants: string[]): string {
+  if (!variants || variants.length === 0) return "Silver, Brass & Carved Wood";
+  
+  // Extract main material keywords to avoid 9-item bloated text lists
+  const mainMaterials: string[] = [];
+  const rawJoined = variants.join(" ");
+
+  if (rawJoined.includes("Silver")) mainMaterials.push("Silver");
+  if (rawJoined.includes("Brass")) mainMaterials.push("Brass");
+  if (rawJoined.includes("Copper")) mainMaterials.push("Copper");
+  if (rawJoined.includes("Wood") || rawJoined.includes("Wooden")) mainMaterials.push("Carved Wood");
+  
+  // Fallback to original variants if no keywords matched
+  const list = mainMaterials.length > 0 ? mainMaterials : variants;
+
+  if (list.length <= 3) {
+    return list.join(" · ");
+  }
+
+  // Max 2 clean lines: 2 items on line 1, remaining on line 2
+  const line1 = list.slice(0, 2).join(" · ");
+  const line2 = list.slice(2, 4).join(" · ");
+  return `${line1} \n ${line2}`;
+}
+
 export function getProductInfo(p: {
   slug: string;
   family: Family;
@@ -276,9 +301,7 @@ export function getProductInfo(p: {
   blurb?: string;
 }): ProductInfo {
   const fam = FAMILY[p.family] ?? FAMILY.devotional;
-  const materials = p.variants.length
-    ? p.variants.join(" · ")
-    : "Silver, brass & carved wood";
+  const materials = formatMaterials(p.variants);
   const overview = OVERVIEW[p.slug] ?? p.blurb ?? "";
   return {
     familyLabel: fam.label,

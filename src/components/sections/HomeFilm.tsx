@@ -489,6 +489,7 @@ export default function HomeFilm() {
     const ctx = gsap.context(() => {
       const q = <T extends HTMLElement>(s: string) => rootEl.querySelector<T>(s);
       // door overlays
+      const posterEl = q(".hf-poster");
       const zoomEl = q(".hf-zoom");
       const dvignetteEl = q(".hf-dvignette");
       const dcueEl = q(".hf-dcue");
@@ -501,7 +502,6 @@ export default function HomeFilm() {
       const tagEl = q(".hv-tag");
       const bloomEl = q(".hv-bloom");
       const raysEl = q(".hv-rays");
-      const cueEl = q(".hv-cue");
       const brandEl = q(".hv-brand");
       const whiteEl = q(".hv-white");
       const sheetEl = q(".hv-sheet");
@@ -545,11 +545,6 @@ export default function HomeFilm() {
           });
         }
 
-        // ---- door-open light + cinematic push (fp) ----
-        // a slow synthetic zoom INTO the doorway across the approach and the swing,
-        // layered on the film's own dolly for a deeper, cinematic push-in.
-        if (zoomEl) gsap.set(zoomEl, { scale: 1 + 0.12 * smooth(seg(fp, 0, 0.35)) });
-        
         // ---------------- VEIL / TYPE / BRAND / WORKS (P) ----------------
         const inside = smooth(seg(P, B.veilIn, B.veilLen));
         const brandInP = smooth(seg(P, B.markIn, 0.18));
@@ -560,8 +555,24 @@ export default function HomeFilm() {
         const grow1 = smooth(seg(P, B.whiteIn, B.whiteLen));
         const grow2 = smooth(seg(P, B.whiteFull, B.whiteFullLen));
 
+        // Fade video & poster underneath as the solid cream ground closes so no previous background bleeds through subpixel seams
+        const videoOpacity = Math.max(0, 1 - grow2);
+        if (zoomEl) {
+          gsap.set(zoomEl, {
+            scale: 1 + 0.12 * smooth(seg(fp, 0, 0.35)),
+            opacity: videoOpacity,
+            visibility: videoOpacity < 0.005 ? "hidden" : "visible",
+          });
+        }
+        if (posterEl) {
+          gsap.set(posterEl, {
+            opacity: videoOpacity,
+            visibility: videoOpacity < 0.005 ? "hidden" : "visible",
+          });
+        }
+
         // Edge vignette fades off as the white/cream ground closes, preventing dark edge artifacts
-        if (dvignetteEl) gsap.set(dvignetteEl, { opacity: 0.52 * (1 - grow2) });
+        if (dvignetteEl) gsap.set(dvignetteEl, { opacity: 0.52 * videoOpacity });
         if (fp >= 0.34) fireDoorsOpen();
 
         // the warm veil eases in as we walk inside — legibility for the "1968"
@@ -621,17 +632,6 @@ export default function HomeFilm() {
             pointerEvents: works > 0.5 ? "auto" : "none",
             visibility: works < 0.005 ? "hidden" : "visible",
           });
-        if (cueEl) {
-          const cueIn = smooth(seg(P, B.brandDone, 0.04));
-          const cueOut = smooth(seg(P, B.brandOut, 0.06));
-          const vis = cueIn * (1 - cueOut);
-          gsap.set(cueEl, {
-            opacity: vis,
-            scale: cueOut > 0.001 ? 1 + 0.12 * cueOut : 0.92 + 0.08 * cueIn,
-            y: -20 * cueOut,
-            visibility: vis < 0.005 ? "hidden" : "visible",
-          });
-        }
 
         // header withheld for the whole film, back once the brand resolves
         const wantHold = P < GLOBAL_BRAND_DONE;
@@ -664,7 +664,6 @@ export default function HomeFilm() {
         gsap.set([".hv-word", ".hv-div", ".hv-tag"], { opacity: 1, y: 0 });
         gsap.set(".hv-brand", { opacity: 1, y: 0, pointerEvents: "auto" });
         gsap.set(".hv-rays", { opacity: 0 });
-        gsap.set(".hv-cue", { opacity: 0 });
         gsap.set(".hv-works", { position: "static", opacity: 1, y: 0, pointerEvents: "auto", marginTop: "5rem" });
         holdHeader("film", false);
       });
@@ -815,12 +814,12 @@ export default function HomeFilm() {
         // drawing a hairline right across the page where the stage ends, even
         // though both sides were the identical colour and every box measured
         // flush to the pixel. One surface, no edge to blend.
-        className="hf-pin relative flex h-[100lvh] w-full items-center justify-center overflow-hidden"
+        className="hf-pin relative flex h-[100lvh] w-full items-center justify-center overflow-hidden bg-cream"
       >
         {/* ===================== ACT 1 — THE DOORS ===================== */}
         {/* poster, so the doors are on screen from the first paint */}
         <div
-          className="pointer-events-none absolute inset-0 z-[1] bg-cover bg-center"
+          className="hf-poster pointer-events-none absolute inset-0 z-[1] bg-cover bg-center"
           style={{ backgroundImage: `url(${POSTER})` }}
           aria-hidden
         />
@@ -1018,7 +1017,7 @@ export default function HomeFilm() {
               the last of stage 2 so "Our Works" still lands on the flat brand cream. It is
               eased quadratically so the disc's growth reads first and the fill only
               rushes at the very end. */}
-          <div className="hv-sheet absolute inset-0 bg-cream opacity-0" />
+          <div className="hv-sheet absolute -inset-2 bg-cream opacity-0" />
         </div>
 
         <div className="hv-brand relative top-[6svh] z-[20] flex flex-col items-center px-6 text-center text-heading-brown">
@@ -1051,26 +1050,6 @@ export default function HomeFilm() {
           <p className="hv-tag pm-h2 mt-7 font-display opacity-0">
             Crafting Divine Elegance
           </p>
-        </div>
-
-
-
-        <div
-          className="hv-cue pointer-events-none absolute inset-x-0 bottom-0 z-[20] flex flex-col items-center justify-end pb-8 pt-20 gap-3 opacity-0"
-          style={{
-            background:
-              "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.42) 50%, rgba(0,0,0,0.15) 75%, rgba(0,0,0,0) 100%)",
-          }}
-        >
-          <span
-            className="font-display text-[12px] font-bold tracking-[0.3em] text-white uppercase"
-            style={{
-              textShadow:
-                "0 2px 8px rgba(0, 0, 0, 0.95), 0 0 12px rgba(0, 0, 0, 0.8)",
-            }}
-          >
-            Scroll to continue
-          </span>
         </div>
 
         {/* ACT 4 — Our Works, on the same dome */}

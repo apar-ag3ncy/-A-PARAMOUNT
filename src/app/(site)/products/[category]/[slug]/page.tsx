@@ -86,7 +86,7 @@ export default async function ProductPage({
           </SplitTextReveal>
           <OrnamentDivider className="mx-auto mt-6 text-olive/50" />
           {info.overview && (
-            <p className="pm-lead mx-auto mt-6 max-w-3xl font-body text-maroon/80">
+            <p className="pm-lead mx-auto mt-6 max-w-4xl font-body text-maroon/80 leading-relaxed">
               {info.overview}
             </p>
           )}
@@ -143,7 +143,7 @@ export default async function ProductPage({
         {/* spec — single continuous frame in brand color #7C7144 gradient background */}
         <Reveal className="mt-12">
           <dl
-            className="grid grid-cols-1 divide-y divide-gold/25 overflow-hidden rounded-2xl sm:rounded-3xl border border-gold/35 shadow-[0_20px_50px_-20px_rgba(23,18,8,0.4)] text-cream sm:grid-cols-3 sm:divide-y-0 sm:divide-x"
+            className="grid grid-cols-1 divide-y divide-gold/25 overflow-hidden rounded-2xl border border-gold/35 shadow-[0_15px_40px_-15px_rgba(23,18,8,0.35)] text-cream sm:grid-cols-3 sm:divide-y-0 sm:divide-x"
             style={{
               background:
                 "linear-gradient(145deg, #7C7144 0%, #6E643B 48%, #574F2E 100%)",
@@ -152,16 +152,26 @@ export default async function ProductPage({
             {info.spec.map((s, idx) => (
               <div
                 key={s.label}
-                className="relative flex flex-col items-center justify-center p-7 sm:p-8 text-center"
+                className="relative flex flex-col items-center justify-center p-4 sm:p-5 text-center"
               >
-                <span className="font-display tabular-nums tracking-[0.22em] text-gold/85 text-xs sm:text-sm text-center block mb-2 font-medium">
+                <span className="font-display tabular-nums tracking-[0.22em] text-gold/80 text-[10px] sm:text-[11px] text-center block mb-0.5 font-medium">
                   {String(idx + 1).padStart(2, "0")}
                 </span>
-                <dt className="font-display tracking-[0.2em] text-gold text-xs sm:text-sm uppercase text-center font-medium">
+                <dt className="font-display tracking-[0.2em] text-gold text-[11px] sm:text-xs uppercase text-center font-medium">
                   {s.label}
                 </dt>
-                <dd className="font-display text-base sm:text-lg md:text-xl font-medium text-cream mt-2.5 tracking-tight text-center">
-                  {s.value}
+                <dd className="font-body text-xs sm:text-sm font-medium text-cream/95 mt-1.5 tracking-normal text-center leading-snug max-w-[15rem] mx-auto">
+                  {typeof s.value === "string" && s.value.includes(" \n ") ? (
+                    <span className="block space-y-0.5">
+                      {s.value.split(" \n ").map((line) => (
+                        <span key={line} className="block text-cream/95 font-medium">
+                          {line}
+                        </span>
+                      ))}
+                    </span>
+                  ) : (
+                    s.value
+                  )}
                 </dd>
               </div>
             ))}
@@ -190,8 +200,8 @@ export default async function ProductPage({
 
         {/* the written description — centred */}
         {info.description && (
-          <Reveal className="mx-auto mt-12 max-w-3xl text-center">
-            <p className="pm-lead mx-auto max-w-2xl font-body text-maroon/85">
+          <Reveal className="mx-auto mt-12 max-w-4xl text-center">
+            <p className="pm-lead mx-auto max-w-4xl font-body text-maroon/85 leading-relaxed">
               {info.description}
             </p>
           </Reveal>
@@ -205,9 +215,8 @@ export default async function ProductPage({
               Enquire about {product.title}
             </MagneticButton>
           </div>
-          <p className="pm-small mx-auto mt-6 max-w-md font-body text-maroon/60">
-            Every piece is handcrafted to order, sized to your derasar and to
-            religious norms.
+          <p className="pm-small mx-auto mt-5 max-w-xl font-body text-maroon/70 leading-normal">
+            Every piece is handcrafted to order, sized to your derasar and to religious norms.
           </p>
         </Reveal>
       </article>

@@ -57,7 +57,7 @@ export default function Testimonials() {
         {/* Main Dark Panel Container with MOTIK Silky Smoky Brand Gradient */}
         <div
           data-dark="true"
-          className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] p-8 sm:p-12 md:p-16 shadow-[0_35px_100px_-20px_rgba(20,15,6,0.85)] border border-gold/20"
+          className="relative overflow-hidden rounded-[2rem] sm:rounded-[2.5rem] p-8 sm:p-12 md:p-16 border border-gold/20"
           style={{
             background:
               "radial-gradient(130% 110% at 25% 20%, rgba(138, 127, 74, 0.38) 0%, rgba(111, 102, 57, 0.18) 40%, transparent 75%), radial-gradient(120% 90% at 75% 75%, rgba(124, 113, 68, 0.32) 0%, rgba(79, 71, 40, 0.15) 50%, transparent 80%), radial-gradient(90% 70% at 70% 15%, rgba(226, 202, 130, 0.18) 0%, transparent 60%), linear-gradient(145deg, #241D10 0%, #1A140A 45%, #120D05 100%)",

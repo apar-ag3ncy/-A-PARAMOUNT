@@ -18,15 +18,10 @@ const schema = z.object({
 type Values = z.infer<typeof schema>;
 
 const field =
-  "w-full rounded-xl border border-olive/30 bg-cream px-4 py-3.5 font-body text-maroon transition-colors placeholder:text-maroon/40 focus:border-olive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold";
-const errCls = "mt-1 pm-small font-body text-maroon";
-const labelCls = "pm-label mb-1.5 block font-body text-maroon/80";
+  "w-full rounded-xl border border-gold/40 bg-cream/15 px-4 py-3.5 font-body text-cream transition-all placeholder:text-cream/50 hover:border-gold focus:border-gold focus:bg-cream/25 focus:outline-none focus:ring-1 focus:ring-gold";
+const errCls = "mt-1.5 pm-small font-body text-gold/90 font-medium";
+const labelCls = "pm-label mb-2 block font-display text-gold tracking-[0.16em]";
 
-/**
- * Enquiry form (build-plan Prompt H). react-hook-form + zod validation, posts to
- * /api/contact (Resend). Until RESEND_API_KEY is set the route returns 501 and we
- * fall back to a direct-email prompt.
- */
 export default function ContactForm() {
   const [sent, setSent] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -55,9 +50,9 @@ export default function ContactForm() {
 
   if (sent) {
     return (
-      <div className="rounded-card border border-olive/20 bg-cream-deep/50 p-10 text-center">
-        <p className="pm-h3 font-body text-heading-brown">Thank you.</p>
-        <p className="mt-3 pm-body font-body text-maroon/75">
+      <div className="rounded-2xl border border-gold/40 bg-cream/15 p-10 text-center">
+        <p className="pm-h3 font-display text-gold">Thank you.</p>
+        <p className="mt-3 pm-body font-body text-cream">
           We have received your enquiry and will be in touch shortly.
         </p>
       </div>
@@ -65,27 +60,31 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5" noValidate>
-      <div className="grid gap-5 sm:grid-cols-2">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+      <div className="grid gap-6 sm:grid-cols-2">
         <label className="block">
-          <span className={labelCls}>Name</span>
-          <input {...register("name")} placeholder="Your name" className={field} />
+          <span className={labelCls}>Your Name</span>
+          <input {...register("name")} placeholder="Your full name" className={field} />
           {errors.name && <p className={errCls}>{errors.name.message}</p>}
         </label>
         <label className="block">
-          <span className={labelCls}>Email</span>
+          <span className={labelCls}>Email Address</span>
           <input {...register("email")} placeholder="you@example.com" className={field} />
           {errors.email && <p className={errCls}>{errors.email.message}</p>}
         </label>
       </div>
-      <div className="grid gap-5 sm:grid-cols-2">
+      <div className="grid gap-6 sm:grid-cols-2">
         <label className="block">
-          <span className={labelCls}>Phone</span>
-          <input {...register("phone")} placeholder="Optional" className={field} />
+          <span className={labelCls}>Phone Number</span>
+          <input {...register("phone")} placeholder="Optional (+91…)" className={field} />
         </label>
         <label className="block">
           <span className={labelCls}>Product of interest</span>
-          <select {...register("product")} defaultValue="" className={field}>
+          <select
+            {...register("product")}
+            defaultValue=""
+            className={`${field} bg-[#6E643B] text-cream [&>option]:bg-[#6E643B] [&>option]:text-cream`}
+          >
             <option value="" disabled>
               Select a piece…
             </option>
@@ -103,20 +102,20 @@ export default function ContactForm() {
         <textarea
           {...register("message")}
           rows={5}
-          placeholder="Tell us about your temple and what you need…"
+          placeholder="Tell us about your temple requirements, dimensions, or custom specifications…"
           className={field}
         />
         {errors.message && <p className={errCls}>{errors.message.message}</p>}
       </label>
-      <div className="pt-2">
-        <Button type="submit" variant="solid" size="lg" disabled={isSubmitting}>
-          {isSubmitting ? "Sending…" : "Send enquiry"}
+      <div className="pt-3">
+        <Button type="submit" variant="cream" size="lg" disabled={isSubmitting} className="w-full sm:w-auto">
+          {isSubmitting ? "Sending enquiry…" : "Send enquiry"}
         </Button>
       </div>
       {failed && (
-        <p className="pm-small font-body text-maroon">
+        <p className="pm-small font-body text-gold/90">
           The enquiry service isn’t connected yet, please email us directly at{" "}
-          <a href={`mailto:${CONTACT.email}`} className="underline">
+          <a href={`mailto:${CONTACT.email}`} className="underline text-cream font-medium">
             {CONTACT.email}
           </a>
           .

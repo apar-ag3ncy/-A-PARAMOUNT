@@ -1240,6 +1240,18 @@ export const GALLERIES: Record<string, ProductGallery> = {
   "doors": {
     "groups": [
       {
+        "material": "carved-temple-door",
+        "label": "Carved Temple Door",
+        "icon": "inlay",
+        "images": [
+          {
+            "src": "/gallery/doors/carved-temple-door/00.webp",
+            "w": 1024,
+            "h": 1024
+          }
+        ]
+      },
+      {
         "material": "brass-emboss",
         "label": "Brass Emboss",
         "icon": "inlay",

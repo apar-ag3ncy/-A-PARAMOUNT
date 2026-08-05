@@ -18,7 +18,7 @@ const WORKS = [
   { slug: "rath", src: "/gallery/rath/all/03.webp", w: 900, h: 1600 },
   { slug: "kalpavruksh-naan", src: "/gallery/kalpavruksh-naan/all/00.webp", w: 893, h: 1600 },
   { slug: "samovasaran-trigadu", src: "/gallery/samovasaran-trigadu/all/04.webp", w: 893, h: 1600 },
-  { slug: "doors", src: "/gallery/doors/diamond-door/01.webp", w: 893, h: 1600 },
+  { slug: "doors", src: "/gallery/doors/carved-temple-door/00.webp", w: 1024, h: 1024 },
   { slug: "vyaakhyan-kamal", src: "/gallery/vyaakhyan-kamal/all/03.webp", w: 893, h: 1600 },
   { slug: "brass-grill-jali", src: "/gallery/brass-grill-jali/all/06.webp", w: 900, h: 1600 },
   { slug: "vyaakhyan-paat", src: "/gallery/vyaakhyan-paat/all/04.webp", w: 893, h: 1600 },
@@ -301,7 +301,7 @@ export default function FeaturedGallery() {
       >
         <div
           ref={rowRef}
-          className="flex w-max items-center gap-4 px-[14vw] py-6 sm:gap-5"
+          className="flex w-max items-center gap-4 px-[14vw] pt-8 pb-24 sm:gap-5"
         >
           {loop.map((c, i) => {
             const clone = i >= ITEMS.length;
@@ -314,8 +314,8 @@ export default function FeaturedGallery() {
                 tabIndex={clone ? -1 : undefined}
                 draggable={false}
                 className={cn(
-                  "group relative block h-[clamp(11rem,30vh,22rem)] shrink-0 overflow-hidden rounded-[22px] bg-cream-deep shadow-[0_30px_55px_-26px_rgba(46,35,19,0.5)] ring-1 ring-olive/15 will-change-transform select-none",
-                  "hover:ring-olive/35 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
+                  "group relative block h-[clamp(11rem,30vh,22rem)] shrink-0 overflow-hidden rounded-[22px] bg-cream-deep shadow-[0_16px_36px_-16px_rgba(46,35,19,0.22)] ring-1 ring-olive/15 will-change-transform select-none",
+                  "hover:ring-olive/35 hover:shadow-[0_22px_44px_-16px_rgba(46,35,19,0.32)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold"
                 )}
                 style={
                   {
@@ -345,7 +345,7 @@ export default function FeaturedGallery() {
         </div>
       </div>
 
-      <div className="mt-[clamp(1.5rem,4vh,3rem)] flex justify-center">
+      <div className="mt-4 flex justify-center">
         <Button variant="solid" size="lg" href="/products">
           View all collections
         </Button>
