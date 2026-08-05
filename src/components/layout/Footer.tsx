@@ -139,9 +139,9 @@ export default function Footer() {
         </p>
         <p
           aria-hidden
-          className="-mt-1 sm:-mt-3 md:-mt-5 lg:-mt-7 font-display uppercase tracking-[0.38em] text-center select-none"
+          className="-mt-0.5 sm:-mt-2 md:-mt-3 lg:-mt-4 font-display uppercase tracking-[0.38em] text-center select-none"
           style={{
-            fontSize: "clamp(0.8rem, 2.375vw, 3.04rem)",
+            fontSize: "clamp(0.65rem, 1.9vw, 2.43rem)",
             lineHeight: 1.1,
             backgroundImage:
               "linear-gradient(180deg, rgba(254,244,218,0.92) 0%, rgba(254,244,218,0.75) 100%)",
