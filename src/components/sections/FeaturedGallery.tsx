@@ -24,7 +24,7 @@ const WORKS = [
   { slug: "mandir", src: "/gallery/mandir/all/00.webp", w: 893, h: 1600 },
   { slug: "brass-grill-jali", src: "/gallery/brass-grill-jali/all/06.webp", w: 900, h: 1600 },
   { slug: "chattar", src: "/gallery/chattar/all/00.webp", w: 893, h: 1600 },
-  { slug: "bhandar", src: "/gallery/bhandar/all/00.webp", w: 893, h: 1600 },
+  { slug: "bhandar", src: "/gallery/bhandar/brass-copper-bhandar/00.webp", w: 893, h: 1600 },
   { slug: "vyaakhyan-paat", src: "/gallery/vyaakhyan-paat/all/04.webp", w: 893, h: 1600 },
   { slug: "sinhasan", src: "/gallery/sinhasan/all/00.webp", w: 893, h: 1600 },
   { slug: "ashtamangal", src: "/gallery/ashtamangal/all/00.webp", w: 893, h: 1600 },
