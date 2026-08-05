@@ -118,7 +118,7 @@ export default function Footer() {
       </div>
 
       {/* Wordmark cut into the base */}
-      <div className="relative px-6 pb-7 sm:px-10 sm:pb-9">
+      <div className="relative flex flex-col items-center px-6 pb-7 sm:px-10 sm:pb-9 text-center">
         <p
           aria-hidden
           className="pm-footer-word text-center font-display whitespace-nowrap select-none"
@@ -136,6 +136,21 @@ export default function Footer() {
           }}
         >
           A PARAMOUNT
+        </p>
+        <p
+          aria-hidden
+          className="mt-2 sm:mt-3 font-display uppercase tracking-[0.38em] text-center select-none"
+          style={{
+            fontSize: "clamp(0.85rem, 2.5vw, 3.2rem)",
+            lineHeight: 1.1,
+            backgroundImage:
+              "linear-gradient(180deg, rgba(254,244,218,0.92) 0%, rgba(254,244,218,0.75) 100%)",
+            WebkitBackgroundClip: "text",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
+        >
+          ENGINEERING WORKS
         </p>
       </div>
     </footer>
