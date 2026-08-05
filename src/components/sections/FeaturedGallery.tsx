@@ -14,13 +14,20 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * Smooth, seamless drag control with inertia momentum and infinite wrapping.
  */
 const WORKS = [
+  { slug: "dhwajadand", src: "/gallery/dhwajadand/all/00.webp", w: 893, h: 1600 },
+  { slug: "kalash", src: "/gallery/kalash/all/00.webp", w: 893, h: 1600 },
   { slug: "brass-gate", src: "/gallery/brass-gate/all/00.webp", w: 900, h: 1600 },
   { slug: "rath", src: "/gallery/rath/all/03.webp", w: 900, h: 1600 },
   { slug: "kalpavruksh-naan", src: "/gallery/kalpavruksh-naan/all/00.webp", w: 893, h: 1600 },
   { slug: "samovasaran-trigadu", src: "/gallery/samovasaran-trigadu/all/04.webp", w: 893, h: 1600 },
   { slug: "vyaakhyan-kamal", src: "/gallery/vyaakhyan-kamal/all/03.webp", w: 893, h: 1600 },
+  { slug: "mandir", src: "/gallery/mandir/all/00.webp", w: 893, h: 1600 },
   { slug: "brass-grill-jali", src: "/gallery/brass-grill-jali/all/06.webp", w: 900, h: 1600 },
+  { slug: "chattar", src: "/gallery/chattar/all/00.webp", w: 893, h: 1600 },
+  { slug: "bhandar", src: "/gallery/bhandar/all/00.webp", w: 893, h: 1600 },
   { slug: "vyaakhyan-paat", src: "/gallery/vyaakhyan-paat/all/04.webp", w: 893, h: 1600 },
+  { slug: "sinhasan", src: "/gallery/sinhasan/all/00.webp", w: 893, h: 1600 },
+  { slug: "ashtamangal", src: "/gallery/ashtamangal/all/00.webp", w: 893, h: 1600 },
 ] as const;
 
 const ITEMS = WORKS.map((work) => {
