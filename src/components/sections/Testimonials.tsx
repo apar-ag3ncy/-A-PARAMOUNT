@@ -93,7 +93,7 @@ export default function Testimonials() {
               What patrons say
             </h2>
             <p className="pm-body mt-4 font-body text-cream/75 leading-relaxed">
-              Discover what reverence and trust sacred Derasars and temple committees have to say about our architectural craftsmanship.
+              Expressions of faith and enduring reverence from the sacred sanctums we have been blessed to craft for over fifty years.
             </p>
           </ScrollReveal>
 
