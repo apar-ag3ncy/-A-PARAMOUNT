@@ -33,7 +33,7 @@ type Row = [number, string, Family, string[], string?];
 
 const ROWS: Row[] = [
   [1, "Dhwajadand", "architecture", ["Brass", "Copper"], "Handcrafted in pure brass or copper, sized by religious calculation, for Jain derasar and Hindu mandir."],
-  [2, "Kalash", "architecture", ["Brass", "Copper"], "Pure brass or copper, in varied sizes and polish; kalash covers fit the marble kalash on the shikhar."],
+  [2, "Dhwajadand & Shikhar Kalash", "architecture", ["Brass", "Copper"], "Pure brass or copper, in varied sizes and polish; kalash covers fit the marble kalash on the shikhar."],
   [3, "Doors", "architecture", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass", "Inlay / Embossed", "Brass Jali", "Diamond"], "Exclusively handcrafted in premium wood, then clad, polished and lacquered — from normal to extra-deep carving."],
   [4, "Bhandar", "architecture", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass", "Inlay / Embossed", "No-wood Metal"], "Metal sheets clad on carved wood, enhancing the intricacy; wall-mounted or free-standing, with tijori-like mechanisms."],
   [5, "Samovasaran / Trigadu", "ceremonial", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass"], "A divine centrepiece, in two or three tones, supplied with a sized brass thali."],
@@ -119,6 +119,8 @@ function slugify(title: string): string {
 const IMAGES: Record<string, string> = {
   "dhwajadand": "/products/dhwajadand.webp",
   "kalash": "/products/kalash.webp",
+  "pakshal-kalash": "/gallery/pakshal-kalash/all/00.webp",
+  "kumbh-kalash": "/gallery/kumbh-kalash/all/00.webp",
   "doors": "/products/doors.webp",
   "bhandar": "/products/bhandar.webp",
   "samovasaran-trigadu": "/products/samovasaran-trigadu.webp",
