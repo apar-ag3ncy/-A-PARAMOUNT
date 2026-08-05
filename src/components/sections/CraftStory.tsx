@@ -46,7 +46,7 @@ export default function CraftStory() {
 
           <div className="mt-6 space-y-4 font-body text-maroon/85 leading-relaxed">
             <p className="pm-lead">
-              For three generations and over fifty years, every piece has been handcrafted to order. Premium wood is carved to depth, then clad in silver, german silver, brass or copper, polished and lacquered for an enduring shine.
+              For three generations and over fifty years, every piece has been handcrafted to order.
             </p>
             <p className="text-sm sm:text-base text-maroon/75">
               It is the rare combination of engineering precision and sacred artistry that lets us fulfill every temple requirement under one roof, guided by canonical Shastra proportions.
