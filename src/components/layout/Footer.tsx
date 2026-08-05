@@ -118,7 +118,7 @@ export default function Footer() {
       </div>
 
       {/* Wordmark cut into the base */}
-      <div className="relative flex flex-col items-center px-6 pb-7 sm:px-10 sm:pb-9 text-center">
+      <div className="relative flex flex-col items-center px-6 pt-3 sm:pt-5 pb-7 sm:px-10 sm:pb-9 text-center">
         <p
           aria-hidden
           className="pm-footer-word text-center font-display whitespace-nowrap select-none"
@@ -139,7 +139,7 @@ export default function Footer() {
         </p>
         <p
           aria-hidden
-          className="mt-2 sm:mt-3 font-display uppercase tracking-[0.38em] text-center select-none"
+          className="-mt-1 sm:-mt-3 md:-mt-5 lg:-mt-7 font-display uppercase tracking-[0.38em] text-center select-none"
           style={{
             fontSize: "clamp(0.8rem, 2.375vw, 3.04rem)",
             lineHeight: 1.1,
