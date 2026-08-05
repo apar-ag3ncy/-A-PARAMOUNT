@@ -28,12 +28,12 @@ export interface CatalogCategory {
  *  list in the SAME order, or a product changes shape when Sanity comes online. */
 export const RATIOS = ["3/4", "4/5", "1/1", "4/3", "2/3"] as const;
 
-// [order, title, family, variants, blurb?]
-type Row = [number, string, Family, string[], string?];
+// [order, title, family, variants, blurb?, customSlug?]
+type Row = [number, string, Family, string[], string?, string?];
 
 const ROWS: Row[] = [
   [1, "Dhwajadand", "architecture", ["Brass", "Copper"], "Handcrafted in pure brass or copper, sized by religious calculation, for Jain derasar and Hindu mandir."],
-  [2, "Dhwajadand & Shikhar Kalash", "architecture", ["Brass", "Copper"], "Pure brass or copper, in varied sizes and polish; kalash covers fit the marble kalash on the shikhar."],
+  [2, "Dhwajadand & Shikhar Kalash", "architecture", ["Brass", "Copper"], "Pure brass or copper, in varied sizes and polish; kalash covers fit the marble kalash on the shikhar.", "kalash"],
   [3, "Doors", "architecture", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass", "Inlay / Embossed", "Brass Jali", "Diamond"], "Exclusively handcrafted in premium wood, then clad, polished and lacquered — from normal to extra-deep carving."],
   [4, "Bhandar", "architecture", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass", "Inlay / Embossed", "No-wood Metal"], "Metal sheets clad on carved wood, enhancing the intricacy; wall-mounted or free-standing, with tijori-like mechanisms."],
   [5, "Samovasaran / Trigadu", "ceremonial", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass"], "A divine centrepiece, in two or three tones, supplied with a sized brass thali."],
@@ -152,8 +152,8 @@ const IMAGES: Record<string, string> = {
 };
 
 export const CATEGORIES: CatalogCategory[] = ROWS.map(
-  ([order, title, family, variants, blurb]) => {
-    const slug = slugify(title);
+  ([order, title, family, variants, blurb, customSlug]) => {
+    const slug = customSlug ?? slugify(title);
     return {
       order,
       title,
