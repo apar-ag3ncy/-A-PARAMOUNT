@@ -97,54 +97,40 @@ export default function Testimonials() {
             </p>
           </ScrollReveal>
 
-          {/* 3 Pure Dark Olive Velvet Matte Cards (Zero White) */}
+          {/* 3 Pure Dark Olive Velvet Matte Cards with Clean Review Quotes */}
           <div className="relative z-10 grid gap-6 md:grid-cols-3">
             {TESTIMONIALS.map((t) => (
               <ScrollReveal key={t.id} className="h-full">
                 <div
-                  className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-7 transition-all duration-500 hover:-translate-y-1.5 shadow-[0_22px_60px_-15px_rgba(0,0,0,0.85)] hover:shadow-[0_30px_75px_-12px_rgba(0,0,0,0.95)]"
+                  className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1.5 shadow-[0_22px_60px_-15px_rgba(0,0,0,0.85)] hover:shadow-[0_30px_75px_-12px_rgba(0,0,0,0.95)]"
                   style={{
                     background:
                       "linear-gradient(180deg, #2E2713 0%, #4D4424 25%, #7C7144 60%, #59502B 82%, #3A321A 94%, #261F0E 100%)",
                   }}
                 >
                   {/* Top Avatar Crest */}
-                  <div>
-                    <div className="flex items-center">
-                      <div
-                        className="relative flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-gold/25"
-                        style={{
-                          background:
-                            "linear-gradient(135deg, #7C7144 0%, #2E2713 100%)",
-                        }}
-                      >
-                        {t.icon === "arch" && (
-                          <ArchMark className="h-7 w-7 text-cream opacity-95" />
-                        )}
-                        {t.icon === "lotus" && (
-                          <LotusFlourish className="h-7 w-7 text-cream opacity-95" />
-                        )}
-                        {t.icon === "crest" && (
-                          <span className="font-display text-sm font-bold text-cream tracking-wider">
-                            {t.initials}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Author Name & Role */}
-                    <div className="mt-5">
-                      <h3 className="font-display text-lg sm:text-xl font-medium text-cream group-hover:text-gold transition-colors">
-                        {t.author}
-                      </h3>
-                      <p className="pm-small mt-1 font-body text-gold/90 font-medium">
-                        {t.role} · <span className="text-cream/85">{t.location}</span>
-                      </p>
+                  <div className="flex items-center mb-4">
+                    <div
+                      className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-gold/25"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, #7C7144 0%, #2E2713 100%)",
+                      }}
+                    >
+                      {t.icon === "arch" && (
+                        <ArchMark className="h-6 w-6 text-gold opacity-95" />
+                      )}
+                      {t.icon === "lotus" && (
+                        <LotusFlourish className="h-6 w-6 text-gold opacity-95" />
+                      )}
+                      {t.icon === "crest" && (
+                        <ArchMark className="h-6 w-6 text-gold opacity-95" />
+                      )}
                     </div>
                   </div>
 
                   {/* Quote Body on Pure Dark Olive Velvet Ground */}
-                  <p className="pm-body mt-6 font-body text-cream/95 text-sm sm:text-base leading-relaxed italic font-normal">
+                  <p className="pm-body font-body text-cream/95 text-sm sm:text-base leading-relaxed italic font-normal my-auto">
                     “{t.quote}”
                   </p>
                 </div>
