@@ -1112,56 +1112,11 @@ export const GALLERIES: Record<string, ProductGallery> = {
             "src": "/gallery/dhwajadand/all/01.webp",
             "w": 1195,
             "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/02.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/03.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/04.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/05.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/06.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/07.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/08.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/09.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
-            "src": "/gallery/dhwajadand/all/10.webp",
-            "w": 1600,
-            "h": 1600
           }
         ]
       }
     ],
-    "count": 11
+    "count": 2
   },
   "divistand": {
     "groups": [
@@ -1453,49 +1408,54 @@ export const GALLERIES: Record<string, ProductGallery> = {
         "icon": null,
         "images": [
           {
-            "src": "/gallery/kalash/all/00.webp",
+            "src": "/gallery/dhwajadand/all/02.webp",
             "w": 1600,
             "h": 1600
           },
           {
-            "src": "/gallery/kalash/all/01.webp",
+            "src": "/gallery/dhwajadand/all/03.webp",
             "w": 1600,
             "h": 1600
           },
           {
-            "src": "/gallery/kalash/all/02.webp",
+            "src": "/gallery/dhwajadand/all/04.webp",
             "w": 1600,
             "h": 1600
           },
           {
-            "src": "/gallery/kalash/all/03.webp",
+            "src": "/gallery/dhwajadand/all/05.webp",
             "w": 1600,
             "h": 1600
           },
           {
-            "src": "/gallery/kalash/all/04.webp",
+            "src": "/gallery/dhwajadand/all/06.webp",
             "w": 1600,
             "h": 1600
           },
           {
-            "src": "/gallery/kalash/all/05.webp",
+            "src": "/gallery/dhwajadand/all/07.webp",
             "w": 1600,
             "h": 1600
           },
           {
-            "src": "/gallery/kalash/all/06.webp",
+            "src": "/gallery/dhwajadand/all/08.webp",
             "w": 1600,
             "h": 1600
           },
           {
-            "src": "/gallery/kalash/all/07.webp",
+            "src": "/gallery/dhwajadand/all/09.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
+            "src": "/gallery/dhwajadand/all/10.webp",
             "w": 1600,
             "h": 1600
           }
         ]
       }
     ],
-    "count": 8
+    "count": 9
   },
   "kalpavruksh-naan": {
     "groups": [
@@ -1740,6 +1700,51 @@ export const GALLERIES: Record<string, ProductGallery> = {
         "icon": null,
         "images": [
           {
+            "src": "/products/kalash.webp",
+            "w": 1200,
+            "h": 1200
+          },
+          {
+            "src": "/gallery/kalash/all/00.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
+            "src": "/gallery/kalash/all/01.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
+            "src": "/gallery/kalash/all/02.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
+            "src": "/gallery/kalash/all/03.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
+            "src": "/gallery/kalash/all/04.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
+            "src": "/gallery/kalash/all/05.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
+            "src": "/gallery/kalash/all/06.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
+            "src": "/gallery/kalash/all/07.webp",
+            "w": 1600,
+            "h": 1600
+          },
+          {
             "src": "/gallery/pakshal-kalash/all/00.webp",
             "w": 1600,
             "h": 1600
@@ -1767,7 +1772,7 @@ export const GALLERIES: Record<string, ProductGallery> = {
         ]
       }
     ],
-    "count": 5
+    "count": 14
   },
   "palkhi": {
     "groups": [

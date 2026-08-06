@@ -62,7 +62,7 @@ const OVERVIEW: Record<string, string> = {
   // ran to two — "crowning the spire" carries what "at the apex of the spire ...
   // on the shikhar" said twice, and the full account is in the description below.
   kalash:
-    "The sacred Dhwajadand and Shikhar Kalash crowning the spire, its metal cover made to fit the marble kalash.",
+    "The sacred Shikhar Kalash crowning the spire, its metal cover made to fit the marble kalash.",
   doors:
     "The carved doors of the sanctum and the derasar, premium wood, clad, polished and lacquered, from normal to extra deep carving.",
   bhandar:

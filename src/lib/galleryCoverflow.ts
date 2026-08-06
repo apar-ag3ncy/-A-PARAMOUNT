@@ -24,7 +24,7 @@ import { getCategory } from "@/lib/catalog";
 /** Collection label → catalog slug. Order is the order of the flow. */
 const PICKS: { label: string; slug: string }[] = [
   { label: "Doors", slug: "doors" },
-  { label: "Dhwajadand & Shikhar Kalash", slug: "kalash" },
+  { label: "Shikhar Kalash", slug: "kalash" },
   { label: "Pakshal Kalash", slug: "pakshal-kalash" },
   { label: "Samovasaran", slug: "samovasaran-trigadu" },
   { label: "Mandir", slug: "mandir" },

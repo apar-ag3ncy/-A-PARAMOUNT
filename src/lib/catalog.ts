@@ -33,7 +33,7 @@ type Row = [number, string, Family, string[], string?, string?];
 
 const ROWS: Row[] = [
   [1, "Dhwajadand", "architecture", ["Brass", "Copper"], "Handcrafted in pure brass or copper, sized by religious calculation, for Jain derasar and Hindu mandir."],
-  [2, "Dhwajadand & Shikhar Kalash", "architecture", ["Brass", "Copper"], "Pure brass or copper, in varied sizes and polish; kalash covers fit the marble kalash on the shikhar.", "kalash"],
+  [2, "Shikhar Kalash", "architecture", ["Brass", "Copper"], "Pure brass or copper, in varied sizes and polish; kalash covers fit the marble kalash on the shikhar.", "kalash"],
   [3, "Doors", "architecture", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass", "Inlay / Embossed", "Brass Jali", "Diamond"], "Exclusively handcrafted in premium wood, then clad, polished and lacquered — from normal to extra-deep carving."],
   [4, "Bhandar", "architecture", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass", "Inlay / Embossed", "No-wood Metal"], "Metal sheets clad on carved wood, enhancing the intricacy; wall-mounted or free-standing, with tijori-like mechanisms."],
   [5, "Samovasaran / Trigadu", "ceremonial", ["Wooden", "Silver", "German Silver", "Brass", "GS + Brass", "Copper + Brass"], "A divine centrepiece, in two or three tones, supplied with a sized brass thali."],
@@ -86,7 +86,7 @@ const ROWS: Row[] = [
   // photography. Order left vacant, as 19 and 32 are: `ratio` is
   // RATIOS[(order - 1) % 5], so renumbering would reshape the rows below.
   [38, "Kumbh Kalash", "ceremonial", [], "Ceremonial kumbh kalash."],
-  [39, "Pakshal Kalash", "ceremonial", [], "The pakshal kalash and kundi."],
+  [39, "Pakshal Kalash", "architecture", ["Silver", "German Silver"], "The pakshal kalash and kundi used in the abhishek.", "pakshal-kalash"],
   [40, "Vyaakhyan Kamal", "ceremonial", [], "The lotus discourse piece."],
   [41, "Kalpavruksh Naan", "ceremonial", [], "The wish-fulfilling kalpavruksh."],
   [42, "Wooden Carved Murti", "ceremonial", [], "Hand-carved wooden murtis."],
@@ -118,8 +118,8 @@ function slugify(title: string): string {
  */
 const IMAGES: Record<string, string> = {
   "dhwajadand": "/products/dhwajadand.webp",
-  "kalash": "/products/kalash.webp",
-  "pakshal-kalash": "/gallery/pakshal-kalash/all/00.webp",
+  "kalash": "/gallery/kalash/all/00.webp",
+  "pakshal-kalash": "/products/kalash.webp",
   "kumbh-kalash": "/gallery/kumbh-kalash/all/00.webp",
   "doors": "/products/doors.webp",
   "bhandar": "/products/bhandar.webp",
