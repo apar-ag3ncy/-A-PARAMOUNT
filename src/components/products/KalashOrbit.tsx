@@ -142,22 +142,10 @@ export default function KalashOrbit({ label }: { label?: string }) {
         if (Math.abs(velocity) <= EPS_DEG_S) velocity = 0;
         requestPaintOnly();
         moving = true;
-      } else if (
-        !dragging &&
-        !reduced &&
-        inView &&
-        now - lastInputAt > IDLE_MS &&
-        document.visibilityState === "visible"
-      ) {
-        // museum turntable: ease the idle spin in over EASE_IN_S
-        const t = Math.min((now - lastInputAt - IDLE_MS) / (EASE_IN_S * 1000), 1);
-        angle += IDLE_DEG_S * t * t * dt;
-        requestPaintOnly();
-        moving = true;
       }
 
       if (needPaint) paint();
-      if (moving || needPaint || (inView && !reduced && !dragging)) {
+      if (moving || needPaint) {
         raf = requestAnimationFrame(tick);
         running = true;
       } else {
@@ -175,13 +163,12 @@ export default function KalashOrbit({ label }: { label?: string }) {
       }
     };
 
-    // Spin only when on screen; sleep entirely when scrolled away.
+    // Paint initial view when scrolled into view
     const io = new IntersectionObserver(
       ([e]) => {
         inView = e.isIntersecting;
         if (inView) {
-          lastInputAt = performance.now(); // arrive at rest, then ease in
-          wake();
+          requestPaint();
         }
       },
       { rootMargin: "80px" },
