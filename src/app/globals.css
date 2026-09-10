@@ -269,8 +269,12 @@ html.pm-intro .pm-header {
   animation: pm-fade-in 0.4s ease-out both;
 }
 
-/* Custom cursor active — hide the native cursor on desktop. */
+/* Custom cursor active — hide the native cursor on desktop. `!important` because
+   drag surfaces write an inline `cursor: grab / grabbing` (the gallery rail, the
+   Kalash orbit), which beat the plain rule and put a native hand next to the
+   mark mid-drag. CustomCursor only adds this class while it is drawing the mark,
+   so those inline cursors still work whenever it is not. */
 .has-custom-cursor,
 .has-custom-cursor * {
-  cursor: none;
+  cursor: none !important;
 }

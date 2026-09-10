@@ -12,16 +12,30 @@ export const SITE = {
     "Exquisite craftsmanship that blends devotion, tradition and timeless beauty.",
 } as const;
 
+const EMAILS = ["aparamount1968@gmail.com", "info@aparamount.com"] as const;
+
 export const CONTACT = {
-  email: "aparamount1968@gmail.com",
+  /** The primary address — the contact page and the form's fallback link. */
+  email: EMAILS[0],
+  /** Every address, in the order the footer lists them. */
+  emails: EMAILS,
   social: "A Paramount Engineering Works",
   addresses: [
     "K-11, Ansa Industrial Estate, Saki Vihar Road, Sakinaka, Andheri East, Mumbai 400072",
     "F-107, Ansa Industrial Estate, Saki Vihar Road, Sakinaka, Andheri East, Mumbai 400072",
   ],
+  /* ONE ENTRY PER PERSON, even for someone with two numbers. The About page's
+     "Generation" column lists these by NAME and is laid out for exactly four
+     names off the deck, so a second number goes in `altPhones`, never in a
+     second entry. */
   people: [
     { title: "Mr.", name: "Suresh Zaveri", phone: "+91 93242 45830" },
-    { title: "Mr.", name: "Harshal Zaveri", phone: "+91 98210 44024" },
+    {
+      title: "Mr.",
+      name: "Harshal Zaveri",
+      phone: "+91 98210 44024",
+      altPhones: ["+91 96534 92398"],
+    },
     { title: "Mr.", name: "Nehal Zaveri", phone: "+91 98211 89666" },
     { title: "Mrs.", name: "Yesha Zaveri Shah", phone: "+91 98707 41412" },
   ],

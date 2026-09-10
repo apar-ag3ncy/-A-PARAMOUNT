@@ -67,14 +67,16 @@ export default function Footer() {
               Reach us
             </h2>
             <ul className="mt-4 space-y-2.5 text-center">
-              <li>
-                <a
-                  href={`mailto:${CONTACT.email}`}
-                  className="font-body text-[14.5px] sm:text-[15px] text-cream/90 transition-colors hover:text-gold text-center block"
-                >
-                  {CONTACT.email}
-                </a>
-              </li>
+              {CONTACT.emails.map((email) => (
+                <li key={email}>
+                  <a
+                    href={`mailto:${email}`}
+                    className="font-body text-[14.5px] sm:text-[15px] text-cream/90 transition-colors hover:text-gold text-center block"
+                  >
+                    {email}
+                  </a>
+                </li>
+              ))}
               <li className="font-body text-[14.5px] sm:text-[15px] text-cream/90 text-center">
                 Facebook / Instagram
                 <span className="mt-1 block text-cream/75 text-[13.5px] text-center">{CONTACT.social}</span>
@@ -88,21 +90,29 @@ export default function Footer() {
               Speak to us
             </h2>
             <ul className="mt-4 space-y-2.5">
-              {CONTACT.people.map((person) => (
-                <li
-                  key={person.phone}
-                  className="font-body text-[14.5px] sm:text-[15px] whitespace-nowrap text-cream/90"
-                >
-                  {person.title} {person.name}
-                  {" · "}
-                  <a
-                    href={`tel:${person.phone.replace(/\s/g, "")}`}
-                    className="tabular-nums transition-colors hover:text-gold"
+              {/* One line per NUMBER, each carrying its person's name, so a
+                  second number reads as its own dialable line directly under
+                  the first rather than as a bare number with no one to ask for. */}
+              {CONTACT.people.flatMap((person) =>
+                [
+                  person.phone,
+                  ...("altPhones" in person ? person.altPhones : []),
+                ].map((phone) => (
+                  <li
+                    key={phone}
+                    className="font-body text-[14.5px] sm:text-[15px] whitespace-nowrap text-cream/90"
                   >
-                    {person.phone}
-                  </a>
-                </li>
-              ))}
+                    {person.title} {person.name}
+                    {" · "}
+                    <a
+                      href={`tel:${phone.replace(/\s/g, "")}`}
+                      className="tabular-nums transition-colors hover:text-gold"
+                    >
+                      {phone}
+                    </a>
+                  </li>
+                )),
+              )}
             </ul>
           </div>
         </div>

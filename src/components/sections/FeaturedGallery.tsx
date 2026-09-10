@@ -144,7 +144,7 @@ export default function FeaturedGallery() {
           if (Math.abs(velocity.current) > 0.05) {
             const p = pitchRef.current;
             if (p) {
-              let nextX = currentX.current + velocity.current;
+              const nextX = currentX.current + velocity.current;
               let wrapped = nextX % p;
               if (wrapped > 0) wrapped -= p;
               currentX.current = wrapped;
@@ -220,7 +220,7 @@ export default function FeaturedGallery() {
     setIsGrabbed(true);
     startX.current = e.clientX;
     lastPointerX.current = e.clientX;
-    lastTime.current = performance.now();
+    lastTime.current = e.timeStamp;
     velocity.current = 0;
 
     const currentGSAPX = (gsap.getProperty(rowRef.current, "x") as number) || 0;
@@ -228,15 +228,33 @@ export default function FeaturedGallery() {
     currentX.current = currentGSAPX;
 
     if (drift.current) drift.current.pause();
-
-    try {
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    } catch {}
+    // NO pointer capture here — see handlePointerMove.
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging.current || !rowRef.current) return;
-    const now = performance.now();
+    // Before capture a release OUTSIDE the ribbon is never seen here (press a
+    // card, slide off vertically, let go). A mouse with no button down means
+    // that press is over — otherwise the ribbon would keep following the hand.
+    if (e.pointerType === "mouse" && e.buttons === 0) {
+      handlePointerUp(e);
+      return;
+    }
+    // Capture the pointer only once this is really a DRAG. Capturing on every
+    // press retargets the release — and so the click — to this scroller, which
+    // made the cards themselves unclickable: a click straight on a card reached
+    // the scroller and its link never saw it. Below 6px of travel the press is
+    // left alone and a click lands on the card; past it the ribbon owns the
+    // pointer, so a drag can never end in an accidental navigation.
+    const el = e.currentTarget as HTMLElement;
+    if (!el.hasPointerCapture(e.pointerId) && Math.abs(e.clientX - startX.current) > 6) {
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {}
+    }
+    // The event's own timestamp — the same clock as performance.now(), but the
+    // moment the move happened rather than when this handler got to run.
+    const now = e.timeStamp;
     const dt = Math.max(1, now - lastTime.current);
     const dx = e.clientX - lastPointerX.current;
 
@@ -245,7 +263,7 @@ export default function FeaturedGallery() {
     lastTime.current = now;
 
     const deltaTotal = e.clientX - startX.current;
-    let nextX = startRowX.current + deltaTotal;
+    const nextX = startRowX.current + deltaTotal;
 
     const p = pitchRef.current;
     if (p) {
@@ -304,6 +322,11 @@ export default function FeaturedGallery() {
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
+        // a pen (no buttons check) leaving before the drag was captured
+        onPointerLeave={(e) => {
+          if (!(e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId))
+            handlePointerUp(e);
+        }}
       >
         <div
           ref={rowRef}
