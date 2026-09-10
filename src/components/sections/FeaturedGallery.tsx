@@ -13,29 +13,31 @@ import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
  * "Our Works", the drifting & user-draggable arc ribbon of the client's pieces.
  * Smooth, seamless drag control with inertia momentum and infinite wrapping.
  */
-const WORKS = [
-  { slug: "dhwajadand", src: "/gallery/dhwajadand/all/00.webp", w: 893, h: 1600 },
+// In the client's order. `title` overrides the catalogue name where the client
+// named one specific piece of a shared category.
+const WORKS: { slug: string; src: string; w: number; h: number; title?: string }[] = [
+  { slug: "doors", src: "/works/deep-carving-door.webp", w: 893, h: 1600, title: "Deep Carving Door" },
+  { slug: "bhandar", src: "/gallery/bhandar/patra/01.webp", w: 893, h: 1600 },
+  { slug: "samovasaran-trigadu", src: "/gallery/samovasaran-trigadu/all/04.webp", w: 893, h: 1600, title: "Trigadu" },
   { slug: "kalash", src: "/gallery/kalash/all/00.webp", w: 893, h: 1600 },
-  { slug: "brass-gate", src: "/gallery/brass-gate/all/00.webp", w: 900, h: 1600 },
-  { slug: "rath", src: "/gallery/rath/all/03.webp", w: 900, h: 1600 },
-  { slug: "kalpavruksh-naan", src: "/gallery/kalpavruksh-naan/all/00.webp", w: 893, h: 1600 },
-  { slug: "samovasaran-trigadu", src: "/gallery/samovasaran-trigadu/all/04.webp", w: 893, h: 1600 },
-  { slug: "vyaakhyan-kamal", src: "/gallery/vyaakhyan-kamal/all/03.webp", w: 893, h: 1600 },
-  { slug: "mandir", src: "/gallery/mandir/all/00.webp", w: 893, h: 1600 },
-  { slug: "brass-grill-jali", src: "/gallery/brass-grill-jali/all/06.webp", w: 900, h: 1600 },
-  { slug: "chattar", src: "/gallery/chattar/all/00.webp", w: 893, h: 1600 },
-  { slug: "bhandar", src: "/gallery/bhandar/brass-copper-bhandar/00.webp", w: 893, h: 1600 },
-  { slug: "vyaakhyan-paat", src: "/gallery/vyaakhyan-paat/all/04.webp", w: 893, h: 1600 },
-  { slug: "sinhasan", src: "/gallery/sinhasan/all/00.webp", w: 893, h: 1600 },
+  { slug: "dhwajadand", src: "/gallery/dhwajadand/all/00.webp", w: 893, h: 1600 },
+  { slug: "divistand", src: "/gallery/divistand/all/03.webp", w: 893, h: 1600 },
+  { slug: "14-swapna-and-parna", src: "/gallery/14-swapna-and-parna/minakari/03.webp", w: 893, h: 1600, title: "Swapna" },
+  { slug: "14-swapna-and-parna", src: "/gallery/14-swapna-and-parna/diamond/10.webp", w: 893, h: 1600, title: "Parna" },
   { slug: "ashtamangal", src: "/gallery/ashtamangal/all/00.webp", w: 893, h: 1600 },
-] as const;
+  { slug: "pichwadi", src: "/gallery/pichwadi/all/03.webp", w: 893, h: 1600 },
+  { slug: "deri-window-and-door", src: "/gallery/deri-window-and-door/all/02.webp", w: 893, h: 1600, title: "Deri Window" },
+  { slug: "angi-mugat", src: "/gallery/angi-mugat/all/02.webp", w: 893, h: 1600 },
+  { slug: "mandir", src: "/gallery/mandir/all/00.webp", w: 893, h: 1600 },
+  { slug: "chattar", src: "/gallery/chattar/all/00.webp", w: 893, h: 1600 },
+];
 
 const ITEMS = WORKS.map((work) => {
   const category = CATEGORIES.find((c) => c.slug === work.slug);
   if (!category) return null;
   return {
     ...work,
-    title: category.title,
+    title: work.title ?? category.title,
     href: `/products/${category.family}/${category.slug}`,
   };
 }).filter((x): x is NonNullable<typeof x> => x !== null);
