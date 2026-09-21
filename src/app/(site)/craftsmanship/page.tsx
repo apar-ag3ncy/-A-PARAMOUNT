@@ -18,36 +18,29 @@ export const metadata: Metadata = {
 const STEPS: { n: string; title: string; body: string; slug: string; img: string }[] = [
   {
     n: "01",
-    title: "Design & Shastra",
-    body: "Every piece begins with the shastra. Sizes and proportions follow religious calculation, so a dhwajadand or kalash is made exactly to the norms of your derasar.",
+    title: "Design Development",
+    body: "Every piece begins with detailed designing as per size requirement that focuses on combining traditional craftsmanship with modern manufacturing. The company develops designs with emphasis on aesthetic detailing, precision, customization and functionality ensuring that each piece reflects the spiritual and architectural significance of the space.",
     slug: "dhwajadand",
     img: "/products/dhwajadand.webp",
   },
   {
     n: "02",
-    title: "Carving",
-    body: 'Premium quality wood is carved to depth, from roughly 0.25" normal carving to 1.5" extra deep, each cut deepening the intricacy of the design.',
+    title: "Execution & Manufacturing",
+    body: "The company follows a meticulous execution process to transform designs into finely crafted products using high quality raw materials. Skilled craftsmen carry out precision wood working, carving, joinery and metal works. Each process is carefully monitored to ensure strength, durability and flawless detailing resulting in products that uphold the highest standards of craftsmanship and quality.",
     slug: "wooden-carved-murti",
     img: "/products/wooden-carved-murti.webp",
   },
   {
     n: "03",
-    title: "Cladding",
-    body: "Silver, german silver, brass or copper sheets are cladded onto the carved wood, highlighting the work beneath. Two- and three-tone combinations set parts of the design apart.",
-    slug: "samovasaran-trigadu",
-    img: "/products/samovasaran-trigadu.webp",
-  },
-  {
-    n: "04",
-    title: "Polish & Lacquer",
-    body: "Each surface is polished and lacquered for a shine and durability that endures, engraved, where needed, with yantra and name.",
+    title: "Final Touch",
+    body: "This stage focusses on bringing out the fine detailing and richness of each product by carrying out polishing, finishing and detailing processes to achieve a smooth, refined and premium appearance ready for installation and long lasting use.",
     slug: "kalash",
     img: "/products/kalash.webp",
   },
   {
-    n: "05",
+    n: "04",
     title: "Installation",
-    body: "Delivered on time and installed at your derasar, sized to the space, with the transparency and care of a fifty year relationship.",
+    body: "Sized to the space and properly assembled, each piece is carefully aligned and securely installed while maintaining the aesthetics of sacred spaces. Attention is given to every finishing touch, ensuring a seamless, elegant and perfectly finished installation that meets the highest standards of quality, built to last.",
     slug: "mandir",
     img: "/products/mandir.webp",
   },
@@ -76,7 +69,7 @@ export default function CraftsmanshipPage() {
             left-anchored content, so the heading floated off its own section */}
         <SectionHeading
           eyebrow="The Making"
-          title="Five stages, one sanctum"
+          title="Four stages of sanctum"
           align="left"
           className="mb-8 max-w-2xl sm:mb-12"
         />
@@ -85,7 +78,7 @@ export default function CraftsmanshipPage() {
           // The GALLERY shot, not the catalogue cut-out. A full-bleed card slices
           // whatever it holds, and the white-ground studio shots must never be
           // cropped (client mandate) — the in-situ gallery photography can be, and
-          // is the same source the /products collection cards crop. All five
+          // is the same source the /products collection cards crop. All four
           // stages have one; the cut-out stays as the fallback, contained.
           const photo = galleryFor(s.slug)?.groups.flatMap((g) => g.images)[0]?.src;
           return (

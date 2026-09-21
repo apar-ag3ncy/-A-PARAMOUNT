@@ -42,10 +42,10 @@ export const CONTACT = {
 } as const;
 
 export const FAMILIES = [
-  { slug: "architecture", title: "Temple Architecture", blurb: "Structural & built in pieces." },
-  { slug: "symbols", title: "Sacred Symbols", blurb: "Ornamental sacred objects." },
-  { slug: "ceremonial", title: "Ceremonial Pieces", blurb: "Processional & large scale." },
-  { slug: "devotional", title: "Puja & Devotional", blurb: "Everyday puja & silverware." },
+  { slug: "architecture", title: "Temple Heritage", blurb: "Structural & built in pieces." },
+  { slug: "symbols", title: "Sacred Elements", blurb: "Ornamental sacred objects." },
+  { slug: "ceremonial", title: "Ceremonial Collection", blurb: "Processional & large scale." },
+  { slug: "devotional", title: "Devotional Essentials", blurb: "Everyday puja & silverware." },
 ] as const;
 
 export const NAV = [

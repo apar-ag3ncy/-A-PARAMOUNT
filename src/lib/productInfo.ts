@@ -24,28 +24,28 @@ interface FamilyInfo {
 
 const FAMILY: Record<Family, FamilyInfo> = {
   architecture: {
-    label: "Temple Architecture",
+    label: "Temple Heritage",
     placement:
       "Built into the fabric of the derasar, the shikhar above, the sanctum within, and the threshold you cross to enter.",
     craft:
       "Carved first in premium wood, then clad in silver, german silver, brass or copper, polished and lacquered to endure, from normal to extra deep carving.",
   },
   symbols: {
-    label: "Sacred Symbols",
+    label: "Sacred Elements",
     placement:
       "The auspicious symbols and adornments that crown the deity and dress the sanctum on days of worship.",
     craft:
       "Worked in silver, gold and copper with minakari enamel, jadtar stone setting and two tone polish.",
   },
   ceremonial: {
-    label: "Ceremonial",
+    label: "Ceremonial Collection",
     placement:
       "The centrepieces of ritual and procession, the throne, the assembly, the chariot and the discourse seat.",
     craft:
       "Carved and clad in two and three tone metal, each piece sized and balanced for ceremonial use.",
   },
   devotional: {
-    label: "Puja & Devotional",
+    label: "Devotional Essentials",
     placement:
       "The vessels and ware of daily worship, from the aarti lamp raised at dusk to the table the puja is laid upon.",
     craft:

@@ -20,7 +20,7 @@ const TESTIMONIALS: TestimonialItem[] = [
     role: "Trustee, Palitana Tirth",
     location: "Palitana, Gujarat",
     quote:
-      "The intricate brass gate and silver clad doors for our Derasar were executed with profound devotion and flawless engineering. Three generations of mastery show in every carving.",
+      "We chose them not only for their exceptional quality but also for the transparency in their work. They have a reputation for always delivering on time which they lived up to it. They understand what the customer needs and put efforts to deliver exactly that.",
     icon: "arch",
   },
   {
@@ -30,7 +30,7 @@ const TESTIMONIALS: TestimonialItem[] = [
     role: "Managing Committee",
     location: "Mumbai, Maharashtra",
     quote:
-      "Paramount completed our grand Samovasaran and intricate Kalash with complete adherence to Shastra proportions and on-time delivery. Their reverence for sacred craftsmanship is unmatched.",
+      "“Quality may cost more upfront, but choosing inferior quality costs you again and again”. This quote perfectly reflects the philosophy behind A Paramount. We chose them for our temple work and have never regretted after. Their commitment to high quality and service is why their work speaks for itself.",
     icon: "lotus",
   },
   {
@@ -40,7 +40,7 @@ const TESTIMONIALS: TestimonialItem[] = [
     role: "Board of Directors",
     location: "Antwerp, Belgium",
     quote:
-      "Bringing traditional Indian temple architecture to overseas shrines requires exceptional precision. Paramount delivered magnificent brass jali panels and sanctum doors for our center.",
+      "They bring years of experience in the field. What truly sets them apart is their strong work ethics, reliability and their commitment. Their professionalism and honest approach give us complete confidence in their work. They are a trusted name we are happy to recommend.",
     icon: "crest",
   },
 ];
