@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import ScrollReveal from "@/components/animations/ScrollReveal";
-import SlideReveal from "@/components/animations/SlideReveal";
+import FadeThrough from "@/components/animations/FadeThrough";
 import TiltCard from "@/components/animations/TiltCard";
-import VelocitySkew from "@/components/animations/VelocitySkew";
 import Testimonials from "@/components/sections/Testimonials";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SemicircleField from "@/components/ui/SemicircleField";
@@ -162,8 +160,9 @@ export default function AboutPage() {
         </div>
 
         <div className="relative flex items-center px-6 py-16 lg:min-h-[calc(100svh-var(--pm-bar-bottom))] lg:py-8 lg:pr-0 lg:pl-[6.7vw]">
-          <SlideReveal
-            from="left"
+          <FadeThrough
+            rise={36}
+            blur={8}
             className="w-full lg:max-w-[min(39.81vw,78rem)]"
           >
             <h1 className="pm-display font-display text-heading-brown">ABOUT US</h1>
@@ -197,7 +196,7 @@ export default function AboutPage() {
                 fairness in its relationships with the customers.
               </p>
             </div>
-          </SlideReveal>
+          </FadeThrough>
         </div>
 
         <SemicircleField
@@ -210,13 +209,15 @@ export default function AboutPage() {
       </section>
 
       <section className="mx-auto max-w-7xl overflow-x-clip px-6 pt-16 pb-20">
-        <ScrollReveal className="mb-12">
+        <FadeThrough className="mb-12">
           <SectionHeading eyebrow="Our Purpose" title="Mission & Vision" align="center" />
-        </ScrollReveal>
+        </FadeThrough>
         <div className="grid gap-6 lg:grid-cols-2">
           <TiltCard className="rounded-card">
-          <SlideReveal
-            from="left"
+          <FadeThrough
+            rise={40}
+            scale={0.97}
+            blur={6}
             className="rounded-card border border-olive/15 bg-cream-deep/50 p-8 transition-colors duration-300 hover:border-olive/30"
           >
             <h2 className="pm-h3 font-display text-heading-brown">Our Mission</h2>
@@ -226,11 +227,13 @@ export default function AboutPage() {
               exceeding expectations through continuous improvement, ethical practices
               and devotion to serving religious communities globally.
             </p>
-          </SlideReveal>
+          </FadeThrough>
           </TiltCard>
           <TiltCard className="rounded-card">
-          <SlideReveal
-            from="right"
+          <FadeThrough
+            rise={40}
+            scale={0.97}
+            blur={6}
             className="rounded-card border border-olive/15 bg-cream-deep/50 p-8 transition-colors duration-300 hover:border-olive/30"
           >
             <h2 className="pm-h3 font-display text-heading-brown">Our Vision</h2>
@@ -239,22 +242,27 @@ export default function AboutPage() {
               legacy of excellence and integrity, setting new benchmarks in quality
               and design, and enhancing the sacredness of temples across the world.
             </p>
-          </SlideReveal>
+          </FadeThrough>
           </TiltCard>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 pb-24">
-        <ScrollReveal className="mb-12">
+        <FadeThrough className="mb-12">
           <SectionHeading eyebrow="Our Promise" title="Why choose us" align="center" />
-        </ScrollReveal>
-        <VelocitySkew>
+        </FadeThrough>
         <div className="flex flex-wrap items-stretch justify-center gap-6">
-          {PILLARS.map((p) => (
-            <TiltCard
+          {PILLARS.map((p, i) => (
+            // the start offset cascades a row's cards a beat apart
+            <FadeThrough
               key={p.title}
-              className="w-full rounded-3xl sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+              rise={44}
+              scale={0.96}
+              blur={6}
+              start={`top ${92 - (i % 3) * 4}%`}
+              className="w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
             >
+            <TiltCard className="h-full rounded-3xl">
             <div
               data-dark="true"
               className="relative flex h-full w-full flex-col rounded-3xl border border-gold/35 p-8 text-cream shadow-xl"
@@ -291,9 +299,9 @@ export default function AboutPage() {
               <p className="pm-small mt-3 font-body text-cream/90 leading-relaxed">{p.body}</p>
             </div>
             </TiltCard>
+            </FadeThrough>
           ))}
         </div>
-        </VelocitySkew>
       </section>
 
       <Testimonials />
