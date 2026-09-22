@@ -1,13 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import FadeThrough from "@/components/animations/FadeThrough";
-import { galleryFor } from "@/lib/galleries";
+import ScrollReveal from "@/components/animations/ScrollReveal";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
-import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import SectionHeading from "@/components/ui/SectionHeading";
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Craftsmanship",
@@ -15,34 +12,38 @@ export const metadata: Metadata = {
     "From shastra to sanctum, the Paramount process: design, carving, cladding, polishing and installation of Jain and Hindu temple artifacts.",
 };
 
-const STEPS: { n: string; title: string; body: string; slug: string; img: string }[] = [
+// The client's four stages, in their words. Each photo is an in-situ GALLERY
+// shot chosen to READ AS its stage — a designed ceiling, the carving itself, a
+// polished finish, an installed sanctum. Gallery photography may be cropped to
+// the 4:5 card; the white-ground studio cut-outs must not be (client mandate).
+const STEPS: { n: string; title: string; body: string; img: string; alt: string }[] = [
   {
     n: "01",
     title: "Design Development",
     body: "Every piece begins with detailed designing as per size requirement that focuses on combining traditional craftsmanship with modern manufacturing. The company develops designs with emphasis on aesthetic detailing, precision, customization and functionality ensuring that each piece reflects the spiritual and architectural significance of the space.",
-    slug: "dhwajadand",
-    img: "/products/dhwajadand.webp",
+    img: "/gallery/wooden-ceiling/all/00.webp",
+    alt: "Carved wooden ceiling of a derasar, seen from below",
   },
   {
     n: "02",
     title: "Execution & Manufacturing",
     body: "The company follows a meticulous execution process to transform designs into finely crafted products using high quality raw materials. Skilled craftsmen carry out precision wood working, carving, joinery and metal works. Each process is carefully monitored to ensure strength, durability and flawless detailing resulting in products that uphold the highest standards of craftsmanship and quality.",
-    slug: "wooden-carved-murti",
-    img: "/products/wooden-carved-murti.webp",
+    img: "/gallery/doors/extra-deep-carving/00.webp",
+    alt: "Extra-deep carved wooden temple door",
   },
   {
     n: "03",
     title: "Final Touch",
     body: "This stage focusses on bringing out the fine detailing and richness of each product by carrying out polishing, finishing and detailing processes to achieve a smooth, refined and premium appearance ready for installation and long lasting use.",
-    slug: "kalash",
-    img: "/products/kalash.webp",
+    img: "/gallery/kalash/all/00.webp",
+    alt: "Polished silver kalash",
   },
   {
     n: "04",
     title: "Installation",
     body: "Sized to the space and properly assembled, each piece is carefully aligned and securely installed while maintaining the aesthetics of sacred spaces. Attention is given to every finishing touch, ensuring a seamless, elegant and perfectly finished installation that meets the highest standards of quality, built to last.",
-    slug: "mandir",
-    img: "/products/mandir.webp",
+    img: "/gallery/pichwadi/all/03.webp",
+    alt: "Installed sanctum with a silver pichwadi behind the idol",
   },
 ];
 
@@ -60,46 +61,23 @@ export default function CraftsmanshipPage() {
         <WhyChooseUs />
       </div>
 
-      {/* The process, alternating left/right, each stage fronted by a full-bleed
-          card in the /products collections language. Both halves rise and resolve
-          on the way in and dissolve on the way out (FadeThrough) — it used to
-          throw each half in from its own side and leave it there. */}
-      <div className="mx-auto max-w-7xl overflow-x-hidden px-6 py-12 sm:py-16">
-        {/* left-aligned to the step grid's left edge, it was centered over
-            left-anchored content, so the heading floated off its own section */}
+      {/* The four stages as ONE row of cards (2×2 on tablet, stacked on phones):
+          a 4:5 photograph in the /products collections frame, then the stage
+          name and the client's paragraph on the cream beneath it. It used to be
+          four alternating two-column screens, each one photo beside one short
+          paragraph — at 46vh a card, the section was mostly empty cream and the
+          client asked for it to be tighter. Cards reveal in a short stagger. */}
+      <div className="mx-auto max-w-7xl px-6 py-12 sm:py-16">
         <SectionHeading
           eyebrow="The Making"
           title="Four stages of sanctum"
           align="left"
-          className="mb-8 max-w-2xl sm:mb-12"
+          className="mb-8 max-w-2xl sm:mb-10"
         />
-        {STEPS.map((s, i) => {
-          const textLeft = i % 2 === 0;
-          // The GALLERY shot, not the catalogue cut-out. A full-bleed card slices
-          // whatever it holds, and the white-ground studio shots must never be
-          // cropped (client mandate) — the in-situ gallery photography can be, and
-          // is the same source the /products collection cards crop. All four
-          // stages have one; the cut-out stays as the fallback, contained.
-          const photo = galleryFor(s.slug)?.groups.flatMap((g) => g.images)[0]?.src;
-          return (
-            <section
-              key={s.n}
-              className="grid items-center gap-10 py-10 lg:grid-cols-2 lg:gap-16 lg:py-14"
-            >
-              {/* The stage as a full-bleed card in the /products collections
-                  language: gradient hairline frame in the brand's two olives, the
-                  photograph filling it, index top-left and the stage name
-                  bottom-left on an olive scrim. The number and title are the
-                  card's own furniture; the text column carries the stage name
-                  again as the heading of its paragraph, at the client's request. */}
-              <FadeThrough
-                className={cn(
-                  "group/card w-full",
-                  // DOM order is card-then-copy so the stacked column reads
-                  // title first; at lg the grid alternates the sides back.
-                  textLeft ? "lg:order-2 lg:justify-self-end" : "lg:justify-self-start",
-                )}
-              >
+        <ol className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-7">
+          {STEPS.map((s, i) => (
+            <li key={s.n} className="group/card">
+              <ScrollReveal delay={i * 0.12}>
                 <div
                   className="rounded-[1.25rem] p-px shadow-[0_24px_54px_-40px_rgba(46,35,19,0.5)] transition-shadow duration-500 group-hover/card:shadow-[0_34px_70px_-36px_rgba(46,35,19,0.66)]"
                   style={{
@@ -108,86 +86,43 @@ export default function CraftsmanshipPage() {
                   }}
                 >
                   <div
-                    className="relative h-[clamp(19rem,46vh,27rem)] overflow-hidden rounded-[calc(1.25rem-1px)]"
+                    className="relative aspect-[4/5] overflow-hidden rounded-[calc(1.25rem-1px)]"
                     style={{ background: "#2A2416" }}
                   >
                     <Image
-                      src={photo ?? s.img}
-                      alt={s.title}
+                      src={s.img}
+                      alt={s.alt}
                       fill
-                      sizes="(min-width:1024px) 44vw, 100vw"
-                      className={cn(
-                        "transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:scale-[1.06]",
-                        // never crop the cut-out if a gallery shot is missing
-                        photo ? "object-cover" : "object-contain p-6 pb-20",
-                      )}
+                      sizes="(min-width:1024px) 23vw, (min-width:640px) 46vw, 100vw"
+                      className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:scale-[1.06] motion-reduce:group-hover/card:scale-100"
                     />
-
-                    {/* the olive scrim the name reads on */}
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute inset-0"
-                      style={{
-                        background:
-                          "linear-gradient(to top, rgba(38,33,18,0.94) 0%, rgba(44,38,20,0.62) 22%, rgba(124,113,68,0.20) 48%, rgba(137,126,73,0.06) 68%, transparent 84%)",
-                      }}
-                    />
-                    {/* and one at the top, or the index disappears into the pale
-                        shots — the murti on white silk and the marble-wall
-                        dhwajadand are near-white exactly where it sits */}
+                    {/* a top scrim, or the index vanishes into the pale marble */}
                     <div
                       aria-hidden
                       className="pointer-events-none absolute inset-x-0 top-0 h-24"
                       style={{
                         background:
-                          "linear-gradient(to bottom, rgba(38,33,18,0.62) 0%, rgba(44,38,20,0.28) 45%, transparent 100%)",
+                          "linear-gradient(to bottom, rgba(38,33,18,0.58) 0%, rgba(44,38,20,0.24) 50%, transparent 100%)",
                       }}
                     />
-
                     <span className="pm-micro absolute top-5 left-5 font-body tabular-nums tracking-[0.24em] text-gold">
                       {s.n}
                     </span>
-                    <span className="pm-micro absolute top-5 right-5 font-body tracking-[0.2em] text-cream/85 uppercase">
+                    <span className="pm-micro absolute top-5 right-5 font-body text-cream/85">
                       Stage {i + 1} of {STEPS.length}
                     </span>
-
-                    <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                      <OrnamentDivider width="sm" className="text-gold/80" />
-                      {/* pm-small (14px). The card name is a caption over a photograph, not a
-                          section subheading; at pm-h3's 24px, 13 of the 54 names across the site
-                          wrapped to two or three lines. Measured against the label's true 257px
-                          content width, 16px already put 53 of them on one line and 14px keeps all
-                          53 — the only name still over is "Aluminium Platform, Railing & Ladder",
-                          which measures 385px against 274px available and needs 11.2px, below the
-                          client's 12px floor. No type size rescues that one; it needs a shorter
-                          name. 14px is an existing ramp step inside the locked 12-14 small-text
-                          bracket, so this stays in the ramp rather than hand-picking a size (the
-                          literal 5% ask, 15.2px, falls in the gap between the 12-14 and 16-18
-                          brackets and would sit outside the spec). No extra tracking: at 0.06em it
-                          would add ~23px to a 23-character name and undo the fit. */}
-                      <h2 className="pm-small mt-3 font-display leading-[1.15] text-cream uppercase">
-                        {s.title}
-                      </h2>
-                    </div>
                   </div>
                 </div>
-              </FadeThrough>
 
-              <FadeThrough className={textLeft ? "lg:order-1" : ""}>
-                <OrnamentDivider className="text-olive/45" />
-                {/* The stage name heads its own paragraph (client: each stage reads
-                    "Design Development – every piece begins…"). The caption on the
-                    photo card is the card's furniture; this is the copy's heading. */}
-                <h3 className="pm-h3 mt-5 font-display text-heading-brown">
-                  {s.title}
-                </h3>
-                <p className="pm-body mt-3 max-w-md font-body text-maroon/80">
-                  {s.body}
-                </p>
-              </FadeThrough>
-            </section>
-          );
-        })}
+                {/* the stage name heads its own paragraph, as in the client's brief */}
+                <div className="mt-5 border-t border-olive/20 pt-4">
+                  <h3 className="pm-h3 font-display text-heading-brown">{s.title}</h3>
+                  <p className="pm-small mt-3 font-body text-maroon/80">{s.body}</p>
+                </div>
+              </ScrollReveal>
+            </li>
+          ))}
+        </ol>
       </div>
       <EnquiryCTA />
     </div>
