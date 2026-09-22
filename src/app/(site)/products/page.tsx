@@ -66,7 +66,9 @@ export default async function ProductsPage() {
         <p className="pm-eyebrow font-body text-olive/80">The Catalogue</p>
         <SplitTextReveal
           as="h1"
-          by="words"
+          by="chars"
+          mode="flip"
+          stagger={0.028}
           className="pm-display-lg mt-4 font-display font-light text-balance text-heading-brown"
         >
           Our Collections

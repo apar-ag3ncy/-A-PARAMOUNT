@@ -1,6 +1,8 @@
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import ArchMark from "@/components/ui/ArchMark";
 import LotusFlourish from "@/components/ui/LotusFlourish";
+import Spotlight from "@/components/animations/Spotlight";
+import TiltCard from "@/components/animations/TiltCard";
 
 interface TestimonialItem {
   id: string;
@@ -73,6 +75,9 @@ export default function Testimonials() {
             aria-hidden
           />
 
+          {/* a gold glow that follows the pointer across the panel */}
+          <Spotlight />
+
           {/* Grid mesh pattern */}
           <div
             className="pointer-events-none absolute inset-0 opacity-[0.08]"
@@ -101,8 +106,9 @@ export default function Testimonials() {
           <div className="relative z-10 grid gap-6 md:grid-cols-3">
             {TESTIMONIALS.map((t) => (
               <ScrollReveal key={t.id} className="h-full">
+                <TiltCard className="h-full rounded-2xl sm:rounded-3xl">
                 <div
-                  className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-all duration-500 hover:-translate-y-1.5 shadow-[0_22px_60px_-15px_rgba(0,0,0,0.85)] hover:shadow-[0_30px_75px_-12px_rgba(0,0,0,0.95)]"
+                  className="group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl p-6 sm:p-8 transition-shadow duration-500 shadow-[0_22px_60px_-15px_rgba(0,0,0,0.85)] hover:shadow-[0_30px_75px_-12px_rgba(0,0,0,0.95)]"
                   style={{
                     background:
                       "linear-gradient(180deg, #2E2713 0%, #4D4424 25%, #7C7144 60%, #59502B 82%, #3A321A 94%, #261F0E 100%)",
@@ -134,6 +140,7 @@ export default function Testimonials() {
                     “{t.quote}”
                   </p>
                 </div>
+                </TiltCard>
               </ScrollReveal>
             ))}
           </div>

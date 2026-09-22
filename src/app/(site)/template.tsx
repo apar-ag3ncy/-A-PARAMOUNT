@@ -1,9 +1,10 @@
+import PageEnter from "@/components/animations/PageEnter";
+
 /**
- * Per-navigation enter transition (build-plan Prompt H). App Router remounts
- * template.tsx on every route change; the CSS fade replays each time. Opacity
- * only — no transform — so it never creates a containing block that would break
- * ScrollSmoother/ScrollTrigger pins. Auto-instant under reduced-motion.
+ * Per-navigation enter transition. App Router remounts template.tsx on every
+ * route change, so PageEnter plays its curtain wipe each time — skipped on the
+ * initial load, which the LoadingScreen / home film already own.
  */
 export default function Template({ children }: { children: React.ReactNode }) {
-  return <div className="pm-page-enter">{children}</div>;
+  return <PageEnter>{children}</PageEnter>;
 }

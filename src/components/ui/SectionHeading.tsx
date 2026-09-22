@@ -1,4 +1,5 @@
 import OrnamentDivider from "./OrnamentDivider";
+import ScrambleText from "@/components/animations/ScrambleText";
 
 interface Props {
   /** Optional tracked-caps kicker above the title (e.g. "OUR STORY"). */
@@ -40,7 +41,7 @@ export default function SectionHeading({
   return (
     <div className={`flex flex-col ${alignBox} ${className ?? ""}`}>
       {eyebrow ? (
-        <span className={`pm-eyebrow font-body ${eyebrowColor}`}>{eyebrow}</span>
+        <ScrambleText as="span" text={eyebrow} className={`pm-eyebrow font-body ${eyebrowColor}`} />
       ) : null}
 
       <h2

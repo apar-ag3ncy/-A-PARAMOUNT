@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import ScrollReveal from "@/components/animations/ScrollReveal";
 import SlideReveal from "@/components/animations/SlideReveal";
+import TiltCard from "@/components/animations/TiltCard";
+import VelocitySkew from "@/components/animations/VelocitySkew";
+import BrandMarquee from "@/components/sections/BrandMarquee";
 import Testimonials from "@/components/sections/Testimonials";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SemicircleField from "@/components/ui/SemicircleField";
@@ -212,6 +215,7 @@ export default function AboutPage() {
           <SectionHeading eyebrow="Our Purpose" title="Mission & Vision" align="center" />
         </ScrollReveal>
         <div className="grid gap-6 lg:grid-cols-2">
+          <TiltCard className="rounded-card">
           <SlideReveal
             from="left"
             className="rounded-card border border-olive/15 bg-cream-deep/50 p-8 transition-colors duration-300 hover:border-olive/30"
@@ -224,6 +228,8 @@ export default function AboutPage() {
               and devotion to serving religious communities globally.
             </p>
           </SlideReveal>
+          </TiltCard>
+          <TiltCard className="rounded-card">
           <SlideReveal
             from="right"
             className="rounded-card border border-olive/15 bg-cream-deep/50 p-8 transition-colors duration-300 hover:border-olive/30"
@@ -235,6 +241,7 @@ export default function AboutPage() {
               and design, and enhancing the sacredness of temples across the world.
             </p>
           </SlideReveal>
+          </TiltCard>
         </div>
       </section>
 
@@ -242,12 +249,16 @@ export default function AboutPage() {
         <ScrollReveal className="mb-12">
           <SectionHeading eyebrow="Our Promise" title="Why choose us" align="center" />
         </ScrollReveal>
+        <VelocitySkew>
         <div className="flex flex-wrap items-stretch justify-center gap-6">
           {PILLARS.map((p) => (
-            <div
+            <TiltCard
               key={p.title}
+              className="w-full rounded-3xl sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)]"
+            >
+            <div
               data-dark="true"
-              className="relative flex w-full sm:w-[calc(50%-0.75rem)] lg:w-[calc(33.333%-1rem)] flex-col rounded-3xl border border-gold/35 p-8 text-cream shadow-xl"
+              className="relative flex h-full w-full flex-col rounded-3xl border border-gold/35 p-8 text-cream shadow-xl"
               style={{
                 background:
                   "linear-gradient(145deg, #7C7144 0%, #6E643B 48%, #574F2E 100%)",
@@ -280,10 +291,13 @@ export default function AboutPage() {
               </h3>
               <p className="pm-small mt-3 font-body text-cream/90 leading-relaxed">{p.body}</p>
             </div>
+            </TiltCard>
           ))}
         </div>
+        </VelocitySkew>
       </section>
 
+      <BrandMarquee />
       <Testimonials />
       <EnquiryCTA />
     </div>

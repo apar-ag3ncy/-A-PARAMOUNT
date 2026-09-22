@@ -4,6 +4,7 @@ import ConditionalFooter from "@/components/layout/ConditionalFooter";
 import SmoothScrollProvider from "@/components/layout/SmoothScrollProvider";
 import CustomCursor from "@/components/ui/CustomCursor";
 import LoadingScreen from "@/components/ui/LoadingScreen";
+import ScrollProgress from "@/components/animations/ScrollProgress";
 
 // Chrome for the public site. The Studio route (/studio) is outside this group,
 // so it renders on the minimal root layout with no header/footer/smooth-scroll.
@@ -17,6 +18,7 @@ export default function SiteLayout({
       <LoadingScreen />
       <CustomCursor />
       <Header />
+      <ScrollProgress />
       <SmoothScrollProvider>
         <main>{children}</main>
         <ConditionalFooter>

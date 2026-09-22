@@ -79,7 +79,9 @@ export default async function ProductPage({
           </p>
           <SplitTextReveal
             as="h1"
-            by="words"
+            by="chars"
+            mode="flip"
+            stagger={0.028}
             className="pm-display mt-4 font-display font-light text-balance text-heading-brown"
           >
             {product.title}

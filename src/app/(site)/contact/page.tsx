@@ -23,7 +23,9 @@ export default function ContactPage() {
           </span>
           <SplitTextReveal
             as="h1"
-            by="words"
+            by="chars"
+            mode="flip"
+            stagger={0.028}
             className="pm-display-lg font-display text-heading-brown"
           >
             Begin your enquiry

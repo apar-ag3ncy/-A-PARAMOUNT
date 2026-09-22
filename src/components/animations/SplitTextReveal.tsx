@@ -9,6 +9,9 @@ interface Props {
   /** Rendered element. Default div. */
   as?: ElementType;
   by?: "words" | "chars";
+  /** "rise": words drift up from behind the line mask. "flip": each glyph
+   *  swings up out of the page in 3D (rotationX from -85°) — for headlines. */
+  mode?: "rise" | "flip";
   className?: string;
   stagger?: number;
   start?: string;
@@ -26,6 +29,7 @@ export default function SplitTextReveal({
   children,
   as = "div",
   by = "words",
+  mode = "rise",
   className,
   stagger = 0.12,
   start = "top 85%",
@@ -45,15 +49,32 @@ export default function SplitTextReveal({
           linesClass: "split-line",
         });
         const targets = by === "chars" ? split.chars : split.words;
-        gsap.from(targets, {
-          yPercent: 100,
-          opacity: 0,
-          duration: 1.5,
-          ease: "power2.out",
-          stagger,
-          delay,
-          scrollTrigger: { trigger: el, start, once: true },
-        });
+        if (mode === "flip") {
+          // perspective on each glyph itself: the CSS `perspective` property
+          // only reaches direct children, and the glyphs sit inside the lines.
+          gsap.set(targets, { transformPerspective: 800 });
+          gsap.from(targets, {
+            yPercent: 70,
+            rotationX: -85,
+            opacity: 0,
+            transformOrigin: "50% 100% -14px",
+            duration: 1.1,
+            ease: "power3.out",
+            stagger,
+            delay,
+            scrollTrigger: { trigger: el, start, once: true },
+          });
+        } else {
+          gsap.from(targets, {
+            yPercent: 100,
+            opacity: 0,
+            duration: 1.5,
+            ease: "power2.out",
+            stagger,
+            delay,
+            scrollTrigger: { trigger: el, start, once: true },
+          });
+        }
         return () => split?.revert();
       });
     }, el);

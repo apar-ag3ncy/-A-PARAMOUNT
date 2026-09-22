@@ -1,4 +1,5 @@
 import SplitTextReveal from "@/components/animations/SplitTextReveal";
+import ScrambleText from "@/components/animations/ScrambleText";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import { cn } from "@/lib/utils";
 
@@ -9,7 +10,8 @@ import { cn } from "@/lib/utils";
  * or after the subtitle. This fixes the structure so every page opens the same
  * considered way: centred, heading-brown title, divider, then the line beneath.
  *
- * Server component; the only motion is the h1's existing SplitTextReveal.
+ * Server component; the motion is the eyebrow's ScrambleText decode and the h1's
+ * glyph-flip SplitTextReveal.
  */
 interface Props {
   eyebrow: string;
@@ -54,10 +56,12 @@ export default function PageHeader({
         className,
       )}
     >
-      <p className="pm-eyebrow font-display mb-5 text-maroon">{eyebrow}</p>
+      <ScrambleText as="p" text={eyebrow} className="pm-eyebrow font-display mb-5 text-maroon" />
       <SplitTextReveal
         as="h1"
-        by="words"
+        by="chars"
+        mode="flip"
+        stagger={0.028}
         className={cn(
           "font-display text-heading-brown",
           size === "lg" ? "pm-display-lg" : "pm-display",

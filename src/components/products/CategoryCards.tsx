@@ -7,6 +7,7 @@ import { gsap, ScrollTrigger } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import ArchMark from "@/components/ui/ArchMark";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
+import TiltCard from "@/components/animations/TiltCard";
 
 /**
  * CategoryCards — the pieces in a family, in the same full-bleed card language as
@@ -110,6 +111,7 @@ export default function CategoryCards({
             className="group/card w-[calc((100%-0.75rem)/2)] sm:w-[calc((100%-1rem)/2)] lg:w-[calc((100%-2rem)/3)] xl:w-[calc((100%-3rem)/4)]"
           >
             {/* gradient hairline frame — the brand's two olives */}
+            <TiltCard className="h-full rounded-[1.25rem]">
             <div
               className="h-full rounded-[1.25rem] p-px shadow-[0_24px_54px_-40px_rgba(46,35,19,0.5)] transition-shadow duration-500 group-hover/card:shadow-[0_34px_70px_-36px_rgba(46,35,19,0.66)]"
               style={{
@@ -220,6 +222,7 @@ export default function CategoryCards({
                 </div>
               </Link>
             </div>
+            </TiltCard>
           </div>
         );
       })}

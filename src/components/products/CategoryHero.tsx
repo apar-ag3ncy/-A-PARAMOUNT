@@ -21,7 +21,9 @@ export default function CategoryHero({ title, subtitle, count }: Props) {
       </p>
       <SplitTextReveal
         as="h1"
-        by="words"
+        by="chars"
+        mode="flip"
+        stagger={0.028}
         className="pm-display-lg mt-4 font-display font-light text-balance text-heading-brown"
       >
         {title}

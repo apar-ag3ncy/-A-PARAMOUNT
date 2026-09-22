@@ -1,5 +1,6 @@
 import Image from "next/image";
 import SlideReveal from "@/components/animations/SlideReveal";
+import Parallax from "@/components/animations/Parallax";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import Button from "@/components/ui/Button";
 
@@ -15,6 +16,7 @@ export default function CraftStory() {
         {/* LHS: Clean Arch Hero Image */}
         <SlideReveal from="left" className="relative lg:col-span-5 flex justify-center">
           <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-t-[14rem] rounded-b-[2rem] border border-gold/40 bg-cream shadow-[0_20px_60px_-15px_rgba(46,35,19,0.22)] group">
+            <Parallax className="absolute inset-0" speed={0.14}>
             <Image
               src="/products/wooden-carved-murti.webp"
               alt="Handcrafted carved wooden Saraswati murti"
@@ -23,6 +25,7 @@ export default function CraftStory() {
               sizes="(min-width: 1024px) 40vw, 90vw"
               priority
             />
+            </Parallax>
             {/* Inner Gold Contour Line */}
             <div className="pointer-events-none absolute inset-2 rounded-t-[13.5rem] rounded-b-[1.5rem] border border-gold/35 opacity-80" />
           </div>

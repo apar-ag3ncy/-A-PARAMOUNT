@@ -1,5 +1,6 @@
 import SemicircleField from "@/components/ui/SemicircleField";
 import ScrollReveal from "@/components/animations/ScrollReveal";
+import ScrubWords from "@/components/animations/ScrubWords";
 
 /**
  * QuoteInterlude — the deck's serene p30 spread: on a cream ground, the quote
@@ -15,14 +16,14 @@ export default function QuoteInterlude() {
         {/* The quote — brand display font in heading-brown */}
         <div className="px-6 py-20 text-center sm:px-12 lg:py-28 lg:pl-[max(3rem,calc((100vw-72rem)/2))] lg:text-left">
           <ScrollReveal>
-            <blockquote className="mx-auto max-w-xl lg:mx-0">
+            <ScrubWords as="blockquote" className="mx-auto max-w-xl lg:mx-0">
               <p className="font-display text-2xl sm:text-3xl lg:text-[2.45rem] font-light leading-[1.2] text-heading-brown">
                 Shaped by devotion,
               </p>
               <p className="font-display text-2xl sm:text-3xl lg:text-[2.45rem] font-light leading-[1.2] text-heading-brown mt-3">
                 Destined to inspire generations.
               </p>
-            </blockquote>
+            </ScrubWords>
           </ScrollReveal>
         </div>
 

@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import ScrollReveal from "@/components/animations/ScrollReveal";
+import TiltCard from "@/components/animations/TiltCard";
+import Parallax from "@/components/animations/Parallax";
+import VelocitySkew from "@/components/animations/VelocitySkew";
+import BrandMarquee from "@/components/sections/BrandMarquee";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
@@ -74,10 +78,12 @@ export default function CraftsmanshipPage() {
           align="left"
           className="mb-8 max-w-2xl sm:mb-10"
         />
+        <VelocitySkew>
         <ol className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-7">
           {STEPS.map((s, i) => (
             <li key={s.n} className="group/card">
               <ScrollReveal delay={i * 0.12}>
+                <TiltCard className="rounded-[1.25rem]">
                 <div
                   className="rounded-[1.25rem] p-px shadow-[0_24px_54px_-40px_rgba(46,35,19,0.5)] transition-shadow duration-500 group-hover/card:shadow-[0_34px_70px_-36px_rgba(46,35,19,0.66)]"
                   style={{
@@ -89,13 +95,15 @@ export default function CraftsmanshipPage() {
                     className="relative aspect-[4/5] overflow-hidden rounded-[calc(1.25rem-1px)]"
                     style={{ background: "#2A2416" }}
                   >
-                    <Image
-                      src={s.img}
-                      alt={s.alt}
-                      fill
-                      sizes="(min-width:1024px) 23vw, (min-width:640px) 46vw, 100vw"
-                      className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:scale-[1.06] motion-reduce:group-hover/card:scale-100"
-                    />
+                    <Parallax className="absolute inset-0" speed={0.16}>
+                      <Image
+                        src={s.img}
+                        alt={s.alt}
+                        fill
+                        sizes="(min-width:1024px) 23vw, (min-width:640px) 46vw, 100vw"
+                        className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:scale-[1.06] motion-reduce:group-hover/card:scale-100"
+                      />
+                    </Parallax>
                     {/* a top scrim, or the index vanishes into the pale marble */}
                     <div
                       aria-hidden
@@ -113,6 +121,7 @@ export default function CraftsmanshipPage() {
                     </span>
                   </div>
                 </div>
+                </TiltCard>
 
                 {/* the stage name heads its own paragraph, as in the client's brief */}
                 <div className="mt-5 border-t border-olive/20 pt-4">
@@ -123,7 +132,9 @@ export default function CraftsmanshipPage() {
             </li>
           ))}
         </ol>
+        </VelocitySkew>
       </div>
+      <BrandMarquee />
       <EnquiryCTA />
     </div>
   );

@@ -4,12 +4,13 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
 import { Flip } from "gsap/Flip";
+import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 
-// Register once, client-side. SplitText/Flip ship free in gsap 3.13+.
+// Register once, client-side. SplitText/Flip/ScrambleText ship free in gsap 3.13+.
 // NOTE: no ScrollSmoother any more — page smoothing is Lenis (SmoothScrollProvider),
 // which keeps native scroll (sticky works) and drives ScrollTrigger via the ticker.
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, SplitText, Flip);
+  gsap.registerPlugin(ScrollTrigger, SplitText, Flip, ScrambleTextPlugin);
   // Dev-only debug handle: lets a profiler seek timelines to measure per-frame
   // main-thread cost. Stripped from production builds.
   if (process.env.NODE_ENV !== "production") {
@@ -20,4 +21,4 @@ if (typeof window !== "undefined") {
   }
 }
 
-export { gsap, ScrollTrigger, SplitText, Flip };
+export { gsap, ScrollTrigger, SplitText, Flip, ScrambleTextPlugin };

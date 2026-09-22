@@ -278,3 +278,8 @@ html.pm-intro .pm-header {
 .has-custom-cursor * {
   cursor: none !important;
 }
+
+/* Scroll-progress hairline (ScrollProgress) — withheld with the header while
+   the temple doors own the screen. */
+.pm-progress { transition: opacity 0.4s ease; }
+html.pm-intro .pm-progress { opacity: 0; }
