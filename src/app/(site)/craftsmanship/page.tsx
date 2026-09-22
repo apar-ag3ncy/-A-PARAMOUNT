@@ -89,10 +89,9 @@ export default function CraftsmanshipPage() {
               {/* The stage as a full-bleed card in the /products collections
                   language: gradient hairline frame in the brand's two olives, the
                   photograph filling it, index top-left and the stage name
-                  bottom-left on an olive scrim. The number and title live HERE
-                  now rather than in the text column — on the collections card
-                  they are the card's own furniture, and repeating them a column
-                  away read as the same heading printed twice. */}
+                  bottom-left on an olive scrim. The number and title are the
+                  card's own furniture; the text column carries the stage name
+                  again as the heading of its paragraph, at the client's request. */}
               <FadeThrough
                 className={cn(
                   "group/card w-full",
@@ -176,7 +175,13 @@ export default function CraftsmanshipPage() {
 
               <FadeThrough className={textLeft ? "lg:order-1" : ""}>
                 <OrnamentDivider className="text-olive/45" />
-                <p className="pm-body mt-5 max-w-md font-body text-maroon/80">
+                {/* The stage name heads its own paragraph (client: each stage reads
+                    "Design Development – every piece begins…"). The caption on the
+                    photo card is the card's furniture; this is the copy's heading. */}
+                <h3 className="pm-h3 mt-5 font-display text-heading-brown">
+                  {s.title}
+                </h3>
+                <p className="pm-body mt-3 max-w-md font-body text-maroon/80">
                   {s.body}
                 </p>
               </FadeThrough>
