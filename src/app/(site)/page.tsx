@@ -1,6 +1,5 @@
 import HomeFilm from "@/components/sections/HomeFilm";
 import CraftStory from "@/components/sections/CraftStory";
-import BrandMarquee from "@/components/sections/BrandMarquee";
 import QuoteInterlude from "@/components/sections/QuoteInterlude";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
 import Showcase3D from "@/components/products/Showcase3D";
@@ -19,7 +18,6 @@ export default function Home() {
           this stage — its own backdrop once rendered the dome twice. */}
       <HomeFilm />
       <CraftStory />
-      <BrandMarquee />
 
       {/* Deck p30 interlude — "Shaped by devotion," + olive damask circle */}
       <QuoteInterlude />

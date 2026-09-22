@@ -1,5 +1,5 @@
 import Image from "next/image";
-import SlideReveal from "@/components/animations/SlideReveal";
+import FadeThrough from "@/components/animations/FadeThrough";
 import Parallax from "@/components/animations/Parallax";
 import OrnamentDivider from "@/components/ui/OrnamentDivider";
 import Button from "@/components/ui/Button";
@@ -8,13 +8,18 @@ import Button from "@/components/ui/Button";
  * Pure, clean editorial craftsmanship section:
  * Arch-framed Saraswati murti hero (clean, zero floating overlays)
  * with refined typography and primary action CTA.
+ *
+ * Motion: both halves FADE THROUGH — they resolve out of a soft blur as they
+ * rise into the frame, hold, and dissolve on the way out, scrubbed to the
+ * scroll. They used to slide in from either side (SlideReveal); the client
+ * asked for the fade instead.
  */
 export default function CraftStory() {
   return (
     <section className="relative mx-auto max-w-7xl px-6 py-20 sm:py-28 overflow-hidden">
       <div className="grid gap-12 lg:grid-cols-12 lg:items-center lg:gap-16">
         {/* LHS: Clean Arch Hero Image */}
-        <SlideReveal from="left" className="relative lg:col-span-5 flex justify-center">
+        <FadeThrough rise={40} scale={0.94} blur={10} className="relative lg:col-span-5 flex justify-center">
           <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-t-[14rem] rounded-b-[2rem] border border-gold/40 bg-cream shadow-[0_20px_60px_-15px_rgba(46,35,19,0.22)] group">
             <Parallax className="absolute inset-0" speed={0.14}>
             <Image
@@ -29,10 +34,10 @@ export default function CraftStory() {
             {/* Inner Gold Contour Line */}
             <div className="pointer-events-none absolute inset-2 rounded-t-[13.5rem] rounded-b-[1.5rem] border border-gold/35 opacity-80" />
           </div>
-        </SlideReveal>
+        </FadeThrough>
 
         {/* RHS: Clean Editorial Typography */}
-        <SlideReveal from="right" className="lg:col-span-7 flex flex-col justify-center">
+        <FadeThrough rise={32} blur={6} className="lg:col-span-7 flex flex-col justify-center">
           <span className="inline-flex items-center gap-2.5 rounded-full border border-olive/25 bg-olive/10 px-4 py-1.5 backdrop-blur-sm mb-5 w-fit">
             <span className="size-1.5 rounded-full bg-gold" />
             <span className="font-display text-xs font-semibold tracking-[0.2em] text-olive-deep uppercase">
@@ -61,7 +66,7 @@ export default function CraftStory() {
               Discover the process
             </Button>
           </div>
-        </SlideReveal>
+        </FadeThrough>
       </div>
     </section>
   );

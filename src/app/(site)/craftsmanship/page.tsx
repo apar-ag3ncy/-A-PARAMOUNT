@@ -4,7 +4,6 @@ import ScrollReveal from "@/components/animations/ScrollReveal";
 import TiltCard from "@/components/animations/TiltCard";
 import Parallax from "@/components/animations/Parallax";
 import VelocitySkew from "@/components/animations/VelocitySkew";
-import BrandMarquee from "@/components/sections/BrandMarquee";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
@@ -134,7 +133,6 @@ export default function CraftsmanshipPage() {
         </ol>
         </VelocitySkew>
       </div>
-      <BrandMarquee />
       <EnquiryCTA />
     </div>
   );

@@ -3,7 +3,6 @@ import ScrollReveal from "@/components/animations/ScrollReveal";
 import SlideReveal from "@/components/animations/SlideReveal";
 import TiltCard from "@/components/animations/TiltCard";
 import VelocitySkew from "@/components/animations/VelocitySkew";
-import BrandMarquee from "@/components/sections/BrandMarquee";
 import Testimonials from "@/components/sections/Testimonials";
 import SectionHeading from "@/components/ui/SectionHeading";
 import SemicircleField from "@/components/ui/SemicircleField";
@@ -297,7 +296,6 @@ export default function AboutPage() {
         </VelocitySkew>
       </section>
 
-      <BrandMarquee />
       <Testimonials />
       <EnquiryCTA />
     </div>

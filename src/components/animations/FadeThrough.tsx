@@ -32,6 +32,10 @@ interface Props {
   start?: string;
   /** Where the element's bottom is when it has finished leaving. */
   end?: string;
+  /** Scale while faded out (1 = no scaling). */
+  scale?: number;
+  /** px of blur while faded out (0 = none; filters cost, use on a few blocks). */
+  blur?: number;
 }
 
 export default function FadeThrough({
@@ -40,6 +44,8 @@ export default function FadeThrough({
   rise = 56,
   start = "top 92%",
   end = "bottom 12%",
+  scale = 1,
+  blur = 0,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
@@ -52,23 +58,27 @@ export default function FadeThrough({
         const tl = gsap.timeline({
           scrollTrigger: { trigger: el, start, end, scrub: 1 },
         });
+        // filter is only written when a blur is asked for — a `filter` on the
+        // element, even blur(0), makes it a stacking context and costs paint.
+        const out = blur > 0 ? { filter: `blur(${blur}px)` } : {};
+        const inn = blur > 0 ? { filter: "blur(0px)" } : {};
         tl.fromTo(
           el,
-          { opacity: 0, y: rise },
-          { opacity: 1, y: 0, ease: "power2.out", duration: 1 },
+          { opacity: 0, y: rise, scale, ...out },
+          { opacity: 1, y: 0, scale: 1, ...inn, ease: "power2.out", duration: 1 },
         )
           // held: the middle half of the passage is the part you actually read
-          .to(el, { opacity: 1, y: 0, duration: 2 })
-          .to(el, { opacity: 0, y: -rise, ease: "power2.in", duration: 1 });
+          .to(el, { opacity: 1, y: 0, scale: 1, ...inn, duration: 2 })
+          .to(el, { opacity: 0, y: -rise, scale, ...out, ease: "power2.in", duration: 1 });
         return () => {
           tl.scrollTrigger?.kill();
           tl.kill();
-          gsap.set(el, { clearProps: "opacity,transform" });
+          gsap.set(el, { clearProps: "opacity,transform,filter" });
         };
       });
     }, el);
     return () => ctx.revert();
-  }, [rise, start, end]);
+  }, [rise, start, end, scale, blur]);
 
   return (
     <div ref={ref} className={className}>
