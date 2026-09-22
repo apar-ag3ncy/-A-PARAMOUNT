@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
-import ScrollReveal from "@/components/animations/ScrollReveal";
-import TiltCard from "@/components/animations/TiltCard";
-import Parallax from "@/components/animations/Parallax";
-import VelocitySkew from "@/components/animations/VelocitySkew";
 import WhyChooseUs from "@/components/sections/WhyChooseUs";
 import PageHeader from "@/components/ui/PageHeader";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
 import SectionHeading from "@/components/ui/SectionHeading";
+import StagesScrolly, { type Stage } from "@/components/sections/StagesScrolly";
 
 export const metadata: Metadata = {
   title: "Craftsmanship",
@@ -18,8 +14,9 @@ export const metadata: Metadata = {
 // The client's four stages, in their words. Each photo is an in-situ GALLERY
 // shot chosen to READ AS its stage — a designed ceiling, the carving itself, a
 // polished finish, an installed sanctum. Gallery photography may be cropped to
-// the 4:5 card; the white-ground studio cut-outs must not be (client mandate).
-const STEPS: { n: string; title: string; body: string; img: string; alt: string }[] = [
+// the full-height stage; the white-ground studio cut-outs must not be (client
+// mandate).
+const STEPS: Stage[] = [
   {
     n: "01",
     title: "Design Development",
@@ -64,75 +61,22 @@ export default function CraftsmanshipPage() {
         <WhyChooseUs />
       </div>
 
-      {/* The four stages as ONE row of cards (2×2 on tablet, stacked on phones):
-          a 4:5 photograph in the /products collections frame, then the stage
-          name and the client's paragraph on the cream beneath it. It used to be
-          four alternating two-column screens, each one photo beside one short
-          paragraph — at 46vh a card, the section was mostly empty cream and the
-          client asked for it to be tighter. Cards reveal in a short stagger. */}
-      <div className="mx-auto max-w-7xl px-6 py-12 sm:py-16">
+      {/* The four stages, one full screen each: the heading scrolls up and
+          away, then the sticky stage takes the viewport and the page scrolls
+          through the four (StagesScrolly). This replaced a 4-up card grid,
+          which had replaced four alternating two-column screens — the client
+          wanted one stage per page, scrolled through, with the motion doing
+          the storytelling. */}
+      <div className="mx-auto max-w-7xl px-6 pt-12 pb-10 sm:pt-16 sm:pb-12">
         <SectionHeading
           eyebrow="The Making"
           title="Four stages of sanctum"
           align="left"
-          className="mb-8 max-w-2xl sm:mb-10"
+          className="max-w-2xl"
         />
-        <VelocitySkew>
-        <ol className="grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-x-7">
-          {STEPS.map((s, i) => (
-            <li key={s.n} className="group/card">
-              <ScrollReveal delay={i * 0.12}>
-                <TiltCard className="rounded-[1.25rem]">
-                <div
-                  className="rounded-[1.25rem] p-px shadow-[0_24px_54px_-40px_rgba(46,35,19,0.5)] transition-shadow duration-500 group-hover/card:shadow-[0_34px_70px_-36px_rgba(46,35,19,0.66)]"
-                  style={{
-                    background:
-                      "linear-gradient(150deg, #897E49 0%, rgba(137,126,73,0.35) 38%, rgba(124,113,68,0.55) 72%, #7C7144 100%)",
-                  }}
-                >
-                  <div
-                    className="relative aspect-[4/5] overflow-hidden rounded-[calc(1.25rem-1px)]"
-                    style={{ background: "#2A2416" }}
-                  >
-                    <Parallax className="absolute inset-0" speed={0.16}>
-                      <Image
-                        src={s.img}
-                        alt={s.alt}
-                        fill
-                        sizes="(min-width:1024px) 23vw, (min-width:640px) 46vw, 100vw"
-                        className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover/card:scale-[1.06] motion-reduce:group-hover/card:scale-100"
-                      />
-                    </Parallax>
-                    {/* a top scrim, or the index vanishes into the pale marble */}
-                    <div
-                      aria-hidden
-                      className="pointer-events-none absolute inset-x-0 top-0 h-24"
-                      style={{
-                        background:
-                          "linear-gradient(to bottom, rgba(38,33,18,0.58) 0%, rgba(44,38,20,0.24) 50%, transparent 100%)",
-                      }}
-                    />
-                    <span className="pm-micro absolute top-5 left-5 font-body tabular-nums tracking-[0.24em] text-gold">
-                      {s.n}
-                    </span>
-                    <span className="pm-micro absolute top-5 right-5 font-body text-cream/85">
-                      Stage {i + 1} of {STEPS.length}
-                    </span>
-                  </div>
-                </div>
-                </TiltCard>
-
-                {/* the stage name heads its own paragraph, as in the client's brief */}
-                <div className="mt-5 border-t border-olive/20 pt-4">
-                  <h3 className="pm-h3 font-display text-heading-brown">{s.title}</h3>
-                  <p className="pm-small mt-3 font-body text-maroon/80">{s.body}</p>
-                </div>
-              </ScrollReveal>
-            </li>
-          ))}
-        </ol>
-        </VelocitySkew>
       </div>
+      <StagesScrolly stages={STEPS} />
+
       <EnquiryCTA />
     </div>
   );
