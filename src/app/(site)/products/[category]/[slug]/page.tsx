@@ -156,13 +156,13 @@ export default async function ProductPage({
                 key={s.label}
                 className="relative flex flex-col items-center justify-center p-4 sm:p-5 text-center"
               >
-                <span className="font-display tabular-nums tracking-[0.22em] text-gold/80 text-[10px] sm:text-[11px] text-center block mb-0.5 font-medium">
+                <span className="pm-micro mb-0.5 block text-center font-display tabular-nums text-gold/80">
                   {String(idx + 1).padStart(2, "0")}
                 </span>
-                <dt className="font-display tracking-[0.2em] text-gold text-[11px] sm:text-xs uppercase text-center font-medium">
+                <dt className="pm-micro text-center font-display text-gold">
                   {s.label}
                 </dt>
-                <dd className="font-body text-xs sm:text-sm font-medium text-cream/95 mt-1.5 tracking-normal text-center leading-snug max-w-[15rem] mx-auto">
+                <dd className="pm-small mx-auto mt-1.5 max-w-[15rem] text-center font-body font-medium text-cream/95">
                   {typeof s.value === "string" && s.value.includes(" \n ") ? (
                     <span className="block space-y-0.5">
                       {s.value.split(" \n ").map((line) => (

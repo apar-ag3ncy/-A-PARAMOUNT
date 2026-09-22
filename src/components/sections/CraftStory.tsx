@@ -40,12 +40,12 @@ export default function CraftStory() {
         <FadeThrough rise={32} blur={6} className="lg:col-span-7 flex flex-col justify-center">
           <span className="inline-flex items-center gap-2.5 rounded-full border border-olive/25 bg-olive/10 px-4 py-1.5 backdrop-blur-sm mb-5 w-fit">
             <span className="size-1.5 rounded-full bg-gold" />
-            <span className="font-display text-xs font-semibold tracking-[0.2em] text-olive-deep uppercase">
+            <span className="pm-label font-display text-olive-deep">
               The Craft &amp; Heritage
             </span>
           </span>
 
-          <h2 className="font-display text-3xl sm:text-4xl lg:text-[2.85rem] font-light text-heading-brown leading-[1.15]">
+          <h2 className="pm-h2 font-display text-heading-brown">
             Engineering Expertise, <br className="hidden sm:inline" />
             <span className="font-normal italic text-olive-deep">Met with Sacred Artistry</span>
           </h2>
@@ -56,7 +56,7 @@ export default function CraftStory() {
             <p className="pm-lead">
               For three generations and over fifty years, every piece has been handcrafted to order.
             </p>
-            <p className="text-sm sm:text-base text-maroon/75">
+            <p className="pm-body text-maroon/75">
               It is the rare combination of engineering precision and sacred artistry that lets us fulfill every temple requirement under one roof, guided by canonical Shastra proportions.
             </p>
           </div>

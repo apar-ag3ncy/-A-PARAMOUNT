@@ -39,7 +39,7 @@ export default function Footer() {
         </Link>
 
         {/* Tagline */}
-        <p className="mt-6 font-display text-[13.5px] sm:text-[14px] tracking-[0.2em] uppercase text-cream/90 text-center">
+        <p className="mt-6 pm-label font-display text-cream/90 text-center">
           {SITE.tagline} · Since {SITE.since}
         </p>
 
@@ -49,12 +49,12 @@ export default function Footer() {
         <div className="grid w-full gap-x-8 sm:gap-x-12 gap-y-10 grid-cols-1 md:grid-cols-3 items-start justify-between">
           {/* Column 1: Extreme Left */}
           <div className="flex flex-col items-center md:items-start text-center md:text-left">
-            <h2 className="font-display text-[13px] sm:text-[13.5px] tracking-[0.22em] uppercase text-cream/70">
+            <h2 className="pm-label font-display text-cream/70">
               Address
             </h2>
             <ul className="mt-4 space-y-2.5">
               {CONTACT.addresses.map((line) => (
-                <li key={line} className="font-body text-[14.5px] sm:text-[15px] leading-relaxed text-cream/90">
+                <li key={line} className="pm-small font-body text-cream/90">
                   {line}
                 </li>
               ))}
@@ -63,7 +63,7 @@ export default function Footer() {
 
           {/* Column 2: Exact Mid Center */}
           <div className="flex flex-col items-center text-center">
-            <h2 className="font-display text-[13px] sm:text-[13.5px] tracking-[0.22em] uppercase text-cream/70 text-center">
+            <h2 className="pm-label font-display text-cream/70 text-center">
               Reach us
             </h2>
             <ul className="mt-4 space-y-2.5 text-center">
@@ -71,22 +71,22 @@ export default function Footer() {
                 <li key={email}>
                   <a
                     href={`mailto:${email}`}
-                    className="font-body text-[14.5px] sm:text-[15px] text-cream/90 transition-colors hover:text-gold text-center block"
+                    className="pm-small font-body text-cream/90 transition-colors hover:text-gold text-center block"
                   >
                     {email}
                   </a>
                 </li>
               ))}
-              <li className="font-body text-[14.5px] sm:text-[15px] text-cream/90 text-center">
+              <li className="pm-small font-body text-cream/90 text-center">
                 Facebook / Instagram
-                <span className="mt-1 block text-cream/75 text-[13.5px] text-center">{CONTACT.social}</span>
+                <span className="mt-1 pm-small block text-cream/75 text-center">{CONTACT.social}</span>
               </li>
             </ul>
           </div>
 
           {/* Column 3: Extreme Right */}
           <div className="flex flex-col items-center md:items-end text-center md:text-right">
-            <h2 className="font-display text-[13px] sm:text-[13.5px] tracking-[0.22em] uppercase text-cream/70">
+            <h2 className="pm-label font-display text-cream/70">
               Speak to us
             </h2>
             <ul className="mt-4 space-y-2.5">
@@ -100,7 +100,7 @@ export default function Footer() {
                 ].map((phone) => (
                   <li
                     key={phone}
-                    className="font-body text-[14.5px] sm:text-[15px] whitespace-nowrap text-cream/90"
+                    className="pm-small font-body whitespace-nowrap text-cream/90"
                   >
                     {person.title} {person.name}
                     {" · "}
@@ -120,7 +120,7 @@ export default function Footer() {
         {/* CTA Link */}
         <Link
           href="/contact"
-          className="mt-12 inline-flex items-center justify-center font-display text-[13.5px] sm:text-[14px] tracking-[0.22em] uppercase text-cream transition-colors hover:text-gold text-center"
+          className="mt-12 inline-flex items-center justify-center pm-label font-display text-cream transition-colors hover:text-gold text-center"
           style={{ textShadow: "0 1px 3px rgba(0, 0, 0, 0.6)" }}
         >
           Let&apos;s Connect Today

@@ -17,7 +17,7 @@ export default function ContactPage() {
         {/* Page Header */}
         <header className="max-w-2xl">
           <span className="inline-flex items-center rounded-full bg-olive/15 px-4 py-1.5 ring-1 ring-olive/20 backdrop-blur-sm mb-4">
-            <span className="font-display text-xs font-semibold tracking-[0.2em] text-maroon uppercase">
+            <span className="pm-label font-display text-maroon">
               Sacred Architecture · Direct Enquiry
             </span>
           </span>
@@ -52,7 +52,7 @@ export default function ContactPage() {
                 <span className="pm-label font-display text-gold tracking-[0.2em] block mb-1 opacity-90">
                   SANCTUM ENQUIRY
                 </span>
-                <h2 className="font-display text-2xl sm:text-3xl text-cream font-medium">
+                <h2 className="pm-h2 font-display text-cream">
                   Tell us about your vision
                 </h2>
               </div>
@@ -81,7 +81,7 @@ export default function ContactPage() {
                   Workshops
                 </h2>
               </div>
-              <div className="space-y-4 font-body text-cream/95 text-sm leading-relaxed">
+              <div className="pm-small space-y-4 font-body text-cream/95">
                 {CONTACT.addresses.map((a) => (
                   <div key={a} className="flex gap-3">
                     <span className="mt-1.5 flex size-2 shrink-0 rounded-full bg-gold" />
@@ -105,7 +105,7 @@ export default function ContactPage() {
               </div>
               <a
                 href={`mailto:${CONTACT.email}`}
-                className="inline-flex items-center gap-2 rounded-xl bg-cream/15 border border-gold/40 px-4 py-2.5 text-sm font-body text-cream hover:bg-cream hover:text-espresso transition-all duration-300 font-medium"
+                className="inline-flex items-center gap-2 rounded-xl bg-cream/15 border border-gold/40 pm-small px-4 py-2.5 font-body text-cream hover:bg-cream hover:text-espresso transition-all duration-300 font-medium"
               >
                 <span>{CONTACT.email}</span>
                 <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -131,11 +131,11 @@ export default function ContactPage() {
               </div>
               <ul className="space-y-3 font-body">
                 {CONTACT.people.map((p) => (
-                  <li key={p.phone} className="flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <li key={p.phone} className="pm-small flex flex-wrap items-center justify-between gap-2">
                     <span className="text-cream/95 font-medium">{p.name}</span>
                     <a
                       href={`tel:${p.phone.replace(/\s+/g, "")}`}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-gold/40 bg-cream/15 px-3 py-1 text-xs font-mono text-gold hover:bg-cream hover:text-espresso transition-all duration-300"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-gold/40 bg-cream/15 pm-small px-3 py-1 font-mono text-gold hover:bg-cream hover:text-espresso transition-all duration-300"
                     >
                       {p.phone}
                     </a>

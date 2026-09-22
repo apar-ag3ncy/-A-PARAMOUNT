@@ -94,7 +94,7 @@ export default function Testimonials() {
             <span className="pm-eyebrow font-display text-gold tracking-[0.28em] block mb-3 opacity-90">
               TESTIMONIALS
             </span>
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-cream tracking-tight font-medium">
+            <h2 className="pm-h2 font-display text-cream">
               What patrons say
             </h2>
             <p className="pm-body mt-4 font-body text-cream/75 leading-relaxed">
@@ -136,7 +136,7 @@ export default function Testimonials() {
                   </div>
 
                   {/* Quote Body on Pure Dark Olive Velvet Ground */}
-                  <p className="pm-body font-body text-cream/95 text-sm sm:text-base leading-relaxed italic font-normal my-auto">
+                  <p className="pm-body my-auto font-body text-cream/95 italic">
                     “{t.quote}”
                   </p>
                 </div>

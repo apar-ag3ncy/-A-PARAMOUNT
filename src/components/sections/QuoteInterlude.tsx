@@ -17,10 +17,10 @@ export default function QuoteInterlude() {
         <div className="px-6 py-20 text-center sm:px-12 lg:py-28 lg:pl-[max(3rem,calc((100vw-72rem)/2))] lg:text-left">
           <ScrollReveal>
             <ScrubWords as="blockquote" className="mx-auto max-w-xl lg:mx-0">
-              <p className="font-display text-2xl sm:text-3xl lg:text-[2.45rem] font-light leading-[1.2] text-heading-brown">
+              <p className="pm-display font-display text-heading-brown">
                 Shaped by devotion,
               </p>
-              <p className="font-display text-2xl sm:text-3xl lg:text-[2.45rem] font-light leading-[1.2] text-heading-brown mt-3">
+              <p className="pm-display mt-3 font-display text-heading-brown">
                 Destined to inspire generations.
               </p>
             </ScrubWords>
