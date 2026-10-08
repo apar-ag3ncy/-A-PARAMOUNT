@@ -41,7 +41,7 @@ export default function ScrubWords({
             opacity: 1,
             stagger: 0.12,
             ease: "none",
-            scrollTrigger: { trigger: el, start, end, scrub: 0.6 },
+            scrollTrigger: { trigger: el, start, end, scrub: 0.2 },
           },
         );
         return () => split?.revert();

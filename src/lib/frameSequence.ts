@@ -146,6 +146,7 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
   let cursor = 0;
   let inFlight = 0;
   let disposed = false;
+  const abort = new AbortController();
   let started = false;
   let landed = 0;
 
@@ -174,7 +175,9 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
     try {
       // Off-thread decode: scrolling and dragging never stutter. Optionally
       // downscale to decodeWidth so the store stays light and draws stay cheap.
-      const blob = await (await fetch(src(i))).blob();
+      const response = await fetch(src(i), { signal: abort.signal });
+      if (!response.ok) return;
+      const blob = await response.blob();
       frames[i] = decodeWidth
         ? await createImageBitmap(blob, {
             resizeWidth: decodeWidth,
@@ -182,6 +185,7 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
           })
         : await createImageBitmap(blob);
     } catch {
+      if (disposed) return;
       try {
         const img = new window.Image();
         img.decoding = "async";
@@ -192,7 +196,13 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
         return; // missing frame — nearest() covers the gap
       }
     }
-    if (disposed || !frames[i]) return;
+    if (disposed) {
+      const frame = frames[i];
+      if (frame && "close" in frame) frame.close();
+      frames[i] = null;
+      return;
+    }
+    if (!frames[i]) return;
     resident++;
     onFrame?.(i, landed++ === 0);
   };
@@ -275,6 +285,7 @@ export function createFrameSequence(opts: FrameSequenceOptions): FrameSequence {
     },
     dispose: () => {
       disposed = true;
+      abort.abort();
       queue.length = cursor = 0;
       // ImageBitmaps hold GPU-side memory the GC will not reclaim on its own.
       for (let i = 0; i < frames.length; i++) {

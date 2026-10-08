@@ -22,7 +22,7 @@ export default function ScrollProgress() {
         gsap.fromTo(
           el,
           { scaleX: 0 },
-          { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: 0.4 } },
+          { scaleX: 1, ease: "none", scrollTrigger: { start: 0, end: "max", scrub: true } },
         );
       });
     });

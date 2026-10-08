@@ -132,7 +132,6 @@ const FILM_MOBILE = "/door/film-960.mp4"; // 960w, all-intra
 const FILM_MOBILE_MAX_W = 820;
 const POSTER = "/door/door-open-poster.jpg";
 const CEIL_POSTER = "/door/ceiling-poster.jpg"; // reduced-motion fallback backdrop
-const GOLD = "var(--color-gold)";
 
 // The whole film (doors → walk-in → ceiling crane) scrubs across P 0→FILM_END;
 // past it the settled ceiling frame HOLDS while the brand resolves on it, then
@@ -258,11 +257,7 @@ const GLOBAL_BRAND_DONE = B.brandDone;
 
 const BLUR_PX = 5;
 const WASH_MAX = 0.42;
-const TAU_MS = 150; // the glide's time constant — the "sticky" weight. Raised from
-//                     115 once the film became frame-perfect: the old draggy feel
-//                     came from VIDEO seek latency stacking on top of this, not
-//                     from the glide. With sub-frame blending the extra weight now
-//                     reads as a camera settling, not as lag.
+const TAU_MS = 45; // brief film catch-up; Lenis already smooths page movement.
 
 const MASK_STYLE: React.CSSProperties = {
   WebkitMaskImage: "url(/brand/a-mark-white.png)",
@@ -351,19 +346,23 @@ export default function HomeFilm() {
     window.addEventListener("resize", resize);
     let raf = 0;
     let running = false;
+    let inView = false;
+    let previousTime = 0;
     let t = 0;
-    const tick = () => {
+    const tick = (now: number) => {
+      const elapsed = previousTime ? Math.min(now - previousTime, 50) : 16.67;
+      previousTime = now;
       // While the film is scrubbing, HOLD the dust (its last frame stays painted)
       // so the whole frame budget goes to the scrub + text; resume when settled.
       if (performance.now() - scrollActive.current < 140) {
         raf = requestAnimationFrame(tick);
         return;
       }
-      t += 0.016;
+      t += elapsed / 1000;
       ctx.clearRect(0, 0, w, h);
       for (const m of motes) {
-        m.y -= m.vy;
-        m.x += Math.sin((t + m.p) * 0.4) * 0.2;
+        m.y -= m.vy * elapsed / 16.67;
+        m.x += Math.sin((t + m.p) * 0.4) * 0.2 * elapsed / 16.67;
         if (m.y < -m.s) {
           m.y = h + m.s;
           m.x = Math.random() * w;
@@ -375,15 +374,19 @@ export default function HomeFilm() {
       raf = requestAnimationFrame(tick);
     };
     const start = () => {
-      if (running || document.hidden) return;
+      if (running || !inView || document.hidden) return;
       running = true;
       raf = requestAnimationFrame(tick);
     };
     const stop = () => {
       running = false;
+      previousTime = 0;
       cancelAnimationFrame(raf);
     };
-    const io = new IntersectionObserver(([e]) => (e.isIntersecting ? start() : stop()), {
+    const io = new IntersectionObserver(([e]) => {
+      inView = e.isIntersecting;
+      if (inView) start(); else stop();
+    }, {
       threshold: 0,
     });
     io.observe(cv);
@@ -516,7 +519,6 @@ export default function HomeFilm() {
       if (bloomEl) gsap.set(bloomEl, { transformOrigin: "50% 50%" });
       if (brandveilEl) gsap.set(brandveilEl, { transformOrigin: "50% 50%" });
 
-      const easeIn = gsap.parseEase("power1.in");
       const rise = (el: HTMLElement | null, v: number, from = 26) => {
         if (el) gsap.set(el, { opacity: v, y: from * (1 - v) });
       };
@@ -602,14 +604,19 @@ export default function HomeFilm() {
           });
         // squared so the flat fill lags the disc and only closes at the very end
         if (sheetEl) gsap.set(sheetEl, { opacity: grow2 * grow2 });
-        if (raysEl) gsap.set(raysEl, { opacity: 0.18 * brandInP * (1 - grow1) });
+        if (raysEl) gsap.set(raysEl, {
+          opacity: 0.22 * brandInP * (1 - grow1),
+          rotation: -3 + 6 * brandInP,
+          scale: 1 + 0.04 * brandInP,
+        });
+        if (motesCv.current) gsap.set(motesCv.current, { opacity: 1 - works });
 
         const m = easeOut(seg(P, B.markIn, B.markLen));
         if (markEl)
           gsap.set(markEl, {
             opacity: m,
             scale: 1.16 - 0.16 * m,
-            filter: `blur(${(18 * (1 - m)).toFixed(2)}px)`,
+            filter: m > 0.995 ? "none" : `blur(${(4 * (1 - m)).toFixed(2)}px)`,
           });
         rise(wordEl, easeOut(seg(P, B.wordIn, B.wordLen)));
         rise(divEl, easeOut(seg(P, B.divIn, B.divLen)), 16);
@@ -747,8 +754,10 @@ export default function HomeFilm() {
             anticipatePin: 1,
             invalidateOnRefresh: true,
             onUpdate(self) {
-              targetP = self.progress;
-              kick();
+              // Lenis already eases desktop scroll; a second lerp adds latency.
+              scrollActive.current = performance.now();
+              targetP = renderedP = self.progress;
+              apply(renderedP);
             },
             onRefresh(self) {
               targetP = renderedP = self.progress;
@@ -787,13 +796,8 @@ export default function HomeFilm() {
   return (
     <section
       ref={root}
-      // ONE pinned span for the WHOLE film — doors → walk-in → ceiling → brand →
-      // works. The span sets how much scroll each film-second costs, i.e. the
-      // slow-mo: more span = the camera moves less per notch of wheel. Widened
-      // again for the cinema pass; sub-frame blending is what lets it go this slow
-      // without the frames stepping. Lenis' lerp + the TAU_MS glide supply the
-      // weight on top. FILM_END splits scrub from hold; ScrollTrigger reads this.
-      className="hf relative bg-cream h-[900svh] md:h-[1050svh] lg:h-[1200svh]"
+      // Keep the complete film sequence with less scroll travel between beats.
+      className="hf relative bg-cream h-[650svh] md:h-[750svh] lg:h-[850svh]"
     >
       {/* 100lvh, NOT 100svh. On a phone the page loads with the URL bar showing
           (viewport == svh) but the bar RETRACTS the moment you scroll — which is
@@ -919,7 +923,7 @@ export default function HomeFilm() {
             — same reason: it lit the whole centre of the frame to near-white. */}
         <div className="pointer-events-none absolute inset-0 z-[11] grid place-items-center overflow-hidden" aria-hidden>
           <div
-            className="hv-rays h-[120vmax] w-[120vmax] opacity-0 will-change-[opacity]"
+            className="hv-rays h-[120vmax] w-[120vmax] opacity-0 will-change-transform"
             style={{
               background:
                 "repeating-conic-gradient(from 0deg at 50% 50%, rgb(var(--gold-rgb) / 0) 0deg, rgb(var(--gold-rgb) / 0.10) 3deg, rgb(var(--gold-rgb) / 0) 8deg, rgb(var(--gold-rgb) / 0) 14deg)",

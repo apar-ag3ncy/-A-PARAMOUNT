@@ -73,7 +73,7 @@ export default function StagesScrolly({ stages }: { stages: Stage[] }) {
             trigger: el,
             start: "top top",
             end: "bottom bottom",
-            scrub: 0.6,
+            scrub: 0.3,
             onUpdate: (self) => {
               if (!counter) return;
               const unit = self.progress * n;

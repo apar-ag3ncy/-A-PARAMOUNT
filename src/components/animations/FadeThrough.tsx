@@ -4,25 +4,7 @@ import { useRef, type ReactNode } from "react";
 import { gsap } from "@/lib/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 
-/**
- * FadeThrough — content resolves as it rises INTO the frame and dissolves as it
- * rises OUT of it. One continuous move up across the whole passage, with the
- * opacity carried in at the start and out at the end, so a column of these reads
- * as a slow procession rather than a series of arrivals.
- *
- * WHY THIS AND NOT `SlideReveal`. The craftsmanship steps used SlideReveal, which
- * throws each half in from its own side ("a left-to-right roll") and leaves it
- * there. The client asked for the elegant version: rise and fade in, then fade
- * out on the way past. SlideReveal is still correct where a row should ASSEMBLE
- * from two sides (the /about spread), so it stays.
- *
- * ONE timeline, not two triggers. An in-tween and a separate out-tween both
- * writing opacity/y to the same element race whenever their ranges touch, which
- * they do on any element shorter than the gap between their start points. A
- * single scrubbed timeline makes the three beats strictly sequential and gives
- * them fixed proportions of the passage: a quarter to arrive, half held legible,
- * a quarter to leave.
- */
+/** A reversible fade with a generous reading interval and short, soft edges. */
 interface Props {
   children: ReactNode;
   className?: string;
@@ -41,9 +23,9 @@ interface Props {
 export default function FadeThrough({
   children,
   className,
-  rise = 56,
+  rise = 32,
   start = "top 92%",
-  end = "bottom 12%",
+  end = "bottom 0%",
   scale = 1,
   blur = 0,
 }: Props) {
@@ -55,8 +37,11 @@ export default function FadeThrough({
     const ctx = gsap.context(() => {
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
+        // Above-the-fold copy must be readable before the first scroll.
+        const bounds = el.getBoundingClientRect();
+        const startsVisible = bounds.top < window.innerHeight * 0.75 && bounds.bottom > 0;
         const tl = gsap.timeline({
-          scrollTrigger: { trigger: el, start, end, scrub: 1 },
+          scrollTrigger: { trigger: el, start: `clamp(${start})`, end, scrub: 0.25 },
         });
         // filter is only written when a blur is asked for — a `filter` on the
         // element, even blur(0), makes it a stacking context and costs paint.
@@ -64,11 +49,13 @@ export default function FadeThrough({
         const inn = blur > 0 ? { filter: "blur(0px)" } : {};
         tl.fromTo(
           el,
-          { opacity: 0, y: rise, scale, ...out },
+          startsVisible
+            ? { opacity: 1, y: 0, scale: 1, ...inn }
+            : { opacity: 0, y: rise, scale, ...out },
           { opacity: 1, y: 0, scale: 1, ...inn, ease: "power2.out", duration: 1 },
         )
-          // held: the middle half of the passage is the part you actually read
-          .to(el, { opacity: 1, y: 0, scale: 1, ...inn, duration: 2 })
+          // Hold at full opacity through most of the viewport for comfortable reading.
+          .to(el, { opacity: 1, y: 0, scale: 1, ...inn, duration: 3.5 })
           .to(el, { opacity: 0, y: -rise, scale, ...out, ease: "power2.in", duration: 1 });
         return () => {
           tl.scrollTrigger?.kill();

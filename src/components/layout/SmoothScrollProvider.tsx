@@ -37,13 +37,9 @@ export default function SmoothScrollProvider({
     if (reduce) return; // native, instant scroll — no smoothing at all
 
     const lenis = new Lenis({
-      // Tuned for the home film's "watching cinema" feel: a heavier, longer glide
-      // that keeps drifting after the hand stops, so the picture settles instead
-      // of halting. Lower lerp = the page takes longer to catch up to the target
-      // (stickier); lower wheelMultiplier = each notch travels less (slow-mo).
-      // These two plus HomeFilm's TAU_MS are the three knobs for that feel.
-      lerp: 0.075, // exponential catch-up per frame — the buttery glide
-      wheelMultiplier: 0.72, // each wheel notch travels less — calm, unhurried
+      // Short catch-up keeps trackpads responsive while softening wheel steps.
+      lerp: 0.14,
+      wheelMultiplier: 1,
       smoothWheel: true,
       syncTouch: false, // phones keep native compositor scrolling
     });

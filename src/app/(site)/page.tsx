@@ -4,8 +4,6 @@ import QuoteInterlude from "@/components/sections/QuoteInterlude";
 import EnquiryCTA from "@/components/sections/EnquiryCTA";
 import Showcase3D from "@/components/products/Showcase3D";
 import Testimonials from "@/components/sections/Testimonials";
-import ScrollReveal from "@/components/animations/ScrollReveal";
-import SectionHeading from "@/components/ui/SectionHeading";
 
 export default function Home() {
   return (
@@ -23,11 +21,8 @@ export default function Home() {
       <QuoteInterlude />
 
       {/* Interactive section */}
-      <section className="mx-auto max-w-6xl px-6 pt-16 pb-8 text-center sm:pt-24 sm:pb-10">
-        <ScrollReveal className="mb-12 flex justify-center">
-          <SectionHeading eyebrow="Interactive" title="Turn it in your hands" />
-        </ScrollReveal>
-        <Showcase3D label="Silver Kalash" />
+      <section aria-label="Silver Kalash showcase" className="mx-auto max-w-6xl px-6 pt-16 pb-8 text-center sm:pt-24 sm:pb-10">
+        <Showcase3D />
       </section>
 
       {/* 3 Static Testimonials under interactive section */}

@@ -34,21 +34,24 @@ export default function Reveal({
   useIsomorphicLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const ctx = gsap.context(() => {
-      const targets = stagger != null ? Array.from(el.children) : el;
-      gsap.from(targets, {
-        opacity: 0,
-        y,
-        duration: 0.7,
-        ease: "power2.out",
-        delay,
-        ...(stagger != null ? { stagger } : {}),
-        scrollTrigger: { trigger: el, start, once: true },
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const targets = stagger != null ? Array.from(el.children) : el;
+        gsap.from(targets, {
+          opacity: 0,
+          y,
+          duration: 0.9,
+          ease: "power3.out",
+          delay,
+          ...(stagger != null ? { stagger } : {}),
+          scrollTrigger: { trigger: el, start: `clamp(${start})`, toggleActions: "play none none reverse" },
+        });
       });
     }, el);
     return () => ctx.revert();
-  }, []);
+  }, [delay, y, stagger, start]);
 
   return (
     <div ref={ref} className={className}>

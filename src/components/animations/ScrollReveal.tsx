@@ -12,12 +12,12 @@ interface Props {
   start?: string;
 }
 
-/** Fade-up on scroll (opacity 0->1, y->0). Reduced-motion: instant. */
+/** Soft arrival; reverse only after scrolling back above the section. */
 export default function ScrollReveal({
   children,
   className,
   delay = 0,
-  y = 44,
+  y = 28,
   start = "top 88%",
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
@@ -30,15 +30,15 @@ export default function ScrollReveal({
         gsap.from(el, {
           opacity: 0,
           y,
-          duration: 1.5,
-          ease: "power2.out",
+          duration: 0.95,
+          ease: "power3.out",
           delay,
-          scrollTrigger: { trigger: el, start, once: true },
+          scrollTrigger: { trigger: el, start: `clamp(${start})`, toggleActions: "play none none reverse" },
         });
       });
     }, el);
     return () => ctx.revert();
-  }, []);
+  }, [delay, y, start]);
   return (
     <div ref={ref} className={className}>
       {children}
