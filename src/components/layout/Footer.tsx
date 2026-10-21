@@ -90,22 +90,20 @@ export default function Footer() {
               Speak to us
             </h2>
             <ul className="mt-4 space-y-2.5">
-              {/* One line per NUMBER, each carrying its person's name, so a
-                  second number reads as its own dialable line directly under
-                  the first rather than as a bare number with no one to ask for. */}
+              {/* Keep alternate numbers on their own aligned line without repeating the name. */}
               {CONTACT.people.flatMap((person) =>
                 [
                   person.phone,
                   ...("altPhones" in person ? person.altPhones : []),
-                ].map((phone) => (
+                ].map((phone, index) => (
                   <li
                     key={phone}
                     className="pm-small font-body whitespace-nowrap text-cream/90"
                   >
-                    {person.title} {person.name}
-                    {" · "}
+                    {index === 0 ? `${person.title} ${person.name} · ` : "/ "}
                     <a
                       href={`tel:${phone.replace(/\s/g, "")}`}
+                      aria-label={index > 0 ? `${person.title} ${person.name}: ${phone}` : undefined}
                       className="tabular-nums transition-colors hover:text-gold"
                     >
                       {phone}
