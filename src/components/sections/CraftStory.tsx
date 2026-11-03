@@ -6,7 +6,7 @@ import Button from "@/components/ui/Button";
 
 /**
  * Pure, clean editorial craftsmanship section:
- * Arch-framed Saraswati murti hero (clean, zero floating overlays)
+ * Arch-framed temple ceiling photograph
  * with refined typography and primary action CTA.
  *
  * Motion: both halves FADE THROUGH — they resolve out of a soft blur as they
@@ -23,8 +23,8 @@ export default function CraftStory() {
           <div className="relative aspect-[3/4] w-full max-w-md overflow-hidden rounded-t-[14rem] rounded-b-[2rem] border border-gold/40 bg-cream shadow-[0_20px_60px_-15px_rgba(46,35,19,0.22)] group">
             <Parallax className="absolute inset-0" speed={0.14}>
             <Image
-              src="/products/wooden-carved-murti.webp"
-              alt="Handcrafted carved wooden Saraswati murti"
+              src="/craft/carved-temple-ceiling.jpg"
+              alt="Carved wooden temple ceiling above white marble arches"
               fill
               className="object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
               sizes="(min-width: 1024px) 40vw, 90vw"

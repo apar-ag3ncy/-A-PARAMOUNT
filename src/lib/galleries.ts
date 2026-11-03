@@ -635,27 +635,12 @@ export const GALLERIES: Record<string, ProductGallery> = {
             "h": 1086
           },
           {
-            "src": "/gallery/bhandar/brass-copper-bhandar/03.webp",
-            "w": 1448,
-            "h": 1086
-          },
-          {
             "src": "/gallery/bhandar/brass-copper-bhandar/04.webp",
             "w": 1448,
             "h": 1086
           },
           {
             "src": "/gallery/bhandar/brass-copper-bhandar/05.webp",
-            "w": 1448,
-            "h": 1086
-          },
-          {
-            "src": "/gallery/bhandar/brass-copper-bhandar/06.webp",
-            "w": 1448,
-            "h": 1086
-          },
-          {
-            "src": "/gallery/bhandar/brass-copper-bhandar/07.webp",
             "w": 1448,
             "h": 1086
           },
@@ -726,11 +711,6 @@ export const GALLERIES: Record<string, ProductGallery> = {
             "h": 1600
           },
           {
-            "src": "/gallery/bhandar/patra/05.webp",
-            "w": 1600,
-            "h": 1600
-          },
-          {
             "src": "/gallery/bhandar/patra/06.webp",
             "w": 1600,
             "h": 1600
@@ -783,7 +763,7 @@ export const GALLERIES: Record<string, ProductGallery> = {
         ]
       }
     ],
-    "count": 28
+    "count": 24
   },
   "brass-bell": {
     "groups": [
@@ -1250,11 +1230,6 @@ export const GALLERIES: Record<string, ProductGallery> = {
         "label": "Diamond",
         "icon": "diamond",
         "images": [
-          {
-            "src": "/gallery/doors/diamond-door/00.webp",
-            "w": 1086,
-            "h": 1448
-          },
           {
             "src": "/gallery/doors/diamond-door/01.webp",
             "w": 893,

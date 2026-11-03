@@ -11,39 +11,35 @@ export const metadata: Metadata = {
     "From shastra to sanctum, the Paramount process: design, carving, cladding, polishing and installation of Jain and Hindu temple artifacts.",
 };
 
-// The client's four stages, in their words. Each photo is an in-situ GALLERY
-// shot chosen to READ AS its stage — a designed ceiling, the carving itself, a
-// polished finish, an installed sanctum. Gallery photography may be cropped to
-// the full-height stage; the white-ground studio cut-outs must not be (client
-// mandate).
+// The client's four stages and selected process photographs, in order.
 const STEPS: Stage[] = [
   {
     n: "01",
     title: "Design Development",
     body: "Every piece begins with detailed designing as per size requirement that focuses on combining traditional craftsmanship with modern manufacturing. The company develops designs with emphasis on aesthetic detailing, precision, customization and functionality ensuring that each piece reflects the spiritual and architectural significance of the space.",
-    img: "/gallery/wooden-ceiling/all/00.webp",
-    alt: "Carved wooden ceiling of a derasar, seen from below",
+    img: "/craft/design-drawings.jpg",
+    alt: "Dimensioned drawings of a temple door surrounded by sketches and a ruler",
   },
   {
     n: "02",
     title: "Execution & Manufacturing",
     body: "The company follows a meticulous execution process to transform designs into finely crafted products using high quality raw materials. Skilled craftsmen carry out precision wood working, carving, joinery and metal works. Each process is carefully monitored to ensure strength, durability and flawless detailing resulting in products that uphold the highest standards of craftsmanship and quality.",
-    img: "/gallery/doors/extra-deep-carving/00.webp",
-    alt: "Extra-deep carved wooden temple door",
+    img: "/craft/panel-carving.jpg",
+    alt: "An artisan working by hand on an ornate panel",
   },
   {
     n: "03",
     title: "Final Touch",
     body: "This stage focusses on bringing out the fine detailing and richness of each product by carrying out polishing, finishing and detailing processes to achieve a smooth, refined and premium appearance ready for installation and long lasting use.",
-    img: "/gallery/kalash/all/00.webp",
-    alt: "Polished silver kalash",
+    img: "/craft/finishing-details.jpg",
+    alt: "Artisans finishing the floral details on a temple canopy",
   },
   {
     n: "04",
     title: "Installation",
     body: "Sized to the space and properly assembled, each piece is carefully aligned and securely installed while maintaining the aesthetics of sacred spaces. Attention is given to every finishing touch, ensuring a seamless, elegant and perfectly finished installation that meets the highest standards of quality, built to last.",
-    img: "/gallery/pichwadi/all/03.webp",
-    alt: "Installed sanctum with a silver pichwadi behind the idol",
+    img: "/gallery/wooden-ceiling/all/00.webp",
+    alt: "Installed wooden ceiling framed by white marble pillars, viewed from below",
   },
 ];
 
